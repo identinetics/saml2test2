@@ -1,4 +1,6 @@
 import logging
+import urllib
+from urllib.parse import urlencode
 from aatest import Break
 from aatest.operation import Operation
 
@@ -40,6 +42,7 @@ class Request(Operation):
         self.relay_state = ''
         self.request_id = ''
         self.response_args = {}
+        self.request_inst = None
 
     def expected_error_response(self, response):
         if isinstance(response, SAMLError):
@@ -51,71 +54,6 @@ class Request(Operation):
 
     def _make_request(self):
         raise NotImplemented
-
-
-class HttpRedirectRequest(Request):
-    _class = None
-    _args = {}
-    _method = 'GET'
-
-    def run(self):
-        info = self._make_request()
-        _method = info['method']
-        _loc = ''
-        for header, value in info['headers']:
-            if header == 'Location':
-                _loc = value
-                break
-
-        self.response_args["outstanding"] = {self.request_id: "/"}
-        self.trace.info("redirect.url: {}".format(_loc))
-        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
-        res = self.client.send(_loc, _method)
-        self.trace.info("redirect response: {}".format(res.text))
-        return res
-
-
-class HttpRedirectAuthnRequest(HttpRedirectRequest):
-    request = "authn_request"
-    tests = {}
-
-    def _make_request(self):
-        """
-        A slightly modified version of the
-        prepare_for_negotiated_authenticate() method of saml2.client.Saml2Client
-        :return: Information necessary to do a requests.request operation
-        """
-        _cli = self.client
-
-        _binding = BINDING_HTTP_REDIRECT
-        args = {'binding': _binding}
-        try:
-            args['entityid'] = self.req_args['entityid']
-        except KeyError:
-            pass
-
-        destination = _cli._sso_location(**args)
-
-        logger.info("destination to provider: %s", destination)
-
-        self.request_id, request = _cli.create_authn_request(
-            destination=destination, **self.req_args)
-
-        self.conv.protocol_request.append(request)
-
-        _req_str = str(request)
-
-        logger.info("AuthNReq: %s", _req_str)
-
-        args = {}
-        for param in ['sigalg', 'relay_state']:
-            try:
-                args[param] = self.req_args[param]
-            except KeyError:
-                pass
-
-        http_info = _cli.apply_binding(_binding, _req_str, destination, **args)
-        return http_info
 
     def op_setup(self):
         metadata = self.conv.client.metadata
@@ -145,9 +83,149 @@ class HttpRedirectAuthnRequest(HttpRedirectRequest):
                         self.req_args["response_binding"] = bind
                         break
 
-    def handle_response(self, result):
+
+class RedirectRequest(Request):
+    _class = None
+    _args = {}
+    _method = 'GET'
+
+    def run(self):
+        info = self._make_request()
+        _method = info['method']
+        _loc = ''
+        for header, value in info['headers']:
+            if header == 'Location':
+                _loc = value
+                break
+
+        self.trace.info("redirect.url: {}".format(_loc))
+        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
+        res = self.client.send(_loc, _method)
+        self.trace.info("redirect response: {}".format(res.text))
+        return res
+
+
+def unpack_form(_str, ver="SAMLRequest"):
+    SR_STR = "name=\"%s\" value=\"" % ver
+    RS_STR = 'name="RelayState" value="'
+
+    i = _str.find(SR_STR)
+    i += len(SR_STR)
+    j = _str.find('"', i)
+
+    sr = _str[i:j]
+
+    k = _str.find(RS_STR, j)
+    k += len(RS_STR)
+    l = _str.find('"', k)
+
+    rs = _str[k:l]
+
+    return {ver: sr, "RelayState": rs}
+
+
+def form_post(_dict):
+    return urlencode(_dict)
+
+
+class PostRequest(Request):
+    _class = None
+    _args = {}
+    _method = 'POST'
+
+    def run(self):
+        send_args = self._make_request()
+        # _method = info['method']
+        _loc = send_args['url']
+        self.trace.info("post.url: {}".format(_loc))
+        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
+        res = self.client.send(**send_args)
+        self.trace.info("post response: {}".format(res.text))
+        return res
+
+
+class ProtocolMessage(object):
+    def __init__(self, conv, req_args, binding):
+        self.conv = conv
+        self.client = conv.client
+        self.req_args = req_args
+        self.binding = binding
+
+    def make_request(self):
+        raise NotImplementedError
+
+
+class AuthnRequest(ProtocolMessage):
+    def make_request(self):
+        """
+        A slightly modified version of the
+        prepare_for_negotiated_authenticate() method of saml2.client.Saml2Client
+        :return: Information necessary to do a requests.request operation
+        """
+
+        args = {'binding': self.binding}
+        try:
+            args['entityid'] = self.req_args['entityid']
+        except KeyError:
+            pass
+
+        destination = self.client._sso_location(**args)
+
+        logger.info("destination to provider: %s", destination)
+
+        request_id, request = self.client.create_authn_request(
+            destination=destination, **self.req_args)
+
+        self.conv.protocol_request.append(request)
+
+        _req_str = str(request)
+
+        logger.info("AuthNReq: %s", _req_str)
+
+        args = {}
+        for param in ['sigalg', 'relay_state']:
+            try:
+                args[param] = self.req_args[param]
+            except KeyError:
+                pass
+
+        http_info = self.client.apply_binding(self.binding, _req_str,
+                                              destination, **args)
+        return http_info, request_id
+
+    def handle_response(self, result, response_args):
         _cli = self.conv.client
         resp = _cli.parse_authn_request_response(
             result['SAMLResponse'], self.req_args['response_binding'],
-            self.response_args["outstanding"])
+            response_args["outstanding"])
         self.conv.protocol_response.append(resp)
+
+
+class AuthnRedirectRequest(RedirectRequest):
+    request = "authn_request"
+    tests = {}
+
+    def _make_request(self):
+        self.request_inst = AuthnRequest(self.conv, self.req_args,
+                                         binding=BINDING_HTTP_REDIRECT)
+        http_info, request_id = self.request_inst.make_request()
+        self.response_args["outstanding"] = {request_id: "/"}
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
+
+
+class AuthnPostRequest(PostRequest):
+    request = "authn_request"
+    tests = {}
+
+    def _make_request(self):
+        self.request_inst = AuthnRequest(self.conv, self.req_args,
+                                         binding=BINDING_HTTP_POST)
+        http_info, request_id = self.request_inst.make_request()
+        self.response_args["outstanding"] = {request_id: "/"}
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)

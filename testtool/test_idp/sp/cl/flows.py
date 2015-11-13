@@ -1,72 +1,89 @@
 from aatest.func import set_request_args
 
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
-from saml2test.request import HttpRedirectAuthnRequest
+from saml2.saml import NAMEID_FORMAT_EMAILADDRESS
+from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
+from saml2test.request import AuthnRedirectRequest
+from saml2test.request import AuthnPostRequest
 from saml2test.check_metadata import CheckSaml2IntMetaData
 
 __author__ = 'roland'
 
-ORDDESC = ["IDP-Connection"]
-
 DESC = {
-    "Metadata": "Metadata",
-    "Connection": "Connection",
-    "AuthnHttpRedirect": "AuthnHttpRedirect",
+    "IDP-Metadata": "Metadata",
+    "IDP-Connection": "Connection",
+    "IDP-AuthnRedirect": "AuthnRedirect",
+    "IDP-AuthnPost": "AuthnRedirect",
 }
+
+ORDDESC = ["IDP-Metadata", "IDP-Connection", "IDP-AuthnRedirect",
+           "IDP-AuthnPost"]
 
 FLOWS = {
     'IDP-Metadata-verify': {
-        'tc_id': "mv",
+        'tc_id': "idp-mv",
         "desc": 'Verifies that the IdP metadata adheres to the saml2int spec',
         "sequence": [CheckSaml2IntMetaData],
         "profile": ".",
     },
     'IDP-Connection-verify': {
-        'tc_id': "S2c-16",
+        'tc_id': "idp-con-01",
         "desc": 'Uses AuthnRequest to check connectivity',
-        "sequence": [HttpRedirectAuthnRequest],
+        "sequence": [AuthnRedirectRequest],
         "profile": ".",
     },
-    'AuthnHttpRedirect-nid_transient': {
-        "tc_id": "S2c-10",
+    'IDP-AuthnRedirect-nid_transient': {
+        "tc_id": "idp-auth-re-01",
         "name": 'AuthnRequest, NameID-trans',
-        "descr": 'Basic SAML2 AuthnRequest, HTTP-Redirect, '
+        "desc": 'Basic SAML2 AuthnRequest, HTTP-Redirect, '
                  'transient name ID',
         "sequence": [
-            (HttpRedirectAuthnRequest,
+            (AuthnRedirectRequest,
              {set_request_args: {"nameid_format": NAMEID_FORMAT_TRANSIENT}})],
         'profile': '.',
         'tests': {
             'verify_subject': {'name_id.format': NAMEID_FORMAT_TRANSIENT}
         }
     },
-    # 'authn-nid_email': {
-    #     "tc_id": "S2c-20",
-    #     "name": 'AuthnRequest email nameID',
-    #     "descr": 'Basic SAML2 AuthnRequest, HTTP-Redirect, NameID-email'
-    #              'specified',
-    #     "sequence": [AuthnRequestNID_Email],
-    #     "tests": {"pre": [CheckSaml2IntMetaData],
-    #               "post": []},
-    #     "depend":["authn"]
-    # },
-    # 'authn-nid_no': {
-    #     "tc_id": "S2c-21",
-    #     "name": 'AuthnRequest no NameID format',
-    #     "descr": 'Basic SAML2 AuthnRequest, HTTP-Redirect, no NameID format '
-    #              'specified',
-    #     "sequence": [AuthnRequestNID_no],
-    #     "tests": {"pre": [CheckSaml2IntMetaData],
-    #               "post": []},
-    #     "depend":["authn"]
-    # },
-    # 'authn-nid_unspecified': {
-    #     "tc_id": "S2c-21",
-    #     "name": 'AuthnRequest using unspecified NameID format',
-    #     "descr": 'Basic SAML2 AuthnRequest, HTTP-Redirect, NameID-unspec',
-    #     "sequence": [AuthnRequestNID_Unspecified],
-    #     "tests": {"pre": [CheckSaml2IntMetaData],
-    #               "post": []},
-    #     "depend":["authn"]
-    # },
+    'IDP-AuthnRedirect-nid_email': {
+        "tc_id": "idp-auth-re-02",
+        "name": 'AuthnRequest, email nameID',
+        "desc": 'Basic SAML2 AuthnRequest, HTTP-Redirect, NameID-email '
+                 'specified',
+        "sequence": [
+            (AuthnRedirectRequest,
+             {set_request_args: {
+                 "nameid_format": NAMEID_FORMAT_EMAILADDRESS}})],
+        'profile': '.',
+        'tests': {
+            'verify_subject': {'name_id.format': NAMEID_FORMAT_EMAILADDRESS}
+        }
+    },
+    'IDP-AuthnRedirect-no_nid': {
+        "tc_id": "idp-auth-re-03",
+        "name": 'AuthnRequest no specified nameID format',
+        "desc": 'Basic SAML2 AuthnRequest, HTTP-Redirect, no NameID format '
+                 'specified',
+        "sequence": [
+            (AuthnRedirectRequest,
+             {set_request_args: {"nameid_format": ''}})],
+        'profile': '.',
+    },
+    'IDP-AuthnRedirect-nid_unspecified': {
+        "tc_id": "idp-auth-re-04",
+        "name": 'AuthnRequest with unspecified nameID format',
+        "desc": 'Basic SAML2 AuthnRequest, HTTP-Redirect, NameID-unspec',
+        "sequence": [
+            (AuthnRedirectRequest,
+             {set_request_args: {"nameid_format": NAMEID_FORMAT_UNSPECIFIED}})],
+        'profile': '.',
+    },
+    'IDP-AuthnPost': {
+        "tc_id": "idp-auth-post-01",
+        "name": 'Basic SAML2 AuthnRequest using HTTP POST',
+        "desc": 'AuthnRequest using HTTP-POST',
+        "sequence": [AuthnPostRequest],
+        'profile': '.',
+    },
+    
 }

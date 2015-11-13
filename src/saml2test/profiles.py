@@ -1,8 +1,8 @@
-from saml2test.request import HttpRedirectAuthnRequest
+from saml2test.request import AuthnRedirectRequest
 
 __author__ = 'roland'
 
 
 PROFILEMAP = {
-    HttpRedirectAuthnRequest: {"": {}}
+    AuthnRedirectRequest: {"": {}}
 }
