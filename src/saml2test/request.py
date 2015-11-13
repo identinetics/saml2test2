@@ -2,12 +2,12 @@ import logging
 from aatest import Break
 from aatest.operation import Operation
 
-#from saml2 import samlp
+# from saml2 import samlp
 from saml2 import SAMLError
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
 
-#from saml2.mdstore import REQ2SRV
+# from saml2.mdstore import REQ2SRV
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
 from saml2.time_util import utc_time_sans_frac
@@ -80,10 +80,42 @@ class HttpRedirectAuthnRequest(HttpRedirectRequest):
     tests = {}
 
     def _make_request(self):
-        self.request_id, info = self.client.prepare_for_authenticate(
-            **self.req_args)
+        """
+        A slightly modified version of the
+        prepare_for_negotiated_authenticate() method of saml2.client.Saml2Client
+        :return: Information necessary to do a requests.request operation
+        """
+        _cli = self.client
 
-        return info
+        _binding = BINDING_HTTP_REDIRECT
+        args = {'binding': _binding}
+        try:
+            args['entityid'] = self.req_args['entityid']
+        except KeyError:
+            pass
+
+        destination = _cli._sso_location(**args)
+
+        logger.info("destination to provider: %s", destination)
+
+        self.request_id, request = _cli.create_authn_request(
+            destination=destination, **self.req_args)
+
+        self.conv.protocol_request.append(request)
+
+        _req_str = str(request)
+
+        logger.info("AuthNReq: %s", _req_str)
+
+        args = {}
+        for param in ['sigalg', 'relay_state']:
+            try:
+                args[param] = self.req_args[param]
+            except KeyError:
+                pass
+
+        http_info = _cli.apply_binding(_binding, _req_str, destination, **args)
+        return http_info
 
     def op_setup(self):
         metadata = self.conv.client.metadata
@@ -93,7 +125,7 @@ class HttpRedirectAuthnRequest(HttpRedirectRequest):
             raise MissingMetadata("No metadata available for {}".format(
                 self.conv.entity_id))
 
-        for arg in ['nameid_format', 'request_binding']:
+        for arg in ['nameid_format', 'response_binding']:
             if not arg in self.req_args:
                 self.req_args[arg] = ''
 
@@ -106,16 +138,16 @@ class HttpRedirectAuthnRequest(HttpRedirectRequest):
                         self.req_args["nameid_format"] = nformat
                         break
             for bind in self.bindings:
-                if self.req_args["request_binding"]:
+                if self.req_args["response_binding"]:
                     break
                 for sso in idp["single_sign_on_service"]:
                     if sso["binding"] == bind:
-                        self.req_args["request_binding"] = bind
+                        self.req_args["response_binding"] = bind
                         break
 
     def handle_response(self, result):
         _cli = self.conv.client
         resp = _cli.parse_authn_request_response(
-            result['SAMLResponse'], self.req_args['request_binding'],
+            result['SAMLResponse'], self.req_args['response_binding'],
             self.response_args["outstanding"])
         self.conv.protocol_response.append(resp)

@@ -1,0 +1,12 @@
+IDP-Metadata-verify:
+  tc_id: mv
+  desc: Verifies that the IdP metadata adheres to the saml2int spec
+  sequence:
+    - CheckSaml2IntMetaData
+  profile: .
+IDP-Connection-verify:
+  tc_id: S2c-16
+  desc: Uses AuthnRequest to check connectivity
+  sequence:
+    - HttpRedirectAuthnRequest
+  profile: .

@@ -4,11 +4,11 @@ from urllib.parse import parse_qs
 from aatest import tool, FatalError
 from aatest import exception_trace
 from aatest import Trace
+from aatest.check import ERROR
 from aatest.conversation import Conversation
 from aatest.interaction import Action, InteractionNeeded
 
 from saml2test.common import make_client
-from saml2test.check import ERROR
 
 logger = logging.getLogger(__name__)
 
