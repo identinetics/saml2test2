@@ -38,9 +38,9 @@ class ClTester(tool.Tester):
 
         self.sh.session_setup(path=test_id)
         _flow = self.flows[test_id]
-        _cli = make_client(**kw_args)
+        _cli = make_client(_flow["sp"], **kw_args)
         self.conv = Conversation(_flow, _cli, kw_args["msg_factory"],
-                                 trace_cls=Trace)
+                                 trace_cls=Trace, **kw_args["conv_args"])
         self.conv.entity_id = kw_args["entity_id"]
         _cli.conv = self.conv
         self.conv.sequence = self.sh.session["sequence"]

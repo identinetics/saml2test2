@@ -15,9 +15,9 @@ from saml2test.common import map_prof
 from saml2test.common import Trace
 from saml2test.prof_util import ProfileHandler
 from saml2test.tool import ClTester
+from saml2test.util import collect_ec, read_multi_conf, parse_yaml_conf
 
 __author__ = 'roland'
-
 
 logger = logging.getLogger("")
 
@@ -69,35 +69,47 @@ if __name__ == '__main__':
     parser.add_argument('-t', dest="testid")
     parser.add_argument('-e', dest="entity_id")
     parser.add_argument('-k', dest="insecure", action='store_true')
+    parser.add_argument('-y', dest='yamlflow')
     parser.add_argument(dest="config")
     cargs = parser.parse_args()
 
-    if cargs.flows is None:
-        FLOWS = importlib.import_module("flows")
-    elif "/" in cargs.flows:
-        head, tail = os.path.split(cargs.flows)
-        sys.path.insert(0, head)
-        if tail.endswith(".py"):
-            tail = tail[:-3]
-        FLOWS = importlib.import_module(tail)
+    if cargs.yamlflow:
+        spec = parse_yaml_conf(cargs.yamlflow)
+        _flows = spec['Flows']
+        _order = spec['Order']
+        _desc = spec['Desc']
     else:
-        FLOWS = importlib.import_module(cargs.flows)
+        if cargs.flows is None:
+            FLOWS = importlib.import_module("flows")
+        elif "/" in cargs.flows:
+            head, tail = os.path.split(cargs.flows)
+            sys.path.insert(0, head)
+            if tail.endswith(".py"):
+                tail = tail[:-3]
+            FLOWS = importlib.import_module(tail)
+        else:
+            FLOWS = importlib.import_module(cargs.flows)
+        _flows = FLOWS.FLOWS
+        _order = FLOWS.ORDER
+        _desc = FLOWS.DESC
 
     CONF = importlib.import_module(cargs.config)
+    spconf = read_multi_conf(CONF)
 
     if cargs.log_name:
         setup_logger(logger, cargs.log_name)
     else:
         setup_logger(logger)
 
-    kwargs = {"base_url": CONF.BASE, "flows": FLOWS.FLOWS, "conf": CONF,
-              "orddesc": FLOWS.ORDDESC, "profiles": profiles,
+    kwargs = {"base_url": CONF.BASE, "flows": _flows, "conf": CONF,
+              'spconf': spconf, "orddesc": _order, "profiles": profiles,
               "operation": request, "profile": cargs.profile,
-              "msg_factory": saml_message_factory, "desc": FLOWS.DESC,
+              "msg_factory": saml_message_factory, "desc": _desc,
               "check_factory": check_factory, "profile_handler": ProfileHandler,
               "cache": {}, "entity_id": cargs.entity_id,
               'map_prof': map_prof, 'make_client': make_client,
-              'trace_cls': Trace}
+              'trace_cls': Trace,
+              'conv_args': {'entcat': collect_ec()}}
 
     if cargs.insecure:
         kwargs["insecure"] = True

@@ -7,7 +7,6 @@ __author__ = 'roland'
 
 
 class Trace(aatest.Trace):
-
     @staticmethod
     def format(resp):
         _d = {"claims": resp.to_dict()}
@@ -28,9 +27,8 @@ class Trace(aatest.Trace):
         self.trace.append("%f %s: %s" % (delta, cl_name, txt))
 
 
-def make_client(**kw_args):
-    conf = SPConfig().load(kw_args["conf"].CONFIG)
-    return Saml2Client(config=conf)
+def make_client(sp, **kw_args):
+    return Saml2Client(config=kw_args["spconf"][sp])
 
 
 def map_prof(a, b):

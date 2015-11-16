@@ -1,11 +1,12 @@
+import inspect
 import logging
 import urllib
 from urllib.parse import urlencode
-from aatest import Break
+from aatest import Break, Unknown
 from aatest.operation import Operation
 
 # from saml2 import samlp
-from saml2 import SAMLError
+from saml2 import SAMLError, BINDING_SOAP
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
 
@@ -13,6 +14,7 @@ from saml2 import BINDING_HTTP_REDIRECT
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
 from saml2.time_util import utc_time_sans_frac
+import sys
 
 __author__ = 'roland'
 
@@ -144,6 +146,22 @@ class PostRequest(Request):
         return res
 
 
+class SoapRequest(Request):
+    _class = None
+    _args = {}
+    _method = 'POST'
+
+    def run(self):
+        send_args = self._make_request()
+        # _method = info['method']
+        _loc = send_args['url']
+        self.trace.info("post.url: {}".format(_loc))
+        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
+        res = self.client.send(**send_args)
+        self.trace.info("post response: {}".format(res.text))
+        return res
+
+
 class ProtocolMessage(object):
     def __init__(self, conv, req_args, binding):
         self.conv = conv
@@ -229,3 +247,27 @@ class AuthnPostRequest(PostRequest):
 
     def handle_response(self, result, *args):
         self.request_inst.handle_response(result, self.response_args)
+
+
+class AttributeQuery(SoapRequest):
+    request = "authn_request"
+    tests = {}
+
+    def _make_request(self):
+        self.request_inst = AuthnRequest(self.conv, self.req_args,
+                                         binding=BINDING_SOAP)
+        http_info, request_id = self.request_inst.make_request()
+        self.response_args["outstanding"] = {request_id: "/"}
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
+
+
+def factory(name):
+    for fname, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.isclass(obj):
+            if name == fname:
+                return obj
+
+    raise Unknown("Couldn't find the operation: '{}'".format(name))
