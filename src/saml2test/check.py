@@ -4,6 +4,8 @@ from aatest import Unknown
 from aatest.check import CRITICAL
 from aatest.check import Check
 import sys
+from saml2.entity_category.edugain import COCO
+from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
 from saml2.response import AuthnResponse
 from saml2.samlp import Response, AuthnRequest
 
@@ -67,7 +69,7 @@ class VerifyAttributes(Check):
         entcat = conv.extra_args["entcat"]
 
         # Do I really care about optional attributes ?
-        op_attr = conf.getattr('optional_attributes', 'sp')
+        #op_attr = conf.getattr('optional_attributes', 'sp')
         req_attr = conf.getattr('required_attributes', 'sp')
 
         ec_attr = []
@@ -96,44 +98,98 @@ class VerifyAttributes(Check):
         return res
 
 
+def verify_rs_compliance(ava, *args):
+    """
+    Excerpt from https://refeds.org/category/research-and-scholarship
+    The following attributes constitute a minimal subset of the R&S attribute
+    bundle:
+
+    - eduPersonPrincipalName
+    - mail
+    - displayName OR (givenName AND sn)
+    For the purposes of access control, a non-reassigned persistent identifier is
+    required. If your deployment of eduPersonPrincipalName is non-reassigned, it
+    will suffice. Otherwise you MUST release eduPersonTargetedID (which is
+    non-reassigned by definition) in addition to eduPersonPrincipalName. In any
+    case, release of both identifiers is RECOMMENDED.
+    """
+    for attr in ['eduPersonPrincipalName', 'mail']:
+        if attr not in ava:
+            return False
+
+    if 'displayName' not in ava:
+        if 'givenName' in ava and 'sn' in ava:
+            pass
+        else:
+            return False
+
+    return True
+
+
+def verify_coco_compliance(ava, *args):
+    """
+    Release only attributes that are required by the SP and part of the
+    CoCo set of attributes.
+
+    :param ava: Attribute - Value assertion
+    :param req: Required attributes
+    :return: True or False
+    """
+    req, ec_attr = args
+
+    missing = []
+    excess = []
+
+    for attr in ec_attr:
+        if attr in req:
+            if attr not in ava:
+                missing.append(attr)
+        else:
+            if attr in ava:
+                excess.append(attr)
+
+    if missing:
+        return False
+
+    return True
+
+
+
+VERIFY = {
+    RESEARCH_AND_SCHOLARSHIP: verify_rs_compliance,
+    COCO: verify_coco_compliance
+}
+
+
 class VerifyEntityCategory(Check):
     """ Verify Entity Category Compliance """
 
     cid = 'verify_entity_category'
 
-    # Excerpt from https://refeds.org/category/research-and-scholarship
-    # The following attributes constitute a minimal subset of the R&S attribute
-    # bundle:
-    #
-    # - eduPersonPrincipalName
-    # - mail
-    # - displayName OR (givenName AND sn)
-    # For the purposes of access control, a non-reassigned persistent identifier is
-    # required. If your deployment of eduPersonPrincipalName is non-reassigned, it
-    # will suffice. Otherwise you MUST release eduPersonTargetedID (which is
-    # non-reassigned by definition) in addition to eduPersonPrincipalName. In any
-    # case, release of both identifiers is RECOMMENDED.
-
-
-    def verify_rs_compliance(ava):
-        for attr in ['eduPersonPrincipalName', 'mail']:
-            if attr not in ava:
-                return False
-
-        if 'displayName' not in ava:
-            if 'givenName' in ava and 'sn' in ava:
-                pass
-            else:
-                return False
-
-        return True
-
     def __call__(self, conv=None, output=None):
         conf = conv.client.config
         ava = get_message(conv.protocol_response, AuthnResponse).ava
+        req_attr = conf.getattr('required_attributes', 'sp')
+        entcat = conv.extra_args["entcat"]
 
-        for ec in conf.entity_category:
+        self.ec = conf.entity_category
+        non_compliant = []
+        if self.ec:
+            for ec in conf.entity_category:
+                if not VERIFY[ec](ava, req_attr, entcat[ec]):
+                    non_compliant.append(ec)
 
+        if non_compliant:
+            res = {
+                'message': "Not compliant with entity categories: {}".format(
+                    non_compliant
+                ),
+                'status': CRITICAL
+            }
+        else:
+            res = {}
+
+        return res
 
 
 CLASS_CACHE = {}
