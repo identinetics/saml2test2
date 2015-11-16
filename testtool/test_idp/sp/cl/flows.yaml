@@ -91,23 +91,22 @@ Flows:
     tests:
       verify_attributes: {}
   IDP-EntityCategory-coco:
-    desc: Uses AuthnRequest to verify entity category support
+    desc: Uses AuthnRequest to verify CoCo entity category support
     profile: .
     sequence:
       - AuthnRedirectRequest
     sp: coco
     tc_id: idp-coco-01
     tests:
-      verify_attributes:
-        attributes:
-          - eduPersonTargetedID
-          - eduPersonPersistentName
+      verify_entity_category: {}
 
 Order:
   - IDP-Metadata
   - IDP-Connection
   - IDP-AuthnRedirect
+  - IDP-EntityCategory
 Desc:
   IDP-Metadata: Idp metadata
   IDP-Connection: IdP Connection
   IDP-AuthnRedirect: IDP Authentication Redirect
+  IDP-EntityCategory: Entity Category Compliance
