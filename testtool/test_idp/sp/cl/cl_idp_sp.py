@@ -16,6 +16,7 @@ from saml2test.common import Trace
 from saml2test.prof_util import ProfileHandler
 from saml2test.tool import ClTester
 from saml2test.util import collect_ec, read_multi_conf, parse_yaml_conf
+from saml2test.io import SamlClIO
 
 __author__ = 'roland'
 
@@ -115,7 +116,7 @@ if __name__ == '__main__':
         kwargs["insecure"] = True
 
     if cargs.testid:
-        io = ClIO(**kwargs)
+        io = SamlClIO(**kwargs)
         sh = SessionHandler(session={}, **kwargs)
         sh.init_session({}, profile=cargs.profile)
         tester = ClTester(io, sh, **kwargs)

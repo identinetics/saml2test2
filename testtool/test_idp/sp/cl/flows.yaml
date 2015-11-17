@@ -104,9 +104,12 @@ Order:
   - IDP-Metadata
   - IDP-Connection
   - IDP-AuthnRedirect
+  - IDP-AuthnPost
   - IDP-EntityCategory
+
 Desc:
   IDP-Metadata: Idp metadata
   IDP-Connection: IdP Connection
-  IDP-AuthnRedirect: IDP Authentication Redirect
+  IDP-AuthnRedirect: IDP Authentication HTTP Redirect
+  IDP-AuthnPost: IDP Authentication using HTTP POST
   IDP-EntityCategory: Entity Category Compliance

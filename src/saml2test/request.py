@@ -207,8 +207,16 @@ class AuthnRequest(ProtocolMessage):
             except KeyError:
                 pass
 
-        http_info = self.client.apply_binding(self.binding, _req_str,
-                                              destination, **args)
+        if self.binding == BINDING_HTTP_POST:
+            if 'relay_state' not in args:
+                args['relay_state'] = ''
+            args['typ'] = 'SAMLRequest'
+            http_info = self.client.use_http_post(_req_str, destination, **args)
+            http_info["url"] = destination
+            http_info["method"] = "POST"
+        else:
+            http_info = self.client.apply_binding(self.binding, _req_str,
+                                                  destination, **args)
         return http_info, request_id
 
     def handle_response(self, result, response_args):

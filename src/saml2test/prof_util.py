@@ -1,5 +1,6 @@
 from aatest import prof_util
 from aatest.time_util import in_a_while
+from saml2.time_util import utc_now
 
 __author__ = 'roland'
 
@@ -9,7 +10,7 @@ class ProfileHandler(prof_util.ProfileHandler):
         try:
             _conv = self.session["conv"]
         except KeyError:
-            pass
+            res = {}
         else:
             try:
                 md = list(_conv.client.metadata.metadata.values())[0]
@@ -25,12 +26,15 @@ class ProfileHandler(prof_util.ProfileHandler):
                 except KeyError:
                     return {}
 
-            return {"Issuer": iss, "Profile": profile,
-                    "Test ID": test_id,
-                    "Test description": self.session["node"].desc,
-                    "Timestamp": in_a_while()}
+            res = {
+                "Issuer": iss,
+                "Profile": profile,
+                "Test ID": test_id,
+                "Test description": self.session["flow"]['desc'],
+                "Timestamp": utc_now()
+            }
 
-        return {}
+        return res
 
     def to_profile(self, representation="list"):
         return None
