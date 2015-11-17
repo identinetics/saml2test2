@@ -99,6 +99,15 @@ Flows:
     tc_id: idp-coco-01
     tests:
       verify_entity_category: {}
+  IDP-EntityCategory-ras:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: .
+    sequence:
+      - AuthnRedirectRequest
+    sp: research_and_scholarship
+    tc_id: idp-ras-01
+    tests:
+      verify_entity_category: {}
   IDP-Logout-soap:
     tc_id: S2c-03,
     desc: An Authnrequest followed by a logout request,
