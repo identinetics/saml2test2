@@ -1,4 +1,5 @@
-from saml2 import BINDING_HTTP_REDIRECT
+from saml2 import BINDING_HTTP_REDIRECT, BINDING_HTTP_ARTIFACT, BINDING_PAOS, \
+    BINDING_SOAP
 from saml2 import BINDING_HTTP_POST
 from saml2.entity_category.edugain import COCO
 from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
@@ -34,7 +35,13 @@ CONFIG = {
                 'endpoints': {
                     "assertion_consumer_service": [
                         ("{}/acs/redirect".format(BASE),BINDING_HTTP_REDIRECT),
-                        ("{}/acs/post".format(BASE), BINDING_HTTP_POST)
+                        ("{}/acs/post".format(BASE), BINDING_HTTP_POST),
+                        ("{}/acs/artifact".format(BASE), BINDING_HTTP_ARTIFACT),
+                        #("{}/acs/soap" % BASE, BINDING_SOAP),
+                        ("{}/ecp".format(BASE), BINDING_PAOS)
+                    ],
+                    "single_logout_service": [
+                        ("{}/slo".format(BASE), BINDING_SOAP)
                     ],
                 }
             },
@@ -115,64 +122,3 @@ CONFIG = {
         'xmlsec_binary': xmlsec_path
     }
 }
-
-IDP_BASE = "https://localhost:8088"
-
-INTERACTION = [
-    {
-        "matches": {
-            "url": "%s/sso/redirect" % IDP_BASE,
-            "title": 'IDP test login'
-        },
-        "page-type": "login",
-        "control": {
-            "type": "form",
-            "set": {"login": "roland", "password": "dianakra"}
-        }
-    }, {
-        "matches": {
-            "url": "%s/sso/post" % IDP_BASE,
-            "title": 'IDP test login'
-        },
-        "page-type": "login",
-        "control": {
-            "type": "form",
-            "set": {"login": "roland", "password": "dianakra"}
-        }
-    },
-    {
-        "matches": {
-            "url": "%s/sso/redirect" % IDP_BASE,
-            "title": "SAML 2.0 POST"
-        },
-        "page-type": "other",
-        "control": {
-            "index": 0,
-            "type": "form",
-        }
-    },
-    {
-        "matches": {
-            "url": "%s/sso/post" % IDP_BASE,
-            "title": "SAML 2.0 POST"
-        },
-        "page-type": "other",
-        "control": {
-            "index": 0,
-            "type": "form",
-            "set": {}
-        }
-    },
-    {
-        "matches": {
-            "url": "%s/slo/post" % IDP_BASE,
-            "title": "SAML 2.0 POST"
-        },
-        "page-type": "other",
-        "control": {
-            "index": 0,
-            "type": "form",
-            "set": {}
-        }
-    }
-]

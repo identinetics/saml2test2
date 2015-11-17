@@ -64,12 +64,13 @@ if __name__ == '__main__':
     from saml2.saml import factory as saml_message_factory
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('-e', dest="entity_id")
     parser.add_argument('-f', dest='flows')
+    parser.add_argument('-i', dest="interaction")
+    parser.add_argument('-k', dest="insecure", action='store_true')
     parser.add_argument('-l', dest="log_name")
     parser.add_argument('-p', dest="profile")
     parser.add_argument('-t', dest="testid")
-    parser.add_argument('-e', dest="entity_id")
-    parser.add_argument('-k', dest="insecure", action='store_true')
     parser.add_argument('-y', dest='yamlflow')
     parser.add_argument(dest="config")
     cargs = parser.parse_args()
@@ -99,6 +100,8 @@ if __name__ == '__main__':
 
     if cargs.log_name:
         setup_logger(logger, cargs.log_name)
+    elif cargs.testid:
+        setup_logger(logger, "{}.log".format(cargs.testid))
     else:
         setup_logger(logger)
 
@@ -109,8 +112,11 @@ if __name__ == '__main__':
               "check_factory": check_factory, "profile_handler": ProfileHandler,
               "cache": {}, "entity_id": cargs.entity_id,
               'map_prof': map_prof, 'make_client': make_client,
-              'trace_cls': Trace,
-              'conv_args': {'entcat': collect_ec()}}
+              'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()}}
+
+    if cargs.interaction:
+        kwargs['interaction_conf'] = importlib.import_module(
+            cargs.interaction).INTERACTION
 
     if cargs.insecure:
         kwargs["insecure"] = True
@@ -121,7 +127,7 @@ if __name__ == '__main__':
         sh.init_session({}, profile=cargs.profile)
         tester = ClTester(io, sh, **kwargs)
         tester.run(cargs.testid, **kwargs)
-        io.dump_log(sh.session, cargs.testid)
+        # io.dump_log(sh.session, cargs.testid)
     else:
         _sh = SessionHandler(session={}, **kwargs)
         _sh.init_session({}, profile=cargs.profile)

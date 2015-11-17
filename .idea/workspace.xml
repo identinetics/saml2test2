@@ -4,18 +4,14 @@
     <bookmark url="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.multi.xml" mnemonic="7" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa13b5fe-4151-4438-9810-4b48cda844b3" name="Default" comment="Continue conversion to usage of aatest framework">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/func.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/mk_metadata.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/util.py" />
+    <list default="true" id="aa13b5fe-4151-4438-9810-4b48cda844b3" name="Default" comment="Verify entity categories compliance.">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp_config.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf.py" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/interaction.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/check.py" afterPath="$PROJECT_DIR$/src/saml2test/check.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/check_metadata.py" afterPath="$PROJECT_DIR$/src/saml2test/check_metadata.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/common.py" afterPath="$PROJECT_DIR$/src/saml2test/common.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.py" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/prof_util.py" afterPath="$PROJECT_DIR$/src/saml2test/prof_util.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/func.py" afterPath="$PROJECT_DIR$/src/saml2test/func.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/request.py" afterPath="$PROJECT_DIR$/src/saml2test/request.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.xml" afterPath="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/tool.py" afterPath="$PROJECT_DIR$/src/saml2test/tool.py" />
@@ -33,8 +29,8 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/s2test$mk_metadata.coverage" NAME="mk_metadata Coverage Results" MODIFIED="1447668278446" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/testtool/test_idp/sp/cl" />
-    <SUITE FILE_PATH="coverage/s2test$cl_idp_sp.coverage" NAME="cl_idp_sp Coverage Results" MODIFIED="1447683828549" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/testtool/test_idp/sp/cl" />
+    <SUITE FILE_PATH="coverage/s2test$mk_metadata.coverage" NAME="mk_metadata Coverage Results" MODIFIED="1447704874671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/testtool/test_idp/sp/cl" />
+    <SUITE FILE_PATH="coverage/s2test$cl_idp_sp.coverage" NAME="cl_idp_sp Coverage Results" MODIFIED="1447779449640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/testtool/test_idp/sp/cl" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -49,54 +45,10 @@
         <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="122" column="0" selection-start-line="122" selection-start-column="0" selection-end-line="122" selection-end-column="0" />
+              <caret line="128" column="0" selection-start-line="128" selection-start-column="0" selection-end-line="128" selection-end-column="0" />
               <folding>
                 <element signature="e#23#39#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="conf_multi.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="89" column="40" selection-start-line="89" selection-start-column="40" selection-end-line="89" selection-end-column="40" />
-              <folding>
-                <element signature="e#0#39#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="sp.multi.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.multi.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="61" column="80" selection-start-line="61" selection-start-column="80" selection-end-line="61" selection-end-column="80" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mk_metadata.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/mk_metadata.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="40" column="17" selection-start-line="40" selection-start-column="17" selection-end-line="40" selection-end-column="17" />
-              <folding>
-                <element signature="e#22#37#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="tool.py" pinned="false" current-in-tab="false">
-        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -105,7 +57,47 @@
         <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/tool.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="107" column="0" selection-start-line="107" selection-start-column="0" selection-end-line="107" selection-end-column="0" />
+              <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="verify.py" pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/verify.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="check.py" pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/check.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="check.py" pinned="false" current-in-tab="true">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/check.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.33333334">
+              <caret line="319" column="0" selection-start-line="319" selection-start-column="0" selection-end-line="319" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tool.py" pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="203" column="0" selection-start-line="203" selection-start-column="0" selection-end-line="203" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -121,15 +113,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="flows.yaml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml">
+      <file leaf-file-name="request.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/saml2test/request.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="103" column="35" selection-start-line="103" selection-start-column="35" selection-end-line="103" selection-end-column="35" />
-              <folding>
-                <marker date="1447685987000" expanded="true" signature="2971:3078" placeholder="verify_attributes:" />
-                <marker date="1447685987000" expanded="true" signature="2998:3078" placeholder="attributes:" />
-              </folding>
+              <caret line="242" column="0" selection-start-line="242" selection-start-column="0" selection-end-line="242" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -138,7 +127,7 @@
         <entry file="file://$PROJECT_DIR$/src/saml2test/check.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="117" column="18" selection-start-line="117" selection-start-column="18" selection-end-line="117" selection-end-column="18" />
+              <caret line="307" column="28" selection-start-line="307" selection-start-column="28" selection-end-line="307" selection-end-column="28" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -146,14 +135,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="util.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/saml2test/util.py">
+      <file leaf-file-name="request.py" pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/request.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.862955">
-              <caret line="58" column="24" selection-start-line="58" selection-start-column="24" selection-end-line="58" selection-end-column="24" />
-              <folding>
-                <element signature="e#0#11#0" expanded="true" />
-              </folding>
+            <state vertical-scroll-proportion="0.0">
+              <caret line="237" column="0" selection-start-line="237" selection-start-column="0" selection-end-line="237" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -173,24 +160,17 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/func.py" />
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/request.py" />
-        <option value="$PROJECT_DIR$/src/request.py" />
-        <option value="$PROJECT_DIR$/src/check.py" />
-        <option value="$PROJECT_DIR$/setup.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/saml2test-1.0.0-py2.7.egg/saml2test/check.py" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/pki/mycert.pem" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/pki/mykey.pem" />
         <option value="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/aatest-0.1.0-py2.7.egg/aatest/conversation.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/aatest-0.1.0-py2.7.egg/aatest/common.py" />
         <option value="$PROJECT_DIR$/src/saml2test/profile.py" />
-        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/session.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/mdstore.py" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/local_idp.xml" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/profiles.py" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/tt.log" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.xml" />
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/interaction.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/tool.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
@@ -204,25 +184,33 @@
         <option value="$PROJECT_DIR$/LICENSE.txt" />
         <option value="$PROJECT_DIR$/README.rst" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/check.py" />
-        <option value="$PROJECT_DIR$/src/saml2test/prof_util.py" />
-        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/prof_util.py" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp_coco.xml" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_coco.py" />
-        <option value="$PROJECT_DIR$/src/saml2test/tool.py" />
         <option value="$PROJECT_DIR$/src/saml2test/common.py" />
-        <option value="$PROJECT_DIR$/src/saml2test/func.py" />
-        <option value="$PROJECT_DIR$/src/saml2test/request.py" />
         <option value="$PROJECT_DIR$/src/saml2test/check_metadata.py" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/test.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/util.py" />
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.py" />
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.multi.xml" />
         <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/mk_metadata.py" />
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py" />
-        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml" />
-        <option value="$PROJECT_DIR$/src/saml2test/check.py" />
         <option value="$PROJECT_DIR$/src/saml2test/util.py" />
+        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/attribute_converter.py" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.multi.xml" />
+        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/session.py" />
+        <option value="$PROJECT_DIR$/src/saml2test/io.py" />
+        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/io.py" />
+        <option value="$PROJECT_DIR$/src/saml2test/prof_util.py" />
+        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/prof_util.py" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/conf.py" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py" />
+        <option value="$PROJECT_DIR$/src/saml2test/func.py" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/sp_config.py" />
+        <option value="$PROJECT_DIR$/testtool/test_idp/sp/cl/interaction.py" />
+        <option value="$PROJECT_DIR$/src/saml2test/tool.py" />
+        <option value="/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py" />
+        <option value="$PROJECT_DIR$/src/saml2test/check.py" />
+        <option value="$PROJECT_DIR$/src/saml2test/request.py" />
       </list>
     </option>
   </component>
@@ -234,10 +222,10 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="64" />
-    <option name="y" value="23" />
+    <option name="x" value="-1401" />
+    <option name="y" value="-108" />
     <option name="width" value="1373" />
-    <option name="height" value="873" />
+    <option name="height" value="1002" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -429,7 +417,7 @@
       <module name="s2test" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py" />
-      <option name="PARAMETERS" value="-e https://localhost:8088/idp.xml -k -y flows.yaml -t IDP-AuthnRedirect-verify -p . conf_multi" />
+      <option name="PARAMETERS" value="-e https://localhost:8088/idp.xml -k -y flows.yaml -i interaction -t IDP-Logout-soap -p . conf_multi" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
     </configuration>
@@ -714,27 +702,51 @@
       <option name="project" value="LOCAL" />
       <updated>1447427222439</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Continue conversion to usage of aatest framework">
+      <created>1447697661176</created>
+      <option name="number" value="00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1447697661176</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Verify entity categories compliance.">
+      <created>1447700046429</created>
+      <option name="number" value="00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1447700046429</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Yaml configuration">
+      <created>1447703149624</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1447703149624</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Fixed some problems">
+      <created>1447757217529</created>
+      <option name="number" value="00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1447757217529</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="64" y="23" width="1373" height="873" extended-state="0" />
+    <frame x="-1401" y="-108" width="1373" height="1002" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32731378" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32650447" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2869081" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32637364" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290653" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22238918" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.36619717" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.36593786" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -756,9 +768,12 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added .idea to git ignore." />
-    <MESSAGE value="Continue conversion to usage of aatest framework" />
     <MESSAGE value="Added some descriptive files." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added some descriptive files." />
+    <MESSAGE value="Continue conversion to usage of aatest framework" />
+    <MESSAGE value="Verify entity categories compliance." />
+    <MESSAGE value="Yaml configuration" />
+    <MESSAGE value="Fixed some problems" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed some problems" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -809,7 +824,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py</url>
-          <line>133</line>
+          <line>140</line>
           <option name="timeStamp" value="30" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -824,7 +839,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py</url>
-          <line>121</line>
+          <line>128</line>
           <option name="timeStamp" value="53" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -854,22 +869,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py</url>
-          <line>208</line>
+          <line>203</line>
           <option name="timeStamp" value="65" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
-          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/io.py</url>
-          <line>53</line>
-          <option name="timeStamp" value="68" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py</url>
-          <line>122</line>
+          <line>129</line>
           <option name="timeStamp" value="69" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/request.py</url>
-          <line>219</line>
+          <line>308</line>
           <option name="timeStamp" value="73" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -884,149 +894,63 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py</url>
-          <line>96</line>
+          <line>98</line>
           <option name="timeStamp" value="82" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
-          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py</url>
-          <line>39</line>
-          <option name="timeStamp" value="83" />
+          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/metadata.py</url>
+          <line>737</line>
+          <option name="timeStamp" value="89" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/metadata.py</url>
+          <line>572</line>
+          <option name="timeStamp" value="90" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/metadata.py</url>
+          <line>240</line>
+          <option name="timeStamp" value="91" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/attribute_converter.py</url>
+          <line>226</line>
+          <option name="timeStamp" value="92" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/attribute_converter.py</url>
+          <line>426</line>
+          <option name="timeStamp" value="93" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py</url>
-          <line>76</line>
-          <option name="timeStamp" value="84" />
+          <line>124</line>
+          <option name="timeStamp" value="94" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/request.py</url>
+          <line>236</line>
+          <option name="timeStamp" value="100" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py</url>
-          <line>35</line>
-          <option name="timeStamp" value="88" />
+          <line>133</line>
+          <option name="timeStamp" value="101" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="89" />
+      <option name="time" value="102" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="conv.protocol_response" language="Python" />
         <watch expression="self.profile_handler(session)" language="Python" />
-        <watch expression="CNF.CONFIG" language="Python" />
+        <watch expression="self.session['flow']" language="Python" />
       </configuration>
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/client.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="78" column="40" selection-start-line="78" selection-start-column="40" selection-end-line="78" selection-end-column="40" />
-          <folding>
-            <marker date="1447685557000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1447685557000" expanded="true" signature="-1:-1" placeholder="&quot;&quot;&quot;Makes all necessary preparations for an authentication request....&quot;&quot;&quot;" />
-            <marker date="1447685557000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1447685557000" expanded="true" signature="-1:-1" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/tt.log">
-      <provider editor-type-id="com.intellij.database.editor.CsvTableFileEditorProvider">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="720.5517">
-          <caret line="1232" column="0" selection-start-line="1232" selection-start-column="0" selection-end-line="1232" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2/saml.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="25" column="26" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/session.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/err">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/client_base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="228" column="0" selection-start-line="228" selection-start-column="0" selection-end-line="228" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2/httpbase.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="266" column="31" selection-start-line="266" selection-start-column="31" selection-end-line="266" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2/pack.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/webob/request.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33230293">
-          <caret line="1296" column="8" selection-start-line="1296" selection-start-column="8" selection-end-line="1296" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/requests-2.7.0-py3.5.egg/requests/sessions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33230293">
-          <caret line="538" column="8" selection-start-line="538" selection-start-column="8" selection-end-line="538" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/entity.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="220" column="0" selection-start-line="220" selection-start-column="0" selection-end-line="220" selection-end-column="0" />
-          <folding>
-            <marker date="1447685557000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1447685557000" expanded="true" signature="-1:-1" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LICENSE.txt">
-      <provider editor-type-id="com.intellij.database.editor.CsvTableFileEditorProvider">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="21" selection-start-line="23" selection-start-column="21" selection-end-line="23" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.rst">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1047,67 +971,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="117" column="0" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/conf.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="29" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/check.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="86" column="0" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
-          <folding>
-            <marker date="1447667733000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1447667733000" expanded="true" signature="-1:-1" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/profiles.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="24" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/prof_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="68" selection-start-line="14" selection-start-column="68" selection-end-line="14" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#28#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/prof_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/verify.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/io.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1152,14 +1015,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/tool.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="40" column="21" selection-start-line="40" selection-start-column="21" selection-end-line="40" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/saml2test/common.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1173,27 +1028,9 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding>
-            <marker date="1447667733000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1447667733000" expanded="true" signature="-1:-1" placeholder="..." />
-            <marker date="1447667733000" expanded="true" signature="-1:-1" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/prof_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/func.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#14#0" expanded="false" />
+            <marker date="1447779665000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1447779665000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1447779665000" expanded="true" signature="-1:-1" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1211,7 +1048,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
           <folding>
-            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1242,20 +1079,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/request.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="236" column="22" selection-start-line="236" selection-start-column="6" selection-end-line="236" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="31" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
           <folding>
-            <element signature="e#0#40#0" expanded="true" />
+            <element signature="e#0#40#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1268,10 +1097,255 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="58" column="24" selection-start-line="58" selection-start-column="24" selection-end-line="58" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#11#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/mk_metadata.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="32" column="0" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+          <folding>
+            <element signature="e#22#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/metadata.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="240" column="0" selection-start-line="240" selection-start-column="0" selection-end-line="240" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.multi.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="224" column="0" selection-start-line="224" selection-start-column="0" selection-end-line="224" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/pysaml2-3.0.2-py3.5.egg/saml2/attribute_converter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="431" column="3" selection-start-line="431" selection-start-column="3" selection-end-line="431" selection-end-column="3" />
+          <folding>
+            <marker date="1447704970000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1447704970000" expanded="true" signature="-1:-1" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/profiles.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="24" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="34" selection-start-line="12" selection-start-column="38" selection-end-line="22" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/conversation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/io.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#35#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/prof_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="18" selection-start-line="36" selection-start-column="18" selection-end-line="36" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/prof_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+          <folding>
+            <marker date="1447779665000" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1447779665000" expanded="true" signature="-1:-1" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/prof_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/io.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="58" column="0" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/tt.log">
+      <provider editor-type-id="com.intellij.database.editor.CsvTableFileEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-17.586206">
+          <caret line="7777" column="65" selection-start-line="7777" selection-start-column="45" selection-end-line="7777" selection-end-column="65" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/IDP-AuthnPost-verify">
+      <provider editor-type-id="com.intellij.database.editor.CsvTableFileEditorProvider">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="8.275862">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="117" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="113" column="0" selection-start-line="113" selection-start-column="0" selection-end-line="113" selection-end-column="0" />
+          <folding>
+            <marker date="1447777137000" expanded="true" signature="-1:-1" placeholder="Flows:" />
+            <marker date="1447777137000" expanded="true" signature="-1:-1" placeholder="IDP-Logout-soap:" />
+            <marker date="1447777137000" expanded="true" signature="-1:-1" placeholder="tests:" />
+            <marker date="1447777137000" expanded="true" signature="-1:-1" placeholder="verify_logout:" />
+            <marker date="1447777137000" expanded="true" signature="-1:-1" placeholder="Order:" />
+            <marker date="1447777137000" expanded="true" signature="-1:-1" placeholder="Desc:" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/session.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/func.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="28" column="37" selection-start-line="28" selection-start-column="37" selection-end-line="28" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/sp_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="37" column="72" selection-start-line="37" selection-start-column="72" selection-end-line="37" selection-end-column="72" />
+          <folding>
+            <element signature="e#0#96#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/interaction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="50" column="13" selection-start-line="50" selection-start-column="13" selection-end-line="50" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/tool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="153" column="0" selection-start-line="153" selection-start-column="0" selection-end-line="153" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/interaction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="375" column="0" selection-start-line="375" selection-start-column="0" selection-end-line="375" selection-end-column="0" />
+          <folding>
+            <marker date="1447779304000" expanded="true" signature="-1:-1" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/saml2test/check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="307" column="28" selection-start-line="307" selection-start-column="28" selection-end-line="307" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="128" column="0" selection-start-line="128" selection-start-column="0" selection-end-line="128" selection-end-column="0" />
+          <folding>
+            <element signature="e#23#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/request.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="272" column="0" selection-start-line="272" selection-start-column="0" selection-end-line="272" selection-end-column="0" />
+          <caret line="237" column="0" selection-start-line="237" selection-start-column="0" selection-end-line="237" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1279,7 +1353,7 @@
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/tool.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+          <caret line="203" column="0" selection-start-line="203" selection-start-column="0" selection-end-line="203" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1295,77 +1369,40 @@
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/tool.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="107" column="0" selection-start-line="107" selection-start-column="0" selection-end-line="107" selection-end-column="0" />
+          <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/cl_idp_sp.py">
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/verify.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="122" column="0" selection-start-line="122" selection-start-column="0" selection-end-line="122" selection-end-column="0" />
-          <folding>
-            <element signature="e#23#39#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/mk_metadata.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="40" column="17" selection-start-line="40" selection-start-column="17" selection-end-line="40" selection-end-column="17" />
-          <folding>
-            <element signature="e#22#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/sp.multi.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="61" column="80" selection-start-line="61" selection-start-column="80" selection-end-line="61" selection-end-column="80" />
+          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/conf_multi.py">
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/check.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="89" column="40" selection-start-line="89" selection-start-column="40" selection-end-line="89" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#39#0" expanded="true" />
-          </folding>
+          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/testtool/test_idp/sp/cl/flows.yaml">
+    <entry file="file://$PROJECT_DIR$/src/saml2test/request.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="103" column="35" selection-start-line="103" selection-start-column="35" selection-end-line="103" selection-end-column="35" />
-          <folding>
-            <marker date="1447685987000" expanded="true" signature="2971:3078" placeholder="verify_attributes:" />
-            <marker date="1447685987000" expanded="true" signature="2998:3078" placeholder="attributes:" />
-          </folding>
+          <caret line="242" column="0" selection-start-line="242" selection-start-column="0" selection-end-line="242" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/check.py">
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/saml2test-1.0.0-py3.5.egg/saml2test/check.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="117" column="18" selection-start-line="117" selection-start-column="18" selection-end-line="117" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/saml2test/util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.862955">
-          <caret line="58" column="24" selection-start-line="58" selection-start-column="24" selection-end-line="58" selection-end-column="24" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.33333334">
+          <caret line="319" column="0" selection-start-line="319" selection-start-column="0" selection-end-line="319" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

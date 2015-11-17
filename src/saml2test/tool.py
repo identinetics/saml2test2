@@ -28,7 +28,7 @@ class ClTester(tool.Tester):
                              map_prof, trace_cls, **kwargs)
         self.features = {}
         try:
-            self.interactions = kwargs['conf'].INTERACTION
+            self.interactions = kwargs['interaction_conf']
         except AttributeError:
             self.interactions = None
 
@@ -150,12 +150,7 @@ class ClTester(tool.Tester):
             if _spec == _last_action:
                 _same_actions += 1
                 if _same_actions >= 3:
-                    self.conv.trace.append(
-                        {"status": ERROR,
-                         "message": "Interaction loop detection",
-                         #"id": "exception",
-                         #"name": "interaction needed",
-                         "url": self.position})
+                    self.conv.trace.error("Interaction loop detection")
                     raise OperationError()
             else:
                 _last_action = _spec

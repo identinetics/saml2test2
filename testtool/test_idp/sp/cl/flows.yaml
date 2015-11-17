@@ -99,6 +99,18 @@ Flows:
     tc_id: idp-coco-01
     tests:
       verify_entity_category: {}
+  IDP-Logout-soap:
+    tc_id: S2c-03,
+    desc: An Authnrequest followed by a logout request,
+    sequence:
+      - AuthnRedirectRequest
+      -
+        - LogOutRequestSoap
+        - setup_logout: {}
+    tests:
+      verify_logout: {}
+    sp: basic
+    profile: .
 
 Order:
   - IDP-Metadata
@@ -106,6 +118,7 @@ Order:
   - IDP-AuthnRedirect
   - IDP-AuthnPost
   - IDP-EntityCategory
+  - IDP-Logout
 
 Desc:
   IDP-Metadata: Idp metadata
@@ -113,3 +126,4 @@ Desc:
   IDP-AuthnRedirect: IDP Authentication HTTP Redirect
   IDP-AuthnPost: IDP Authentication using HTTP POST
   IDP-EntityCategory: Entity Category Compliance
+  IDP-Logout: IDP Logout

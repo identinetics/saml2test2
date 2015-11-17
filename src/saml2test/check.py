@@ -1,13 +1,16 @@
 import inspect
 from aatest import check
 from aatest import Unknown
-from aatest.check import CRITICAL
+from aatest.check import CRITICAL, OK, WARNING
 from aatest.check import Check
 import sys
 from saml2.entity_category.edugain import COCO
 from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
+from saml2.mdstore import REQ2SRV
 from saml2.response import AuthnResponse
-from saml2.samlp import Response, AuthnRequest
+from saml2.s_utils import UnknownPrincipal, UnsupportedBinding
+from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
+from saml2.samlp import Response, AuthnRequest, STATUS_SUCCESS
 
 __author__ = 'roland'
 
@@ -190,6 +193,136 @@ class VerifyEntityCategory(Check):
             res = {}
 
         return res
+
+
+class VerifyFunctionality(Check):
+    """
+    Verifies that the IdP supports the needed functionality
+    """
+
+    def _nameid_format_support(self, conv, nameid_format):
+        md = conv.client.metadata
+        entity = md[conv.entity_id]
+        for idp in entity["idpsso_descriptor"]:
+            for nformat in idp["name_id_format"]:
+                if nameid_format == nformat["text"]:
+                    return {}
+
+        self._message = "No support for NameIDFormat '%s'" % nameid_format
+        self._status = CRITICAL
+
+        return {}
+
+    def _srv_support(self, conv, service):
+        md = conv.client.metadata
+        entity = md[conv.entity_id]
+        for desc in ["idpsso_descriptor", "attribute_authority_descriptor",
+                     "auth_authority_descriptor"]:
+            try:
+                srvgrps = entity[desc]
+            except KeyError:
+                pass
+            else:
+                for srvgrp in srvgrps:
+                    if service in srvgrp:
+                        return {}
+
+        self._message = "No support for '%s'" % service
+        self._status = CRITICAL
+        return {}
+
+    def _binding_support(self, conv, request, binding, typ):
+        service = REQ2SRV[request]
+        md = conv.client.metadata
+        entity_id = conv.entity_id
+        func = getattr(md, service, None)
+        try:
+            func(entity_id, binding, typ)
+        except UnknownPrincipal:
+            self._message = "Unknown principal: %s" % entity_id
+            self._status = CRITICAL
+        except UnsupportedBinding:
+            self._message = "Unsupported binding at the IdP: %s" % binding
+            self._status = CRITICAL
+
+        return {}
+
+    def _func(self, conv):
+        oper = conv.oper
+        args = conv.oper.args
+        res = self._srv_support(conv, REQ2SRV[oper.request])
+        if self._status != OK:
+            return res
+
+        res = self._binding_support(conv, oper.request, args["request_binding"],
+                                    "idpsso")
+        if self._status != OK:
+            return res
+
+        if "nameid_format" in args and args["nameid_format"]:
+            if args["nameid_format"] == NAMEID_FORMAT_UNSPECIFIED:
+                pass
+            else:
+                res = self._nameid_format_support(conv, args["nameid_format"])
+
+        if "name_id_policy" in args and args["name_id_policy"]:
+            if args["name_id_policy"].format == NAMEID_FORMAT_UNSPECIFIED:
+                pass
+            else:
+                res = self._nameid_format_support(conv,
+                                                  args["name_id_policy"].format)
+
+        return res
+
+
+class CheckLogoutSupport(Check):
+    """
+    Verifies that the tested entity supports single log out
+    """
+    cid = "check-logout-support"
+    msg = "Does not support logout"
+
+    def _func(self, conv):
+        mds = conv.client.metadata.metadata[0]
+        # Should only be one
+        ed = mds.entity.values()[0]
+
+        assert len(ed["idpsso_descriptor"])
+
+        idpsso = ed["idpsso_descriptor"][0]
+        try:
+            assert idpsso["single_logout_service"]
+        except AssertionError:
+            self._message = self.msg
+            self._status = CRITICAL
+
+        return {}
+
+
+class VerifyLogout(Check):
+    cid = "verify_logout"
+    msg = "Logout failed"
+
+    def _func(self, conv):
+        # Check that the logout response says it was a success
+        resp = conv.protocol_response[-1]
+        status = resp.response.status
+        try:
+            assert status.status_code.value == STATUS_SUCCESS
+        except AssertionError:
+            self._message = self.msg
+            self._status = CRITICAL
+
+        # Check that there are no valid cookies
+        # should only result in a warning
+        httpc = conv.client
+        try:
+            assert httpc.cookies(conv.destination) == {}
+        except AssertionError:
+            self._message = "Remaining cookie ?"
+            self._status = WARNING
+
+        return {}
 
 
 CLASS_CACHE = {}

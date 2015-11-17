@@ -9,12 +9,17 @@ from aatest.operation import Operation
 from saml2 import SAMLError, BINDING_SOAP
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
+from saml2.ident import code
+
+import saml2.xmldsig as ds
 
 # from saml2.mdstore import REQ2SRV
+from saml2.mdstore import destinations
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
-from saml2.time_util import utc_time_sans_frac
+from saml2.time_util import utc_time_sans_frac, in_a_while
 import sys
+from saml2test.check import VerifyFunctionality
 
 __author__ = 'roland'
 
@@ -227,6 +232,90 @@ class AuthnRequest(ProtocolMessage):
         self.conv.protocol_response.append(resp)
 
 
+class LogOutRequest(ProtocolMessage):
+    def make_request(self):
+        _cli = self.conv.client
+        _entity_id = self.req_args['entity_id']
+        _name_id = self.req_args['name_id']
+
+        sls_args = {
+            'entity_id': _entity_id, 'binding': self.binding, 'typ': 'idpsso'}
+
+        try:
+            srvs = _cli.metadata.single_logout_service(**sls_args)
+        except:
+            msg = "No SLO '{}' service".format(self.binding)
+            raise UnknownBinding(msg)
+
+        destination = destinations(srvs)[0]
+        logger.info("destination to provider: %s", destination)
+        self.conv.destination = destination
+
+        try:
+            session_info = _cli.users.get_info_from(_name_id, _entity_id, False)
+            session_indexes = [session_info['session_index']]
+        except KeyError:
+            session_indexes = None
+
+        try:
+            expire = self.req_args['expire']
+        except KeyError:
+            expire = in_a_while(minutes=5)
+
+        req_id, request = _cli.create_logout_request(
+            destination, _entity_id, name_id=_name_id,
+            reason=self.req_args['reason'],
+            expire=expire, session_indexes=session_indexes)
+
+        # to_sign = []
+        if self.binding.startswith("http://"):
+            sign = True
+        else:
+            try:
+                sign = self.req_args['sign']
+            except KeyError:
+                sign = _cli.logout_requests_signed
+
+        sigalg = None
+        key = None
+        if sign:
+            if self.binding == BINDING_HTTP_REDIRECT:
+                try:
+                    sigalg = self.req_args["sigalg"]
+                except KeyError:
+                    sigalg = ds.sig_default
+                try:
+                    key = self.req_args["key"]
+                except KeyError:
+                    key = _cli.signkey
+
+                srequest = str(request)
+            else:
+                srequest = _cli.sign(request)
+        else:
+            srequest = str(request)
+
+        relay_state = _cli._relay_state(req_id)
+
+        http_info = _cli.apply_binding(self.binding, srequest, destination,
+                                       relay_state, sigalg=sigalg,
+                                       key=key)
+
+        if self.binding != BINDING_SOAP:
+            _cli.state[req_id] = {
+                "entity_id": _entity_id, "operation": "SLO",
+                "name_id": code(_name_id), "reason": self.req_args['reason'],
+                "not_on_of_after": expire, "sign": sign}
+
+        return http_info, req_id
+
+    def handle_response(self, result, response_args):
+        resp = self.conv.client.parse_logout_request_response(result['text'],
+                                                              self.binding)
+        self.conv.protocol_response.append(resp)
+
+
+
 class AuthnRedirectRequest(RedirectRequest):
     request = "authn_request"
     tests = {}
@@ -271,6 +360,21 @@ class AttributeQuery(SoapRequest):
     def handle_response(self, result, *args):
         self.request_inst.handle_response(result, self.response_args)
 
+
+class LogOutRequestSoap(SoapRequest):
+    tests = {"pre": [VerifyFunctionality], "post": []}
+
+    def _make_request(self):
+        self.request_inst = LogOutRequest(self.conv, self.req_args,
+                                          binding=BINDING_SOAP)
+        http_info, request_id = self.request_inst.make_request()
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
+
+
+# -----------------------------------------------------------------------------
 
 def factory(name):
     for fname, obj in inspect.getmembers(sys.modules[__name__]):
