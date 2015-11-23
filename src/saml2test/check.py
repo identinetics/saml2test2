@@ -4,13 +4,11 @@ from aatest import Unknown
 from aatest.check import CRITICAL, OK, WARNING
 from aatest.check import Check
 import sys
-from saml2.entity_category.edugain import COCO
-from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
 from saml2.mdstore import REQ2SRV
 from saml2.response import AuthnResponse
 from saml2.s_utils import UnknownPrincipal, UnsupportedBinding
 from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
-from saml2.samlp import Response, AuthnRequest, STATUS_SUCCESS
+from saml2.samlp import AuthnRequest, STATUS_SUCCESS
 
 __author__ = 'roland'
 
@@ -101,100 +99,6 @@ class VerifyAttributes(Check):
         return res
 
 
-def verify_rs_compliance(ava, *args):
-    """
-    Excerpt from https://refeds.org/category/research-and-scholarship
-    The following attributes constitute a minimal subset of the R&S attribute
-    bundle:
-
-    - eduPersonPrincipalName
-    - mail
-    - displayName OR (givenName AND sn)
-    For the purposes of access control, a non-reassigned persistent identifier is
-    required. If your deployment of eduPersonPrincipalName is non-reassigned, it
-    will suffice. Otherwise you MUST release eduPersonTargetedID (which is
-    non-reassigned by definition) in addition to eduPersonPrincipalName. In any
-    case, release of both identifiers is RECOMMENDED.
-    """
-    for attr in ['eduPersonPrincipalName', 'mail']:
-        if attr not in ava:
-            return False
-
-    if 'displayName' not in ava:
-        if 'givenName' in ava and 'sn' in ava:
-            pass
-        else:
-            return False
-
-    return True
-
-
-def verify_coco_compliance(ava, *args):
-    """
-    Release only attributes that are required by the SP and part of the
-    CoCo set of attributes.
-
-    :param ava: Attribute - Value assertion
-    :param req: Required attributes
-    :return: True or False
-    """
-    req, ec_attr = args
-
-    missing = []
-    excess = []
-
-    for attr in ec_attr:
-        if attr in req:
-            if attr not in ava:
-                missing.append(attr)
-        else:
-            if attr in ava:
-                excess.append(attr)
-
-    if missing:
-        return False
-
-    return True
-
-
-
-VERIFY = {
-    RESEARCH_AND_SCHOLARSHIP: verify_rs_compliance,
-    COCO: verify_coco_compliance
-}
-
-
-class VerifyEntityCategory(Check):
-    """ Verify Entity Category Compliance """
-
-    cid = 'verify_entity_category'
-
-    def __call__(self, conv=None, output=None):
-        conf = conv.client.config
-        ava = get_message(conv.protocol_response, AuthnResponse).ava
-        req_attr = conf.getattr('required_attributes', 'sp')
-        entcat = conv.extra_args["entcat"]
-
-        self.ec = conf.entity_category
-        non_compliant = []
-        if self.ec:
-            for ec in conf.entity_category:
-                if not VERIFY[ec](ava, req_attr, entcat[ec]):
-                    non_compliant.append(ec)
-
-        if non_compliant:
-            res = {
-                'message': "Not compliant with entity categories: {}".format(
-                    non_compliant
-                ),
-                'status': CRITICAL
-            }
-        else:
-            res = {}
-
-        return res
-
-
 class VerifyFunctionality(Check):
     """
     Verifies that the IdP supports the needed functionality
@@ -259,11 +163,11 @@ class VerifyFunctionality(Check):
         if self._status != OK:
             return res
 
-        if "nameid_format" in args and args["nameid_format"]:
-            if args["nameid_format"] == NAMEID_FORMAT_UNSPECIFIED:
+        if "name_id.format" in args and args["name_id.format"]:
+            if args["name_id.format"] == NAMEID_FORMAT_UNSPECIFIED:
                 pass
             else:
-                res = self._nameid_format_support(conv, args["nameid_format"])
+                res = self._nameid_format_support(conv, args["name_id.format"])
 
         if "name_id_policy" in args and args["name_id_policy"]:
             if args["name_id_policy"].format == NAMEID_FORMAT_UNSPECIFIED:
