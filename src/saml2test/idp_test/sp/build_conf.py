@@ -42,7 +42,8 @@ for key, spec in COMBOS.items():
 
     cnf[key] = _config
 
-_str = "CONFIG = %s" % pp.pformat(cnf)
+_str = "BASE = '{}'\n".format(BASE)
+_str += "CONFIG = {}".format(pp.pformat(cnf))
 _str = _str.replace("u'", "'")
 
 fil = open("conf.py", "w")

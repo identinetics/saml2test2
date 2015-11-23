@@ -18,7 +18,10 @@ def collect_ec():
     ec_map = {}
     for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
         module = __import__(modname, fromlist="dummy")
-        _base = module.RELEASE['']
+        try:
+            _base = module.RELEASE['']
+        except KeyError:
+            _base = []
         for key, val in module.RELEASE.items():
             if key == '':
                 continue
@@ -40,7 +43,7 @@ def read_multi_conf(cnf, metadata_construction=False):
 def _get_cls(name, use='cl'):
     if use == 'cl':
         factory = cl_factory
-    elif use == 'wb':
+    else:
         factory = wb_factory
 
     try:
@@ -77,6 +80,7 @@ def _get_func(dic):
 def parse_yaml_conf(cnf_file, use='cl'):
     stream = open(cnf_file, 'r')
     yc = yaml.safe_load(stream)
+    stream.close()
     for tid, spec in yc['Flows'].items():
         seq = []
         for func in spec["sequence"]:

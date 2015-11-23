@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 __author__ = 'rohe0002'
 
@@ -26,8 +26,8 @@ setup(
     author="Roland Hedberg",
     author_email="roland.hedberg@umu.se",
     license="Apache 2.0",
-    packages=["saml2test"],
     package_dir={"": "src"},
+    packages=find_packages('src'),
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",

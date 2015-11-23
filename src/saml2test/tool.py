@@ -33,9 +33,6 @@ class ClTester(tool.Tester):
             self.interactions = None
 
     def run(self, test_id, **kw_args):
-        if not self.match_profile(test_id):
-            return False
-
         self.sh.session_setup(path=test_id)
         _flow = self.flows[test_id]
         _cli = make_client(_flow["sp"], **kw_args)

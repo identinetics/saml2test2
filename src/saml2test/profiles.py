@@ -1,4 +1,4 @@
-from saml2test.request import AuthnRedirectRequest
+from saml2test.cl_request import AuthnRedirectRequest
 
 __author__ = 'roland'
 
