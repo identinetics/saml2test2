@@ -1,0 +1,183 @@
+Flows:
+  IDP-Metadata-verify:
+    tc_id: idp-mv
+    desc: Verifies that the IdP metadata adheres to the saml2int spec
+    sequence:
+      - check_metadata.CheckSaml2IntMetaData
+    profile: saml2int
+    sp: basic
+  IDP-AuthnPost-nid_transient:
+    desc: AuthnRequest using HTTP-POST
+    name: Basic SAML2 AuthnRequest using HTTP POST
+    profile: saml2int
+    sequence:
+    -
+      - AuthnPostRequest
+      - set_request_args:
+          name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+    sp: basic
+    tc_id: idp-auth-post-02
+    tests:
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+  IDP-AuthnPost-verify:
+    desc: AuthnRequest using HTTP-POST
+    name: Basic SAML2 AuthnRequest using HTTP POST
+    profile: saml2int
+    sequence:
+    -
+      - AuthnPostRequest
+      - set_request_args:
+          name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+    sp: basic
+    tc_id: idp-auth-post-01
+  IDP-AuthnRedirect-nid_email:
+    desc: Basic SAML2 AuthnRequest, HTTP-Redirect, NameID-email specified
+    name: AuthnRequest, email nameID
+    profile: saml2int
+    sequence:
+    -
+      - AuthnRedirectRequest
+      - set_request_args:
+          name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+    sp: basic
+    tc_id: idp-auth-re-02
+    tests:
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+  IDP-AuthnRedirect-nid_transient:
+    desc: Basic SAML2 AuthnRequest, HTTP-Redirect, transient name ID
+    name: AuthnRequest, NameID-trans
+    profile: saml2int
+    sequence:
+    -
+      - AuthnRedirectRequest
+      - set_request_args:
+          name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+    sp: basic
+    tc_id: idp-auth-re-01
+    tests:
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+  IDP-AuthnRedirect-nid_unspecified:
+    desc: Basic SAML2 AuthnRequest, HTTP-Redirect, NameID-unspec
+    name: AuthnRequest with unspecified nameID format
+    profile: saml2int
+    sequence:
+    -
+      - AuthnRedirectRequest
+      - set_request_args:
+          name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified
+    sp: basic
+    tc_id: idp-auth-re-04
+  IDP-AuthnRedirect-no_nid:
+    desc: Basic SAML2 AuthnRequest, HTTP-Redirect, no NameID format specified
+    name: AuthnRequest no specified nameID format
+    profile: saml2int
+    sequence:
+    -
+      - AuthnRedirectRequest
+      - set_request_args:
+          name_id.format: ''
+    sp: basic
+    tc_id: idp-auth-re-03
+  IDP-AuthnRedirect-verify:
+    desc: Uses AuthnRequest to check connectivity
+    profile: saml2int
+    sequence:
+      - AuthnRedirectRequest
+    sp: basic
+    tc_id: idp-con-01
+    tests:
+      verify_attributes: {}
+  IDP-Logout-soap:
+    tc_id: S2c-03,
+    desc: An Authnrequest followed by a logout request,
+    sequence:
+      - AuthnRedirectRequest
+      -
+        - LogOutRequestSoap
+        - setup_logout: {}
+    tests:
+      verify_logout: {}
+    sp: basic
+    profile: saml2int
+  IDP-EntityCategory-coco:
+    desc: Uses AuthnRequest to verify CoCo entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: coco
+    tc_id: idp-ec-coco
+    tests:
+      verify_entity_category: {}
+  IDP-EntityCategory-rs:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: rs
+    tc_id: idp-ec-rs
+    tests:
+      verify_entity_category: {}
+  IDP-EntityCategory-re_eu:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: re_eu
+    tc_id: idp-ec-re_eu
+    tests:
+      verify_entity_category: {}
+  IDP-EntityCategory-re_hei:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: re_hei
+    tc_id: idp-ec-re_hei
+    tests:
+      verify_entity_category: {}
+  IDP-EntityCategory-re_nren:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: re_nren
+    tc_id: idp-ec-re_nren
+    tests:
+      verify_entity_category: {}
+  IDP-EntityCategory-re_nren_sfs:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: re_nren_sfs
+    tc_id: idp-ec-re_nre_sfs
+    tests:
+      verify_entity_category: {}
+  IDP-EntityCategory-re_nren_hei:
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profile: entcat
+    sequence:
+      - AuthnRedirectRequest
+    sp: re_nren_hei
+    tc_id: idp-ec-re_nren_hei
+    tests:
+      verify_entity_category: {}
+
+Order:
+  - IDP-Metadata
+  - IDP-Connection
+  - IDP-AuthnRedirect
+  - IDP-AuthnPost
+  - IDP-EntityCategory
+  - IDP-Logout
+
+Desc:
+  IDP-Metadata: Idp metadata
+  IDP-Connection: IdP Connection
+  IDP-AuthnRedirect: IDP Authentication HTTP Redirect
+  IDP-AuthnPost: IDP Authentication using HTTP POST
+  IDP-EntityCategory: Entity Category Compliance
+  IDP-Logout: IDP Logout
