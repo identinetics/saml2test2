@@ -7,6 +7,7 @@ from aatest.conversation import Conversation
 from aatest.session import Done
 from aatest.verify import Verify
 from saml2test.common import make_client
+from saml2test.tool import restore_operation
 
 __author__ = 'roland'
 
@@ -94,12 +95,5 @@ class Tester(tool.Tester):
         self.conv.events.store('response', resp)
         logger.debug(resp)
 
-        cls = self.conv.events.last('operation').data
-        _oper = cls(conv=self.conv, io=self.io, sh=self.sh)
-        req_args = self.conv.events.last('request_args').data
-        _oper.request_inst = _oper.req_cls(self.conv, req_args,
-                                           binding=_oper._binding)
-        _oper.response_args = {
-            "outstanding": self.conv.events.last('outstanding').data}
-
+        _oper = restore_operation(self.conv, self.io, self.sh)
         return _oper.handle_response(resp)

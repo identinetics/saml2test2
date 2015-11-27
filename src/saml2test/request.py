@@ -137,7 +137,7 @@ class RedirectRequest(Request):
                 break
 
         self.trace.info("redirect.url: {}".format(_loc))
-        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
+        self.conv.events.store('time_stamp', (_loc, utc_time_sans_frac()))
         res = self.client.send(_loc, _method)
         self.trace.info("redirect response: {}".format(res.text))
         return res
@@ -177,7 +177,7 @@ class PostRequest(Request):
         # _method = info['method']
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
+        self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
         res = self.client.send(**send_args)
         self.trace.info("post response: {}".format(res.text))
         return res
@@ -194,7 +194,7 @@ class SoapRequest(Request):
         # _method = info['method']
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.timestamp.append((_loc, utc_time_sans_frac()))
+        self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
         res = self.client.send(**send_args)
         self.trace.info("post response: {}".format(res.text))
         return res

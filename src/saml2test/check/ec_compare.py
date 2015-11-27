@@ -3,6 +3,7 @@ import sys
 import inspect
 
 from aatest.check import Check
+from aatest.check import TestResult
 
 from saml2.entity_category.edugain import COCO
 from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
@@ -36,40 +37,51 @@ class EntityCategoryTestStatus:
         return self._status.value
 
 
-class EntityCategoryTestResult:
-    def __init__(self, missing, extra, test_id=None):
-        self.missing_attributes = frozenset(missing)
-        self.extra_attributes = frozenset(extra)
-        self.test_id = test_id
+class EntityCategoryTestResult(TestResult):
+    def __init__(self, test_id, status, name, mti=False, specifics=None):
+        TestResult.__init__(self, test_id, status, name, mti=mti)
+        self.specifics = specifics or []
 
-        if len(self) == 0:
-            self.status = EntityCategoryTestStatus(TestStatus.ok)
-        elif len(missing) > 0 and len(extra) > 0:
-            self.status = EntityCategoryTestStatus(TestStatus.too_few_too_many)
-        elif len(missing) > 0:
-            self.status = EntityCategoryTestStatus(TestStatus.too_few)
-        elif len(extra) > 0:
-            self.status = EntityCategoryTestStatus(TestStatus.too_many)
+    def __str__(self):
+        _str = [TestResult.__str__(self)]
+        for spec in self.specifics:
+            _str.append('{}'.format(spec))
+        return '\n'.join(_str)
 
-    def __eq__(self, other):
-        return self.missing_attributes == other.missing_attributes and \
-               self.extra_attributes == other.extra_attributes and \
-               self.test_id == other.test_id
+
+class Result(object):
+    def __init__(self, ent_cat='', missing=None, extra=None):
+        self.ent_cat = ent_cat
+        self.missing = missing or []
+        self.extra = extra or []
 
     def __len__(self):
-        return len(self.missing_attributes) + len(self.extra_attributes)
+        return len(self.missing) + len(self.extra)
 
     def __repr__(self):
-        return "{}(missing={}, extra={})".format(type(self).__name__,
-                                                 self.missing_attributes,
-                                                 self.extra_attributes)
+        if self.missing and self.extra:
+            return "{}: missing={}, extra={}".format(self.ent_cat, self.missing,
+                                                     self.extra)
+        elif self.missing:
+            return "{}: missing={}".format(self.ent_cat, self.missing)
+        elif self.extra:
+            return "{}: extra={}".format(self.ent_cat, self.extra)
+        else:
+            return "{}: -".format(self.ent_cat)
 
-    def __hash__(self):
-        return hash(
-            (self.test_id, self.missing_attributes, self.extra_attributes))
+    @property
+    def message(self):
+        if len(self) == 0:
+            return EntityCategoryTestStatus(TestStatus.ok)
+        elif len(self.missing) > 0 and len(self.extra) > 0:
+            return EntityCategoryTestStatus(TestStatus.too_few_too_many)
+        elif len(self.missing) > 0:
+            return EntityCategoryTestStatus(TestStatus.too_few)
+        elif len(self.extra) > 0:
+            return EntityCategoryTestStatus(TestStatus.too_many)
 
 
-def verify_rs_compliance(ava, req, ec_attr, *args):
+def verify_rs_compliance(ec, ava, req, ec_attr):
     """
     Excerpt from https://refeds.org/category/research-and-scholarship
     The following attributes constitute a minimal subset of the R&S attribute
@@ -90,32 +102,32 @@ def verify_rs_compliance(ava, req, ec_attr, *args):
     :return: Dictionary with two keys 'missing' and 'extra' who's values are
         lists of attribute names.
     """
-    missing = []
-    extra = []
+
+    res = Result(ent_cat=ec)
 
     # Verifying the minimal subset
     for attr in ['eduPersonPrincipalName', 'mail']:
         if attr not in ava:
-            missing.append(attr)
+            res.missing.append(attr)
 
     if 'displayName' not in ava:
         if 'givenName' in ava and 'sn' in ava:
             pass
         elif 'givenName' in ava:
-            missing.append('sn')
+            res.missing.append('sn')
         elif 'sn' in ava:
-            missing.append('givenName')
+            res.missing.append('givenName')
         else:
-            missing.extend(['displayName', 'givenName', 'sn'])
+            res.missing.extend(['displayName', 'givenName', 'sn'])
 
     for attr in ava:
         if attr not in ec_attr:
-            extra.append(attr)
+            res.extra.append(attr)
 
-    return EntityCategoryTestResult(missing, extra)
+    return res
 
 
-def verify_coco_compliance(ava, req, ec_attr, *args):
+def verify_coco_compliance(ec, ava, req, ec_attr):
     """
     Release only attributes that are required by the SP and part of the
     CoCo set of attributes.
@@ -126,24 +138,20 @@ def verify_coco_compliance(ava, req, ec_attr, *args):
     :return: Dictionary with missing or excessive attribute
     """
 
-    missing = []
-    excess = []
+    res = Result(ent_cat=ec)
 
     for attr in ec_attr:
         if attr in req:
             if attr not in ava:
-                missing.append(attr)
+                res.missing.append(attr)
         else:
             if attr in ava:
-                excess.append(attr)
+                res.extra.append(attr)
 
-    if missing:
-        return False
-
-    return True
+    return res
 
 
-def verify_ec_compliance(ava, req, ec_attr, *attr):
+def verify_ec_compliance(ec, ava, req, ec_attr):
     """
     Release all attributes that are part of the entity category set of
     attributes.
@@ -154,18 +162,17 @@ def verify_ec_compliance(ava, req, ec_attr, *attr):
     :return: Dictionary with missing or excessive attribute
     """
 
-    missing = []
-    extra = []
+    res = Result(ent_cat=ec)
 
     for attr in ec_attr:
         if attr not in ava:
-            missing.append(attr)
+            res.missing.append(attr)
 
     for attr in ava:
         if attr not in ec_attr:
-            extra.append(attr)
+            res.extra.append(attr)
 
-    return EntityCategoryTestResult(missing, extra)
+    return res
 
 
 VERIFY = {
@@ -182,6 +189,7 @@ class VerifyEntityCategory(Check):
     """ Verify Entity Category Compliance """
 
     cid = 'verify_entity_category'
+    test_result_cls = EntityCategoryTestResult
 
     def __call__(self, conv=None, output=None):
         conf = conv.client.config
@@ -190,6 +198,8 @@ class VerifyEntityCategory(Check):
         entcat = conv.extra_args["entcat"]
 
         self.ec = conf.entity_category
+        result = {'missing': [], 'extra': []}
+
         non_compliant = []
         if self.ec:
             if RESEARCH_AND_EDUCATION in self.ec:  # find the other
@@ -199,17 +209,13 @@ class VerifyEntityCategory(Check):
                         self.ec.append((RESEARCH_AND_EDUCATION, _ec))
 
             for ec in self.ec:
-                result = VERIFY[ec](ava, req_attr, entcat[ec])
-                if result.status.value != TestStatus.ok:
-                    non_compliant.append("{}:{}".format(ec, result))
+                _res = VERIFY[ec](ec, ava, req_attr, entcat[ec])
+                if len(_res):
+                    non_compliant.append(_res)
 
         if non_compliant:
-            res = {
-                'message': "Not compliant with entity categories: {}".format(
-                    non_compliant
-                ),
-                'status': Warning
-            }
+            res = {'message': 'Non compliant', 'status': Warning,
+                   'specifics': non_compliant}
         else:
             res = {}
 

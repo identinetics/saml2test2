@@ -52,6 +52,7 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.client.create_authn_request(
             destination=destination, **self.req_args)
 
+        self.conv.events.store('request_args', self.req_args)
         self.conv.events.store('protocol_request', request)
 
         _req_str = str(request)
@@ -83,7 +84,7 @@ class AuthnRequest(ProtocolMessage):
         _cli = self.conv.client
         resp = _cli.parse_authn_request_response(
             result['SAMLResponse'], self.req_args['response_binding'],
-            response_args["qoutstanding"])
+            response_args["outstanding"])
         self.conv.events.store('protocol_response', resp)
 
 
@@ -122,6 +123,7 @@ class LogOutRequest(ProtocolMessage):
             reason=self.req_args['reason'],
             expire=expire, session_indexes=session_indexes)
 
+        self.conv.events.store('request_args', self.req_args)
         self.conv.events.store('protocol_request', request)
 
         # to_sign = []
@@ -176,13 +178,14 @@ class LogOutRequest(ProtocolMessage):
 
 class AuthnRedirectRequest(RedirectRequest):
     request = "authn_request"
+    req_cls = AuthnRequest
     tests = {}
 
     def _make_request(self):
-        self.request_inst = AuthnRequest(self.conv, self.req_args,
-                                         binding=BINDING_HTTP_REDIRECT)
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
         http_info, request_id = self.request_inst.make_request()
-        self.response_args["outstanding"] = {request_id: "/"}
+        self.conv.events.store('outstanding', {request_id: "/"})
         return http_info
 
     def handle_response(self, result, *args):
@@ -191,13 +194,14 @@ class AuthnRedirectRequest(RedirectRequest):
 
 class AuthnPostRequest(PostRequest):
     request = "authn_request"
+    req_cls = AuthnRequest
     tests = {}
 
     def _make_request(self):
-        self.request_inst = AuthnRequest(self.conv, self.req_args,
-                                         binding=BINDING_HTTP_POST)
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
         http_info, request_id = self.request_inst.make_request()
-        self.response_args["outstanding"] = {request_id: "/"}
+        self.conv.events.store('outstanding', {request_id: "/"})
         return http_info
 
     def handle_response(self, result, *args):
@@ -206,13 +210,14 @@ class AuthnPostRequest(PostRequest):
 
 class AttributeQuery(SoapRequest):
     request = "authn_request"
+    req_cls = AuthnRequest
     tests = {}
 
     def _make_request(self):
-        self.request_inst = AuthnRequest(self.conv, self.req_args,
-                                         binding=BINDING_SOAP)
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
         http_info, request_id = self.request_inst.make_request()
-        self.response_args["outstanding"] = {request_id: "/"}
+        self.conv.events.store('outstanding', {request_id: "/"})
         return http_info
 
     def handle_response(self, result, *args):
@@ -220,10 +225,11 @@ class AttributeQuery(SoapRequest):
 
 
 class LogOutRequestSoap(SoapRequest):
+    req_cls = LogOutRequest
     tests = {"pre": [VerifyFunctionality], "post": []}
 
     def _make_request(self):
-        self.request_inst = LogOutRequest(self.conv, self.req_args,
+        self.request_inst = self.req_cls(self.conv, self.req_args,
                                           binding=BINDING_SOAP)
         http_info, request_id = self.request_inst.make_request()
         return http_info

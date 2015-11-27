@@ -206,7 +206,7 @@ class VerifyLogout(Check):
 
     def _func(self, conv):
         # Check that the logout response says it was a success
-        resp = conv.events.last('protocol_response')
+        resp = conv.events.last_item('protocol_response')
         status = resp.response.status
         try:
             assert status.status_code.value == STATUS_SUCCESS

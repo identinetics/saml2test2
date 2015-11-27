@@ -20,11 +20,22 @@ class OperationError(Exception):
     pass
 
 
+def restore_operation(conv, io, sh):
+    cls = conv.events.last('operation').data
+    _oper = cls(conv=conv, io=io, sh=sh)
+    req_args = conv.events.last_item('request_args')
+    _oper.request_inst = _oper.req_cls(conv, req_args,
+                                       binding=_oper._binding)
+    _oper.response_args = {
+        "outstanding": conv.events.last_item('outstanding')}
+    return _oper
+
+
 class ClTester(tool.Tester):
-    def __init__(self, io, sh, profiles, profile, flows, check_factory,
+    def __init__(self, io, sh, profile, flows, check_factory,
                  msg_factory, cache, make_client, map_prof,
                  trace_cls, **kwargs):
-        tool.Tester.__init__(self, io, sh, profiles, profile, flows,
+        tool.Tester.__init__(self, io, sh, profile, flows,
                              check_factory, msg_factory, cache, make_client,
                              map_prof, trace_cls, **kwargs)
         self.features = {}
@@ -51,7 +62,7 @@ class ClTester(tool.Tester):
 
         # noinspection PyTypeChecker
         try:
-            return self.run_flow(test_id, kw_args["conf"])
+            return self.run_flow(test_id)
         except Exception as err:
             exception_trace("", err, logger)
             self.io.dump_log(self.sh.session, test_id)
@@ -199,4 +210,5 @@ class ClTester(tool.Tester):
             if self.conv.interaction.interactions:
                 res = self.intermit(resp)
                 if isinstance(res, dict):
-                    self.conv.operation.handle_response(res)
+                    _oper = restore_operation(self.conv, self.io, self.sh)
+                    _oper.handle_response(res)

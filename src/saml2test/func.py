@@ -21,8 +21,8 @@ def set_user_credentials(oper, args):
 
 
 def setup_logout(oper, args):
-    resp = oper.conv.protocol_response[-1].response
-    assertion = resp.assertion[0]
+    resp = oper.conv.events.last_item('protocol_response')
+    assertion = resp.assertion
     subj = assertion.subject
     oper.req_args["name_id"] = subj.name_id
     oper.req_args["entity_id"] = assertion.issuer.text

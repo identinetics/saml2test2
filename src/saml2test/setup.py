@@ -13,10 +13,8 @@ from saml2test.common import make_client
 from saml2test.common import map_prof
 from saml2test.common import Trace
 from saml2test.prof_util import ProfileHandler
-from saml2test.util import collect_ec
+from saml2test.util import collect_ec, get_check
 from saml2test.util import parse_yaml_conf
-
-from saml2test.ec_compare import factory as check_factory
 
 from saml2.saml import factory as saml_message_factory
 
@@ -75,7 +73,7 @@ def setup(use='cl'):
               "flows": fdef['Flows'], "orddesc": fdef['Order'],
               "desc": fdef['Desc'], 'metadata': mds,
               "profile": cargs.profile, "msg_factory": saml_message_factory,
-              "check_factory": check_factory, "profile_handler": ProfileHandler,
+              "check_factory": get_check, "profile_handler": ProfileHandler,
               "cache": {}, "entity_id": cargs.entity_id,
               'map_prof': map_prof, 'make_client': make_client,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()}}
