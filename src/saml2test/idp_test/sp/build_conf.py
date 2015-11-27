@@ -5,6 +5,7 @@ import yaml
 
 from base_conf import CONFIG
 from base_conf import BASE
+from base_conf import METADATA
 
 __author__ = 'rolandh'
 
@@ -42,9 +43,10 @@ for key, spec in COMBOS.items():
 
     cnf[key] = _config
 
-_str = "BASE = '{}'\n".format(BASE)
+_str = "METADATA = {}\n".format(METADATA)
+_str += "BASE = '{}'\n".format(BASE)
 _str += "CONFIG = {}".format(pp.pformat(cnf))
-_str = _str.replace("u'", "'")
+#_str = _str.replace("u'", "'")
 
 fil = open("conf.py", "w")
 fil.write(_str)

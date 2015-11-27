@@ -1,3 +1,4 @@
+import logging
 import aatest
 import time
 from saml2.client import Saml2Client
@@ -5,6 +6,7 @@ from saml2.config import SPConfig
 
 __author__ = 'roland'
 
+logger = logging.getLogger(__name__)
 
 class Trace(aatest.Trace):
     @staticmethod
@@ -28,7 +30,15 @@ class Trace(aatest.Trace):
 
 
 def make_client(sp, **kw_args):
-    return Saml2Client(config=kw_args["spconf"][sp])
+    try:
+        conf = SPConfig().load(kw_args["spconf"][sp])
+    except KeyError:
+        logging.warning("known SP configs: {}".format(kw_args["spconf"].keys()))
+        raise
+
+    conf.metadata = kw_args['metadata']
+
+    return Saml2Client(config=conf)
 
 
 def map_prof(a, b):

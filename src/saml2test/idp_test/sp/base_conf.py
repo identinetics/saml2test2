@@ -24,11 +24,8 @@ BASE = "http://localhost:8087"
 CONFIG = {
     'description': 'Verify Entity Categories SP',
     "entityid": "{base}/{sp_id}/sp.xml",
-    "key_file": "../pki/mykey.pem",
-    "cert_file": "../pki/mycert.pem",
-    "metadata": [{
-        "class": "saml2.mdstore.MetaDataFile",
-        "metadata": [('./local_idp.xml',)]}],
+    "key_file": "./pki/mykey.pem",
+    "cert_file": "./pki/mycert.pem",
     'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
     'service': {
         'sp': {
@@ -49,3 +46,7 @@ CONFIG = {
     },
     'xmlsec_binary': xmlsec_path
 }
+
+METADATA = [{
+        "class": "saml2.mdstore.MetaDataFile",
+        "metadata": [('./local_idp.xml',)]}],

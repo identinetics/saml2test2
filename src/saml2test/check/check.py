@@ -1,23 +1,21 @@
 import inspect
-from aatest import check
-from aatest import Unknown
-from aatest.check import CRITICAL, OK, WARNING
-from aatest.check import Check
 import sys
+
+from aatest.check import Check
+from aatest.check import CRITICAL
+from aatest.check import OK
+from aatest.check import WARNING
+
 from saml2.mdstore import REQ2SRV
-from saml2.response import AuthnResponse
-from saml2.s_utils import UnknownPrincipal, UnsupportedBinding
+from saml2.s_utils import UnknownPrincipal
+from saml2.s_utils import UnsupportedBinding
 from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
-from saml2.samlp import AuthnRequest, STATUS_SUCCESS
+from saml2.samlp import AuthnRequest
+from saml2.samlp import STATUS_SUCCESS
+from saml2.response import AuthnResponse
+
 
 __author__ = 'roland'
-
-
-def get_message(msgs, msgcls):
-    for msg in reversed(msgs):
-        if isinstance(msg, msgcls):
-            return msg
-    return None
 
 
 class VerifySubject(Check):
@@ -27,11 +25,12 @@ class VerifySubject(Check):
     cid = 'verify_subject'
 
     def __call__(self, conv=None, output=None):
-        response = get_message(conv.protocol_response, AuthnResponse).response
+        response = conv.events.get_message('protocol_response',
+                                           AuthnResponse).response
         # Assumes only one assertion
         # TODO deal with more then one assertion if necessary
         subj = response.assertion[0].subject
-        request = get_message(conv.protocol_request, AuthnRequest)
+        request = conv.events.get_message('protocol_request', AuthnRequest)
 
         res = {}
         # Nameid format
@@ -64,13 +63,11 @@ class VerifyAttributes(Check):
     cid = 'verify_attributes'
 
     def __call__(self, conv=None, output=None):
-        ava = get_message(conv.protocol_response, AuthnResponse).ava
+        ava = conv.events.get_message('protocol_response', AuthnResponse).ava
 
         conf = conv.client.config
         entcat = conv.extra_args["entcat"]
 
-        # Do I really care about optional attributes ?
-        #op_attr = conf.getattr('optional_attributes', 'sp')
         req_attr = conf.getattr('required_attributes', 'sp')
 
         ec_attr = []
@@ -209,7 +206,7 @@ class VerifyLogout(Check):
 
     def _func(self, conv):
         # Check that the logout response says it was a success
-        resp = conv.protocol_response[-1]
+        resp = conv.events.last('protocol_response')
         status = resp.response.status
         try:
             assert status.status_code.value == STATUS_SUCCESS
@@ -229,20 +226,13 @@ class VerifyLogout(Check):
         return {}
 
 
-CLASS_CACHE = {}
+def factory(cid):
+    for name, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.isclass(obj) and issubclass(obj, Check):
+            try:
+                if obj.cid == cid:
+                    return obj
+            except AttributeError:
+                pass
 
-
-def factory(cid, classes=CLASS_CACHE):
-    if len(classes) == 0:
-        check.factory(cid, classes)
-        for name, obj in inspect.getmembers(sys.modules[__name__]):
-            if inspect.isclass(obj):
-                try:
-                    classes[obj.cid] = obj
-                except AttributeError:
-                    pass
-
-    if cid in classes:
-        return classes[cid]
-    else:
-        raise Unknown("Couldn't find the check: '%s'" % cid)
+    return None

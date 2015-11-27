@@ -1,22 +1,29 @@
 import yaml
+import pkgutil
+
+from aatest import check as aa_check
 from aatest.func import factory as aafactory
+
 from saml2test import check_metadata
+from saml2test import check as st_check
+
 from saml2test.func import factory
 from saml2.config import SPConfig
 from saml2test.cl_request import factory as cl_factory
 from saml2test.wb_request import factory as wb_factory
+
 
 __author__ = 'roland'
 
 
 def collect_ec():
     from saml2 import entity_category
-    import pkgutil
 
     package = entity_category
     prefix = package.__name__ + "."
     ec_map = {}
-    for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
+    for importer, modname, ispkg in pkgutil.iter_modules(package.__path__,
+                                                         prefix):
         module = __import__(modname, fromlist="dummy")
         try:
             _base = module.RELEASE['']
@@ -91,3 +98,17 @@ def parse_yaml_conf(cnf_file, use='cl'):
         spec["sequence"] = seq
 
     return yc
+
+
+def get_check(check_id):
+
+    package = st_check
+    prefix = package.__name__ + "."
+    for importer, modname, ispkg in pkgutil.iter_modules(package.__path__,
+                                                         prefix):
+        module = __import__(modname, fromlist="dummy")
+        chk = module.factory(check_id)
+        if chk:
+            return chk
+
+    return aa_check.factory(check_id)

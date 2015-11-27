@@ -15,8 +15,10 @@ import saml2.xmldsig as ds
 
 from saml2.mdstore import destinations
 from saml2.time_util import in_a_while
-from saml2test.check import VerifyFunctionality
-from saml2test.request import map_arguments, PostRequest, SoapRequest
+from saml2test.check.check import VerifyFunctionality
+from saml2test.request import map_arguments
+from saml2test.request import PostRequest
+from saml2test.request import SoapRequest
 from saml2test.request import UnknownBinding
 from saml2test.request import ProtocolMessage
 from saml2test.request import RedirectRequest
@@ -50,7 +52,7 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.client.create_authn_request(
             destination=destination, **self.req_args)
 
-        self.conv.protocol_request.append(request)
+        self.conv.events.store('protocol_request', request)
 
         _req_str = str(request)
 
@@ -73,14 +75,16 @@ class AuthnRequest(ProtocolMessage):
         else:
             http_info = self.client.apply_binding(self.binding, _req_str,
                                                   destination, **args)
+
+        self.conv.events.store('http_info', http_info)
         return http_info, request_id
 
     def handle_response(self, result, response_args):
         _cli = self.conv.client
         resp = _cli.parse_authn_request_response(
             result['SAMLResponse'], self.req_args['response_binding'],
-            response_args["outstanding"])
-        self.conv.protocol_response.append(resp)
+            response_args["qoutstanding"])
+        self.conv.events.store('protocol_response', resp)
 
 
 class LogOutRequest(ProtocolMessage):
@@ -117,6 +121,8 @@ class LogOutRequest(ProtocolMessage):
             destination, _entity_id, name_id=_name_id,
             reason=self.req_args['reason'],
             expire=expire, session_indexes=session_indexes)
+
+        self.conv.events.store('protocol_request', request)
 
         # to_sign = []
         if self.binding.startswith("http://"):
@@ -158,12 +164,14 @@ class LogOutRequest(ProtocolMessage):
                 "name_id": code(_name_id), "reason": self.req_args['reason'],
                 "not_on_of_after": expire, "sign": sign}
 
+        self.conv.events.store('http_info', http_info)
+
         return http_info, req_id
 
     def handle_response(self, result, response_args):
         resp = self.conv.client.parse_logout_request_response(result['text'],
                                                               self.binding)
-        self.conv.protocol_response.append(resp)
+        self.conv.events.store('protocol_response', resp)
 
 
 class AuthnRedirectRequest(RedirectRequest):

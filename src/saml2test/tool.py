@@ -1,12 +1,13 @@
 import logging
 from urllib.parse import parse_qs
 
-from aatest import tool, FatalError
+from aatest import tool
+from aatest import FatalError
 from aatest import exception_trace
 from aatest import Trace
-from aatest.check import ERROR
 from aatest.conversation import Conversation
-from aatest.interaction import Action, InteractionNeeded
+from aatest.interaction import Action
+from aatest.interaction import InteractionNeeded
 
 from saml2test.common import make_client
 

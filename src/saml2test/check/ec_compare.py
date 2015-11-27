@@ -1,6 +1,9 @@
 from enum import IntEnum
+import sys
+import inspect
+
 from aatest.check import Check
-from aatest.check import WARNING
+
 from saml2.entity_category.edugain import COCO
 from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
 from saml2.entity_category.swamid import SFS_1993_1153
@@ -9,7 +12,6 @@ from saml2.entity_category.swamid import EU
 from saml2.entity_category.swamid import NREN
 from saml2.entity_category.swamid import HEI
 from saml2.response import AuthnResponse
-from saml2test.check import get_message
 
 
 class TestStatus(IntEnum):
@@ -65,51 +67,6 @@ class EntityCategoryTestResult:
     def __hash__(self):
         return hash(
             (self.test_id, self.missing_attributes, self.extra_attributes))
-
-
-# class EntityCategoryComparison:
-#     def __init__(self, attribute_release_policy):
-#         self.policy = attribute_release_policy
-#
-#     def __call__(self, entity_categories, attributes):
-#         expected_attributes = get_expected_attributes(self.policy,
-#                                                       entity_categories)
-#         lowercase_attribute_names = [k.lower() for k in attributes.keys()]
-#
-#         missing = []
-#         for key in expected_attributes:
-#             if key.lower() not in lowercase_attribute_names:
-#                 missing.append(key)
-#
-#         extra = []
-#         for key in lowercase_attribute_names:
-#             if key not in expected_attributes:
-#                 extra.append(key)
-#         return EntityCategoryTestResult(missing, extra)
-#
-#
-# def get_expected_attributes(attribute_release_policy, entity_categories):
-#     def expected_attributes_for_entity_categories(ec_maps, entity_categories,
-#                                                   **kwargs):
-#         entity_categories_set = set(entity_categories)
-#         expected_attributes = set()
-#         for ec_map in ec_maps:
-#             for ec, released_attributes in ec_map.items():
-#                 always_released = ec == ""
-#                 covers_ec_combo = isinstance(
-#                     ec, tuple) and entity_categories_set.issuperset(ec)
-#                 # specified entity categories includes at least the
-#                 # release policies entity categories
-#                 if ec in entity_categories or always_released or \
-#                         covers_ec_combo:
-#                     expected_attributes.update(released_attributes)
-#
-#         return expected_attributes
-#
-#     return attribute_release_policy.get(
-#         "entity_categories", None,
-#         post_func=expected_attributes_for_entity_categories,
-#         entity_categories=entity_categories)
 
 
 def verify_rs_compliance(ava, req, ec_attr, *args):
@@ -228,7 +185,7 @@ class VerifyEntityCategory(Check):
 
     def __call__(self, conv=None, output=None):
         conf = conv.client.config
-        ava = get_message(conv.protocol_response, AuthnResponse).ava
+        ava = conv.events.get_message('protocol_response', AuthnResponse).ava
         req_attr = conf.getattr('required_attributes', 'sp')
         entcat = conv.extra_args["entcat"]
 
@@ -259,3 +216,13 @@ class VerifyEntityCategory(Check):
         return res
 
 
+def factory(cid):
+    for name, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.isclass(obj) and issubclass(obj, Check):
+            try:
+                if obj.cid == cid:
+                    return obj
+            except AttributeError:
+                pass
+
+    return None

@@ -8,9 +8,10 @@ from aatest import Unknown
 from aatest.operation import Operation
 
 # from saml2 import samlp
-from saml2 import SAMLError
+from saml2 import SAMLError, BINDING_SOAP
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
+from saml2.httputil import Response
 
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
@@ -121,9 +122,13 @@ class RedirectRequest(Request):
     _class = None
     _args = {}
     _method = 'GET'
+    _binding = BINDING_HTTP_REDIRECT
 
     def run(self):
         info = self._make_request()
+        if isinstance(info, Response):
+            return info
+
         _method = info['method']
         _loc = ''
         for header, value in info['headers']:
@@ -165,6 +170,7 @@ class PostRequest(Request):
     _class = None
     _args = {}
     _method = 'POST'
+    _binding = BINDING_HTTP_POST
 
     def run(self):
         send_args = self._make_request()
@@ -181,6 +187,7 @@ class SoapRequest(Request):
     _class = None
     _args = {}
     _method = 'POST'
+    _binding = BINDING_SOAP
 
     def run(self):
         send_args = self._make_request()

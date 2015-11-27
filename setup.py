@@ -26,8 +26,13 @@ setup(
     author="Roland Hedberg",
     author_email="roland.hedberg@umu.se",
     license="Apache 2.0",
-    package_dir={"": "src"},
+    package_dir={"saml2test": "src/saml2test"},
     packages=find_packages('src'),
+    package_data={
+        'saml2test': [
+            'templates/*.html'
+        ]
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
@@ -35,8 +40,8 @@ setup(
     install_requires=[
         "pysaml2",
         "requests >= 2.0.0",
-        "beautifulsoup4",
-        "mechanize>=0.2.6.dev-20121117"
+        ''
+        'flask'
     ],
     zip_safe=False,
 )

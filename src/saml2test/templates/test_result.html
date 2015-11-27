@@ -1,0 +1,25 @@
+{% macro render(test_result) %}
+
+{% if test_result|length == 0 %}
+    Perfect match.
+{% endif %}
+
+{% if test_result.extra_attributes|length > 0 %}
+    The following parameters should NOT be returned:
+    <ul>
+        {% for item in test_result.extra_attributes|sort %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if test_result.missing_attributes|length > 0 %}
+    The following parameters should be returned:
+    <ul>
+        {% for item in test_result.missing_attributes|sort %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% endmacro %}

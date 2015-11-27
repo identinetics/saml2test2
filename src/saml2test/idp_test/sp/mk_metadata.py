@@ -7,7 +7,9 @@ from saml2.metadata import entities_descriptor
 from saml2.metadata import metadata_tostring_fix
 from saml2.sigver import security_context
 from saml2.validate import valid_instance
+
 from saml2test.util import read_multi_conf
+from saml2test import metadata
 
 __author__ = 'roland'
 
@@ -30,6 +32,11 @@ parser.add_argument(dest="config")
 args = parser.parse_args()
 
 _cnf = importlib.import_module(args.config)
+
+# Can just ignore the Metadata that the SPs should load
+#acnf = list(_cnf.CONFIG.values())[0]
+#mds = metadata.load(True, acnf, _cnf.METADATA)
+
 res = read_multi_conf(_cnf, True)
 eds = []
 for key, cnf in res.items():

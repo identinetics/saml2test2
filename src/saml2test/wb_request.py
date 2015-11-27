@@ -6,14 +6,21 @@ from urllib.parse import urlencode
 from aatest import Unknown
 from saml2 import BINDING_HTTP_ARTIFACT
 
-from saml2.httputil import Response, SeeOther
 from saml2.httputil import Redirect
+from saml2.httputil import Response
+from saml2.httputil import SeeOther
 from saml2.httputil import ServiceError
 from saml2.s_utils import sid
+from saml2test.cl_request import LogOutRequest
 
 from saml2test.request import ProtocolMessage
+from saml2test.request import RedirectRequest
+from saml2test.request import PostRequest
+from saml2test.request import SoapRequest
 from saml2test.request import map_arguments
 from saml2test.request import ServiceProviderRequestHandlerError
+
+from saml2test.check.check import VerifyFunctionality
 
 __author__ = 'roland'
 
@@ -67,7 +74,8 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.client.create_authn_request(
             destination=destination, **self.req_args)
 
-        self.conv.protocol_request.append(request)
+        self.conv.events.store('protocol_request', request)
+        self.conv.events.store('request_args', self.req_args)
 
         _req_str = str(request)
 
@@ -80,12 +88,13 @@ class AuthnRequest(ProtocolMessage):
             except KeyError:
                 pass
 
-        return self.response(
-            self.binding,
-            self.client.apply_binding(self.binding, _req_str, destination,
-                                      **args))
+        http_info = self.client.apply_binding(self.binding, _req_str,
+                                              destination, **args)
+        self.conv.events.store('http_info', http_info)
+        return self.response(self.binding, http_info), request_id
 
     def handle_response(self, result, response_args):
+        logger.debug("response_args: {}".format(response_args))
         _cli = self.conv.client
         try:
             resp = _cli.parse_authn_request_response(
@@ -103,15 +112,15 @@ class AuthnRequest(ProtocolMessage):
             raise ServiceProviderRequestHandlerError(message)
 
         # Message has been answered
-        try:
-            del self.response_args["outstanding"][resp.in_response_to]
-        except KeyError:
-            if not _cli.allow_unsolicited:
-                raise ServiceProviderRequestHandlerError(
-                    "Got unsolicited response with id: '{}'".format(
-                        resp.in_response_to))
+        # try:
+        #     del self.response_args["outstanding"][resp.in_response_to]
+        # except KeyError:
+        #     if not _cli.allow_unsolicited:
+        #         raise ServiceProviderRequestHandlerError(
+        #             "Got unsolicited response with id: '{}'".format(
+        #                 resp.in_response_to))
 
-        self.conv.protocol_response.append(resp)
+        self.conv.events.store('protocol_response', resp)
 
 
 class Discovery(ProtocolMessage):
@@ -126,15 +135,79 @@ class Discovery(ProtocolMessage):
             sp.config.entityid,
             **{"return": return_to})
         logger.debug("Redirect to Discovery Service: %s", redirect_url)
+        self.conv.events.store("discovery redirect url", redirect_url)
         return SeeOther(redirect_url)
 
     def handle_response(self, result, response_args):
         idp_entity_id = result["entityID"]
         session_id = result["sid"]
+        self.conv.events.store("discovery response", response_args)
         request_origin = response_args["outstanding"][session_id]
 
         del response_args["outstanding"][session_id]
         return idp_entity_id, request_origin
+
+
+class AuthnRedirectRequest(RedirectRequest):
+    request = "authn_request"
+    req_cls = AuthnRequest
+    tests = {}
+
+    def _make_request(self):
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
+        response, request_id = self.request_inst.make_request()
+        self.conv.events.store('outstanding', {request_id: "/"})
+        return response
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
+
+
+class AuthnPostRequest(PostRequest):
+    request = "authn_request"
+    req_cls = AuthnRequest
+    tests = {}
+
+    def _make_request(self):
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
+        http_info, request_id = self.request_inst.make_request()
+        self.conv.events.store('outstanding', {request_id: "/"})
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
+
+
+class AttributeQuery(SoapRequest):
+    request = "authn_request"
+    req_cls = AuthnRequest
+    tests = {}
+
+    def _make_request(self):
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
+        http_info, request_id = self.request_inst.make_request()
+        self.conv.events.store('outstanding', {request_id: "/"})
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
+
+
+class LogOutRequestSoap(SoapRequest):
+    req_cls = LogOutRequest
+    tests = {"pre": [VerifyFunctionality], "post": []}
+
+    def _make_request(self):
+        self.request_inst = self.req_cls(self.conv, self.req_args,
+                                         binding=self._binding)
+        http_info, request_id = self.request_inst.make_request()
+        return http_info
+
+    def handle_response(self, result, *args):
+        self.request_inst.handle_response(result, self.response_args)
 
 
 # -----------------------------------------------------------------------------
