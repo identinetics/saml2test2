@@ -4,7 +4,8 @@ import logging
 from urllib.parse import urlencode
 
 from aatest import Unknown
-from saml2 import BINDING_HTTP_ARTIFACT
+from saml2 import BINDING_HTTP_ARTIFACT, BINDING_HTTP_REDIRECT, \
+    BINDING_HTTP_POST
 
 from saml2.httputil import Redirect
 from saml2.httputil import Response
@@ -90,8 +91,13 @@ class AuthnRequest(ProtocolMessage):
 
         http_info = self.client.apply_binding(self.binding, _req_str,
                                               destination, **args)
+
         self.conv.events.store('http_info', http_info)
-        return self.response(self.binding, http_info), request_id
+
+        if self.binding in [BINDING_HTTP_REDIRECT, BINDING_HTTP_POST]:
+            return self.response(self.binding, http_info), request_id
+        else:
+            return http_info, request_id
 
     def handle_response(self, result, response_args):
         logger.debug("response_args: {}".format(response_args))

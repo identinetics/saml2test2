@@ -1,4 +1,3 @@
-from enum import IntEnum
 import sys
 import inspect
 
@@ -15,21 +14,16 @@ from saml2.entity_category.swamid import HEI
 from saml2.response import AuthnResponse
 
 
-class TestStatus(IntEnum):
-    ok = 1
-    too_few = 2
-    too_many = 3
-    too_few_too_many = 4
-
+OK = 0
+MISSING = 1
+EXTRA = 2
 
 class EntityCategoryTestStatus:
     def __init__(self, status):
         self._status = status
         self.short_text = {
-            TestStatus.ok: "OK",
-            TestStatus.too_few: "Too few",
-            TestStatus.too_many: "Too many",
-            TestStatus.too_few_too_many: "Too few & too many",
+            OK: "OK", MISSING: "Too few", EXTRA: "Too many",
+            MISSING+EXTRA: "Too few & too many",
         }[status]
 
     @property
@@ -38,6 +32,8 @@ class EntityCategoryTestStatus:
 
 
 class EntityCategoryTestResult(TestResult):
+    name = 'entity_category_test_result'
+
     def __init__(self, test_id, status, name, mti=False, specifics=None):
         TestResult.__init__(self, test_id, status, name, mti=mti)
         self.specifics = specifics or []
@@ -50,10 +46,11 @@ class EntityCategoryTestResult(TestResult):
 
 
 class Result(object):
-    def __init__(self, ent_cat='', missing=None, extra=None):
+    def __init__(self, ent_cat='', missing=None, extra=None, expected=None):
         self.ent_cat = ent_cat
         self.missing = missing or []
         self.extra = extra or []
+        self.expected = expected or []
 
     def __len__(self):
         return len(self.missing) + len(self.extra)
@@ -70,15 +67,63 @@ class Result(object):
             return "{}: -".format(self.ent_cat)
 
     @property
-    def message(self):
+    def status(self):
         if len(self) == 0:
-            return EntityCategoryTestStatus(TestStatus.ok)
+            return OK
         elif len(self.missing) > 0 and len(self.extra) > 0:
-            return EntityCategoryTestStatus(TestStatus.too_few_too_many)
+            return MISSING+EXTRA
         elif len(self.missing) > 0:
-            return EntityCategoryTestStatus(TestStatus.too_few)
+            return MISSING
         elif len(self.extra) > 0:
-            return EntityCategoryTestStatus(TestStatus.too_many)
+            return EXTRA
+
+    @property
+    def message(self):
+        return EntityCategoryTestStatus(self.status)
+
+    @property
+    def short_status_text(self):
+        return EntityCategoryTestStatus(self.status).short_text
+
+    def received(self, ava, ec_attr):
+        for attr in ec_attr:
+            if attr in ava:
+                self.expected.append(attr)
+
+    @staticmethod
+    def _and_list(list_a, list_b):
+        """
+        Create a new list which contains all unique elements in the two lists
+        given
+        :param list_a: list one
+        :param list_b: list two
+        :return: A list
+        """
+        _a = set(list_a)
+        _a.update(list_b)
+        return list(_a)
+
+    @staticmethod
+    def _not_in(list_a, list_b):
+        _a = set(list_a)
+        _a.difference_update(list_b)
+        return list(_a)
+
+    def union(self, other):
+        """
+        Create new set with elements from self and other
+
+        :param other: Another Result instance
+        :return: A newly minted Result representing the combination of self
+            and other.
+        """
+        assert isinstance(other, Result)
+        res = Result()
+        res.ent_act = '{} and {}'.format(self.ent_cat, other.ent_cat)
+        res.missing = self._and_list(self.missing, other.missing)
+        res.expected = self._and_list(self.expected, other.expected)
+        res.extra = self._not_in(self.extra, other.expected)
+        return res
 
 
 def verify_rs_compliance(ec, ava, req, ec_attr):
@@ -104,9 +149,10 @@ def verify_rs_compliance(ec, ava, req, ec_attr):
     """
 
     res = Result(ent_cat=ec)
+    res.received(ava, ec_attr)
 
     # Verifying the minimal subset
-    for attr in ['eduPersonPrincipalName', 'mail']:
+    for attr in ['eduPersonPrincipalName', 'mail', 'eduPersonTargetedID']:
         if attr not in ava:
             res.missing.append(attr)
 
@@ -139,14 +185,18 @@ def verify_coco_compliance(ec, ava, req, ec_attr):
     """
 
     res = Result(ent_cat=ec)
+    res.received(ava, ec_attr)
 
     for attr in ec_attr:
-        if attr in req:
+        if attr in req or attr == 'eduPersonTargetedID':
             if attr not in ava:
                 res.missing.append(attr)
-        else:
-            if attr in ava:
-                res.extra.append(attr)
+
+    for attr in ava:
+        if attr == 'eduPersonTargetedID':
+            continue
+        if attr not in req:
+            res.extra.append(attr)
 
     return res
 
@@ -154,7 +204,7 @@ def verify_coco_compliance(ec, ava, req, ec_attr):
 def verify_ec_compliance(ec, ava, req, ec_attr):
     """
     Release all attributes that are part of the entity category set of
-    attributes.
+    attributes disregarding which are required.
 
     :param ava: Attribute - Value assertion
     :param req: Required attributes - not used
@@ -163,6 +213,7 @@ def verify_ec_compliance(ec, ava, req, ec_attr):
     """
 
     res = Result(ent_cat=ec)
+    res.received(ava, ec_attr)
 
     for attr in ec_attr:
         if attr not in ava:
@@ -198,28 +249,40 @@ class VerifyEntityCategory(Check):
         entcat = conv.extra_args["entcat"]
 
         self.ec = conf.entity_category
-        result = {'missing': [], 'extra': []}
 
         non_compliant = []
         if self.ec:
-            if RESEARCH_AND_EDUCATION in self.ec:  # find the other
+            # This is a specific demand that SWAMID has placed
+            # R&E MUST NOT appear on its own
+            if RESEARCH_AND_EDUCATION in self.ec:
+                must = False
                 for _ec in [EU, NREN, HEI]:
                     if _ec in self.ec:
+                        must = True
                         self.ec.remove(_ec)
                         self.ec.append((RESEARCH_AND_EDUCATION, _ec))
+                if not must:
+                    self._message = 'Research and Education must be combined ' \
+                                    'with another entity category from the ' \
+                                    'SWAMID list'
+                    self._status = Warning
+                    return {}
 
+            non_compliant = None
             for ec in self.ec:
                 _res = VERIFY[ec](ec, ava, req_attr, entcat[ec])
                 if len(_res):
-                    non_compliant.append(_res)
+                    if non_compliant is None:
+                        non_compliant = _res
+                    else:
+                        non_compliant = non_compliant.union(_res)
 
         if non_compliant:
-            res = {'message': 'Non compliant', 'status': Warning,
-                   'specifics': non_compliant}
-        else:
-            res = {}
+            self._message = 'Non compliant'
+            self._status = Warning
+            return {'test_result': non_compliant}
 
-        return res
+        return {}
 
 
 def factory(cid):

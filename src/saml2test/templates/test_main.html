@@ -1,0 +1,120 @@
+
+{% macro render_ec_line(test_id, base, info, result=None) %}
+<li>
+  <a href="/tests/{{ test_id }}">
+    {# First the status marker which is clickable #}
+    {% if result %}
+      {% set testres = result['verify_entity_category']['test_result'] %}
+      {% if testres.status == 0 %}
+        <img src="/static/green.png" alt="Green">
+      {% elif testres.status in [1, 2, 3] %}
+        <img src="/static/yellow.png" alt="Yellow">
+      {% else %}
+        <img src='/static/qmark.jpg' alt='QuestionMark'>
+      {% endif %}
+    {% else %}
+      <img src="/static/black.png" alt="Black">
+    {% endif %}
+  </a>
+  {# Test description #}
+  {{ info.desc }}
+  {# Test name #}
+  {{ info.test_id }}
+  {# adding extra icons #}
+  {% if result %}
+  <a href="/test_info/{{test_id}}">
+    <img src='/static/info32.png'></a>
+  {% endif %}
+</li>
+{% endmacro %}
+
+{% macro render_line(test_id, base, info, result=None) %}
+<li>
+  <a href="/tests/{{ test_id }}">
+    {# First the status marker which is clickable #}
+    {% if result %}
+      {% if result.status == 1 %}
+        <img src="/static/green.png" alt="Green">
+      {% elif result.status == 2 %}
+        <img src="/static/yellow.png" alt="Yellow">
+      {% elif result.status == 3 %}
+        <img src="/static/red.png" alt="Red">
+      {% else %}
+        <img src="/static/qmark.jpg" alt="QuestionMark">
+      {% endif %}
+    {% else %}
+      <img src="/static/black.png" alt="Black">
+    {% endif %}
+  </a>
+  {# Test description #}
+  {{ info.desc }}
+  {# Test name #}
+  ({{ test_id }})
+  {# adding extra icons #}
+  {% if result %}
+  <a href='/test_info/{{test_id}}'><img src='/static/info32.png'></a>
+  {% endif %}
+</li>
+{% endmacro %}
+
+{% macro render_list(base, test_info, test_results, check_result) %}
+  <ul>
+  {% for test_id, info in test_info|dictsort %}
+    {% if test_id in test_results.keys() %}
+      {% if info['profile'].startswith('entcat') %}
+        {{ render_ec_line(test_id, base, info, check_result[test_id])}}
+      {% else %}
+        {{ render_line(test_id, base, info, check_result[test_id]) }}
+      {% endif %}
+    {% else %}
+      {{ render_line(test_id, base, info) }}
+    {% endif %}
+  {% endfor %}
+  </ul>
+{% endmacro %}
+
+{% macro legends(base) %}
+  <table border='1' id='legends'>
+    <tr>
+      <td><img src="/static/black.png" alt="Black"></td>
+      <td>The test has not been run</td>
+    </tr>
+    <tr>
+      <td><img src='/static/green.png' alt='Green'></td>
+      <td>Success</td>
+    </tr>
+    <tr>
+      <td><img src='/static/yellow.png' alt='Yellow'></td>
+      <td>Warning, something was not as expected</td>
+    </tr>
+    <tr>
+      <td><img src='/static/red.png' alt='Red'></td>
+      <td>Failed</td>
+    </tr>
+    <tr>
+      <td><img src='/static/qmark.jpg' alt='QuestionMark'></td>
+      <td>The test flow wasn't completed. This may have been expected or not</td>
+    </tr>
+    <tr>
+      <td><img src='/static/info32.png'></td>
+      <td>Signals the fact that there are trace information available for the test</td>
+    </tr>
+  </table>
+{% endmacro %}
+
+
+{% block content %}
+
+  <div class="jumbotron">
+      <h1>SAML2 IdP Tests</h1>
+      <em>Explanations of legends at <a href="#legends">end of page</a></em>
+
+      <h3>Chose the next test flow you want to run from this list: </h3>
+      {{ render_list(base, tests, test_results, check_result) }}
+      <h3>Legends</h3>
+      {{ legends() }}
+  </div>
+  <script src="/static/jquery.min.1.9.1.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+{% endblock %}

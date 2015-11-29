@@ -174,7 +174,10 @@ class PostRequest(Request):
 
     def run(self):
         send_args = self._make_request()
-        # _method = info['method']
+        if isinstance(send_args, Response):
+            logger.debug(send_args)
+            return send_args
+
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
         self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
@@ -191,6 +194,9 @@ class SoapRequest(Request):
 
     def run(self):
         send_args = self._make_request()
+        if isinstance(send_args, Response):
+            return send_args
+
         # _method = info['method']
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
