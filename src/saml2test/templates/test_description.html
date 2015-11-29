@@ -9,7 +9,7 @@
 <p>
     <strong>This category should return the attributes:</strong>
 <ul>
-    {% for attribute in test_info.expected_attributes|sort %}
+    {% for attribute in test_info.required_attributes|sort %}
         <li>{{ attribute }}</li>
     {% endfor %}
 </ul>

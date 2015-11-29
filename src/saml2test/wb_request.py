@@ -80,6 +80,7 @@ class AuthnRequest(ProtocolMessage):
 
         _req_str = str(request)
 
+        self.conv.trace.request(_req_str)
         logger.info("AuthNReq: %s", _req_str)
 
         args = {}
@@ -93,6 +94,7 @@ class AuthnRequest(ProtocolMessage):
                                               destination, **args)
 
         self.conv.events.store('http_info', http_info)
+        self.conv.trace.info("http_info: {}".format(http_info))
 
         if self.binding in [BINDING_HTTP_REDIRECT, BINDING_HTTP_POST]:
             return self.response(self.binding, http_info), request_id
@@ -108,13 +110,15 @@ class AuthnRequest(ProtocolMessage):
                 response_args["outstanding"])
         except Exception as e:
             message = "{}: {}".format(type(e).__name__, str(e))
-            logger.error("%s: %s", type(e).__name__, str(e))
+            logger.error(message)
+            self.conv.trace.error(message)
             raise ServiceProviderRequestHandlerError(message)
 
         if not resp:
             message = "Could not parse authn response from IdP: {}".format(
                 resp)
             logger.error(message)
+            self.conv.trace.error(message)
             raise ServiceProviderRequestHandlerError(message)
 
         # Message has been answered
@@ -126,6 +130,7 @@ class AuthnRequest(ProtocolMessage):
         #             "Got unsolicited response with id: '{}'".format(
         #                 resp.in_response_to))
 
+        self.conv.trace.response(resp)
         self.conv.events.store('protocol_response', resp)
 
 

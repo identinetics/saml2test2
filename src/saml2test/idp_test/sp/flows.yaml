@@ -104,7 +104,7 @@ Flows:
       verify_entity_category: {}
     entity_category:
       - http://www.geant.net/uri/dataprotection-code-of-conduct/v1
-    required_attributes:
+    attribute_bundle:
       - eduPersonTargetedID
       - eduPersonPrincipalName
       - eduPersonScopedAffiliation
@@ -123,7 +123,7 @@ Flows:
       verify_entity_category: {}
     entity_category:
       - http://refeds.org/category/research-and-scholarship
-    required_attributes:
+    attribute_bundle:
       - edupersontargetedid
       - edupersonprincipalname
       - edupersonscopedaffiliation
@@ -144,7 +144,7 @@ Flows:
     entity_category:
       - http://www.swamid.se/category/research-and-education
       - http://www.swamid.se/category/eu-adequate-protection
-    required_attributes:
+    attribute_bundle:
       - edupersontargetedid
       - givenName
       - displayName
@@ -170,7 +170,7 @@ Flows:
     entity_category:
       - http://www.swamid.se/category/research-and-education
       - http://www.swamid.se/category/hei-service
-    required_attributes:
+    attribute_bundle:
       - edupersontargetedid
       - givenName
       - displayName
@@ -196,7 +196,7 @@ Flows:
     entity_category:
       - http://www.swamid.se/category/research-and-education
       - http://www.swamid.se/category/nren-service
-    required_attributes:
+    attribute_bundle:
       - edupersontargetedid
       - givenName
       - displayName
@@ -223,7 +223,7 @@ Flows:
       - http://www.swamid.se/category/research-and-education
       - http://www.swamid.se/category/nren-service
       - http://www.swamid.se/category/sfs-1993-1153
-    required_attributes:
+    attribute_bundle:
       - norEduPersonNIN
       - edupersontargetedid
       - givenName
@@ -251,7 +251,7 @@ Flows:
       - http://www.swamid.se/category/research-and-education
       - http://www.swamid.se/category/hei-service
       - http://www.swamid.se/category/sfs-1993-1153
-    required_attributes:
+    attribute_bundle:
       - norEduPersonNIN
       - edupersontargetedid
       - givenName

@@ -1,3 +1,4 @@
+import logging
 import sys
 import inspect
 
@@ -13,6 +14,7 @@ from saml2.entity_category.swamid import NREN
 from saml2.entity_category.swamid import HEI
 from saml2.response import AuthnResponse
 
+logger = logging.getLogger(__name__)
 
 OK = 0
 MISSING = 1
@@ -261,7 +263,10 @@ class VerifyEntityCategory(Check):
                         must = True
                         self.ec.remove(_ec)
                         self.ec.append((RESEARCH_AND_EDUCATION, _ec))
-                if not must:
+
+                if must:
+                    self.ec.remove(RESEARCH_AND_EDUCATION)
+                else:
                     self._message = 'Research and Education must be combined ' \
                                     'with another entity category from the ' \
                                     'SWAMID list'
@@ -269,6 +274,7 @@ class VerifyEntityCategory(Check):
                     return {}
 
             non_compliant = None
+            logger.info('Entity_categories: {}'.format(self.ec))
             for ec in self.ec:
                 _res = VERIFY[ec](ec, ava, req_attr, entcat[ec])
                 if len(_res):

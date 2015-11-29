@@ -1,0 +1,22 @@
+{% macro render_info(info, result, trace) %}
+
+<h3>Trace log</h3>
+
+<ul>
+{% for line in trace %}
+<li> {{line}} </li>
+{% endfor %}
+</ul>
+
+{% endmacro %}
+
+{% block content %}
+
+  <div class="jumbotron">
+      <h1>Test information</h1>
+      {{ render_info(info, result, trace) }}
+  </div>
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+{% endblock %}

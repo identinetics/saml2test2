@@ -1,0 +1,22 @@
+{% macro render_info(info, result, trace) %}
+
+<h3>Entity Category: {{ result.ent_cat }}</h3>
+{% if result.missing %}
+Missing attributes: {{ result.missing }}
+{% endif %}
+{% if result.extra %}
+Extra attributes: {{ result.extra }}
+{% endif %}
+
+{% endmacro %}
+
+{% block content %}
+
+  <div class="jumbotron">
+      <h1>Test information</h1>
+      {{ render_info(info, result) }}
+  </div>
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+{% endblock %}
