@@ -55,6 +55,13 @@ def setup_tester():
     return tester
 
 
+def entcat_test(tinfo):
+    for prof in tinfo['profiles']:
+        if prof == 'entcat' or prof.startswith('entcat:'):
+            return True
+    return False
+
+
 test_id, app_args = setup('wb')
 
 app = Flask('saml2test')
@@ -151,11 +158,15 @@ def acs():
             if b == 'verify_entity_category':
                 print(a, b, c['test_result'].status)
 
+    entcat_tests = dict(
+        [(t, entcat_test(v)) for t, v in app.config['TESTS'].items()])
+
     return render_template("test_main.html",
                            base=tester.conv.base_url,
                            tests=app.config["TESTS"],
                            test_results=test_results,
-                           check_result=check_result)
+                           check_result=check_result,
+                           ec_tests=entcat_tests)
 
 
 @app.route("/test_info/<test_id>")
@@ -169,14 +180,19 @@ def show_test_info(test_id):
     print("TRACE", trace)
 
     tinfo = app.config["TESTS"][test_id]
-    template = "test_{}_info.html".format(tinfo['profile'])
 
-    if tinfo['profile'] == 'entcat':
+    if entcat_test(tinfo):
+        template = "test_entcat_info.html"
         ava = tester.conv.events.get_message('protocol_response',
                                              AuthnResponse).ava
         # the specific test_result
         result = check_result[test_id]['verify_entity_category']['test_result']
+    elif 'saml2int' in tinfo['profiles']:
+        template = "test_saml2int_info.html"
+        ava = None
+        result = check_result[test_id]
     else:
+        template = "test_other_info.html"
         ava = None
         result = check_result[test_id]
 

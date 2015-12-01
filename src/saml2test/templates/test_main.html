@@ -57,11 +57,11 @@
 </li>
 {% endmacro %}
 
-{% macro render_list(base, test_info, test_results, check_result) %}
+{% macro render_list(base, test_info, test_results, check_result, ec_tests) %}
   <ul>
   {% for test_id, info in test_info|dictsort %}
     {% if test_id in test_results.keys() %}
-      {% if info['profile'].startswith('entcat') %}
+      {% if ec_tests[test_id] %}
         {{ render_ec_line(test_id, base, info, check_result[test_id])}}
       {% else %}
         {{ render_line(test_id, base, info, check_result[test_id]) }}
@@ -110,7 +110,7 @@
       <em>Explanations of legends at <a href="#legends">end of page</a></em>
 
       <h3>Chose the next test flow you want to run from this list: </h3>
-      {{ render_list(base, tests, test_results, check_result) }}
+      {{ render_list(base, tests, test_results, check_result, ec_tests) }}
       <h3>Legends</h3>
       {{ legends() }}
   </div>

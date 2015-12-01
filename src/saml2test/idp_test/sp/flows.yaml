@@ -4,11 +4,13 @@ Flows:
     desc: Verifies that the IdP metadata adheres to the saml2int spec
     sequence:
       - check_metadata.CheckSaml2IntMetaData
-    profile: saml2int
+    profiles: 
+      - saml2int
     sp: basic
   IDP-AuthnPost-nid_transient:
     desc: Basic SAML2 AuthnRequest using HTTP POST and transient NameID format
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
     -
       - AuthnPostRequest
@@ -21,14 +23,16 @@ Flows:
         name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
   IDP-AuthnPost-verify:
     desc: Basic SAML2 AuthnRequest using HTTP POST unspecified NameID format
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
     - AuthnPostRequest
     sp: basic
     tc_id: idp-auth-post-01
   IDP-AuthnRedirect-nid_email:
     desc: AuthnRequest with email nameID format
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
     -
       - AuthnRedirectRequest
@@ -41,7 +45,8 @@ Flows:
         name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
   IDP-AuthnRedirect-nid_transient:
     desc: AuthnRequest with transient nameID format
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
     -
       - AuthnRedirectRequest
@@ -54,7 +59,8 @@ Flows:
         name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
   IDP-AuthnRedirect-nid_unspecified:
     desc: AuthnRequest with unspecified nameID format
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
     -
       - AuthnRedirectRequest
@@ -64,7 +70,8 @@ Flows:
     tc_id: idp-auth-re-04
   IDP-AuthnRedirect-no_nid:
     desc: AuthnRequest no specified nameID format
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
     -
       - AuthnRedirectRequest
@@ -74,7 +81,8 @@ Flows:
     tc_id: idp-auth-re-03
   IDP-AuthnRedirect-verify:
     desc: Uses AuthnRequest to check connectivity
-    profile: saml2int
+    profiles: 
+      - saml2int
     sequence:
       - AuthnRedirectRequest
     sp: basic
@@ -92,10 +100,12 @@ Flows:
     tests:
       verify_logout: {}
     sp: basic
-    profile: saml2int
+    profiles: 
+      - saml2int
   IDP-EntityCategory-coco:
     desc: Uses AuthnRequest to verify CoCo entity category support
-    profile: entcat
+    profiles: 
+      - entcat
     sequence:
       - AuthnRedirectRequest
     sp: coco
@@ -114,7 +124,8 @@ Flows:
     short_name: CoCo
   IDP-EntityCategory-rs:
     desc: Uses AuthnRequest to verify R&S entity category support
-    profile: entcat
+    profiles: 
+      - entcat
     sequence:
       - AuthnRedirectRequest
     sp: rs
@@ -134,7 +145,9 @@ Flows:
     short_name: R&S
   IDP-EntityCategory-re_eu:
     desc: Uses AuthnRequest to verify R&E+EU entity category support
-    profile: entcat_se
+    profile: entcat:se
+    profiles: 
+      - entcat:se
     sequence:
       - AuthnRedirectRequest
     sp: re_eu
@@ -160,7 +173,8 @@ Flows:
     short_name: RE & EU
   IDP-EntityCategory-re_hei:
     desc: Uses AuthnRequest to verify R&E+HEI entity category support
-    profile: entcat_se
+    profiles: 
+      - entcat:se
     sequence:
       - AuthnRedirectRequest
     sp: re_hei
@@ -186,7 +200,8 @@ Flows:
     short_name: RE & HEI
   IDP-EntityCategory-re_nren:
     desc: Uses AuthnRequest to verify R&E+NREN entity category support
-    profile: entcat_se
+    profiles: 
+      - entcat:se
     sequence:
       - AuthnRedirectRequest
     sp: re_nren
@@ -212,7 +227,8 @@ Flows:
     short_name: RE & NREN
   IDP-EntityCategory-re_nren_sfs:
     desc: Uses AuthnRequest to verify R&E+NREN+SFS entity category support
-    profile: entcat_se
+    profiles: 
+      - entcat:se
     sequence:
       - AuthnRedirectRequest
     sp: re_nren_sfs
@@ -240,7 +256,8 @@ Flows:
     short_name: RE & HEI & SFS
   IDP-EntityCategory-re_hei_sfs:
     desc: Uses AuthnRequest to verify R&E+HEI+SFS entity category support
-    profile: entcat_se
+    profiles: 
+      - entcat:se
     sequence:
       - AuthnRedirectRequest
     sp: re_nren_hei

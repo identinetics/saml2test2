@@ -50,7 +50,7 @@ def setup(use='cl'):
     keep = []
     for key, val in fdef['Flows'].items():
         for p in cargs.profile:
-            if p in val['profile'].split(' '):
+            if p in val['profiles']:
                 keep.append(key)
 
     for key in list(fdef['Flows'].keys()):
