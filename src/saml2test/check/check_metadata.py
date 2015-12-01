@@ -1,6 +1,6 @@
 import inspect
-from aatest import Unknown
 from aatest.check import WARNING
+from aatest.check import Check
 from aatest.operation import Operation
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 import sys
@@ -64,20 +64,23 @@ class CheckSaml2IntMetaData(Metadata):
             return res
         else:
             # should support Transient
-            item = []
+            id_formats = []
             for nformat in idpsso["name_id_format"]:
-                item.append(nformat["text"])
+                id_formats.append(nformat["text"])
 
-            if not NAMEID_FORMAT_TRANSIENT in item:
+            if NAMEID_FORMAT_TRANSIENT not in id_formats:
                 res['message'] = "IdP should support Transient NameID Format"
                 res['status'] = WARNING
                 return res
 
 
-def factory(name):
-    for fname, obj in inspect.getmembers(sys.modules[__name__]):
-        if inspect.isclass(obj):
-            if name == fname:
-                return obj
+def factory(cid):
+    for name, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.isclass(obj) and issubclass(obj, Check):
+            try:
+                if obj.cid == cid:
+                    return obj
+            except AttributeError:
+                pass
 
-    raise Unknown("Couldn't find the operation: '{}'".format(name))
+    return None
