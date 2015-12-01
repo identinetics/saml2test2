@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aa13b5fe-4151-4438-9810-4b48cda844b3" name="Default" comment="Better and better day by day.">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/service.py" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/service.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/templates/test_entcat_info.html" afterPath="$PROJECT_DIR$/src/saml2test/templates/test_entcat_info.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/saml2test/wb_request.py" afterPath="$PROJECT_DIR$/src/saml2test/wb_request.py" />
+    <list default="true" id="aa13b5fe-4151-4438-9810-4b48cda844b3" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/beware.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/black.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/delete-icon.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/favicon.ico" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/green.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/info32.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/logo.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/qmark.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/red.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/run.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/start.gif" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/site/static/yellow.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="s2test.iws" />
@@ -224,8 +233,8 @@
       <file leaf-file-name="verify.py" pinned="false" current-in-tab="true">
         <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/verify.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33272395">
-              <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.27787933">
+              <caret line="22" column="24" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -1187,7 +1196,13 @@
       <option name="project" value="LOCAL" />
       <updated>1448817749741</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Better and better day by day.">
+      <created>1448962554968</created>
+      <option name="number" value="00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1448962554968</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1201,6 +1216,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30182928" sideWeight="0.5026296" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3280757" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1210,7 +1226,6 @@
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
@@ -1853,18 +1868,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/verify.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33272395">
-          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/saml2test/idp_test/sp/wb/service.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="2.605691">
           <caret line="183" column="34" selection-start-line="183" selection-start-column="34" selection-end-line="183" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/aatest-0.1.0-py3.5.egg/aatest/verify.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.27787933">
+          <caret line="22" column="24" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="24" />
           <folding />
         </state>
       </provider>
