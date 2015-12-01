@@ -10,6 +10,7 @@ from flask.templating import render_template
 
 from aatest.session import SessionHandler
 # import pickle
+from saml2.response import AuthnResponse
 
 from saml2.s_utils import rndstr
 
@@ -171,12 +172,16 @@ def show_test_info(test_id):
     template = "test_{}_info.html".format(tinfo['profile'])
 
     if tinfo['profile'] == 'entcat':
+        ava = tester.conv.events.get_message('protocol_response',
+                                             AuthnResponse).ava
         # the specific test_result
         result = check_result[test_id]['verify_entity_category']['test_result']
     else:
+        ava = None
         result = check_result[test_id]
 
-    return render_template(template, info=tinfo, result=result, trace=trace)
+    return render_template(template, info=tinfo, result=result, trace=trace,
+                           ava=ava)
 
 
 @app.route("/results_overview")

@@ -1,4 +1,4 @@
-{% macro render_info(info, result, trace) %}
+{% macro render_info(info, result, trace, ava) %}
 
 <h3>Entity Category: {{ result.ent_cat }}</h3>
 {% if result.missing %}
@@ -6,6 +6,18 @@ Missing attributes: {{ result.missing }}
 {% endif %}
 {% if result.extra %}
 Extra attributes: {{ result.extra }}
+<br>
+<h3>Received attributes</h3>
+<table>
+  <thead>
+  <tr><th>Attribute</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+  {% for attr, values in ava.items() %}
+    <tr><td>{{attr}}</td><td>{{values}}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endif %}
 
 {% endmacro %}
@@ -14,7 +26,7 @@ Extra attributes: {{ result.extra }}
 
   <div class="jumbotron">
       <h1>Test information</h1>
-      {{ render_info(info, result) }}
+      {{ render_info(info, result, trace, ava) }}
   </div>
   <script src="/static/jquery.min.js"></script>
   <script src="/static/bootstrap/js/bootstrap.min.js"></script>

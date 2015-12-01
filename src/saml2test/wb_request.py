@@ -130,7 +130,7 @@ class AuthnRequest(ProtocolMessage):
         #             "Got unsolicited response with id: '{}'".format(
         #                 resp.in_response_to))
 
-        self.conv.trace.response(resp)
+        self.conv.trace.reply(resp)
         self.conv.events.store('protocol_response', resp)
 
 
