@@ -29,7 +29,9 @@ class CheckSaml2IntMetaData(Metadata):
 
         # contact person
         if "contact_person" not in idpsso and "contact_person" not in ed:
-            res['message'] = "Metadata should contain contact person information"
+            res[
+                'message'] = "Metadata should contain contact person " \
+                             "information"
             res['status'] = WARNING
             return res
         else:
