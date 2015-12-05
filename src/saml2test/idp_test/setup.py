@@ -7,14 +7,14 @@ import argparse
 
 from aatest.common import setup_logger
 
-from saml2test import metadata
+from saml2test.idp_test import metadata
 
-from saml2test.common import make_client
-from saml2test.common import map_prof
-from saml2test.common import Trace
-from saml2test.prof_util import ProfileHandler
-from saml2test.util import collect_ec, get_check
-from saml2test.util import parse_yaml_conf
+from saml2test.idp_test.common import make_client
+from saml2test.idp_test.common import map_prof
+from saml2test.idp_test.common import Trace
+from saml2test.idp_test.prof_util import ProfileHandler
+from saml2test.idp_test.util import collect_ec, get_check
+from saml2test.idp_test.util import parse_yaml_conf
 
 from saml2.saml import factory as saml_message_factory
 

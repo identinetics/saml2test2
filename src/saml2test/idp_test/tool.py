@@ -9,7 +9,7 @@ from aatest.conversation import Conversation
 from aatest.interaction import Action
 from aatest.interaction import InteractionNeeded
 
-from saml2test.common import make_client
+from saml2test.idp_test.common import make_client
 
 logger = logging.getLogger(__name__)
 

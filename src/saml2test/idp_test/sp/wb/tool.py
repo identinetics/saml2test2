@@ -6,8 +6,8 @@ from aatest import exception_trace
 from aatest.conversation import Conversation
 from aatest.session import Done
 from aatest.verify import Verify
-from saml2test.common import make_client
-from saml2test.tool import restore_operation
+from saml2test.idp_test.common import make_client
+from saml2test.idp_test.tool import restore_operation
 
 __author__ = 'roland'
 

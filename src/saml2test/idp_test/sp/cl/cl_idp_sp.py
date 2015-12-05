@@ -4,9 +4,9 @@ import logging
 from aatest.io import ClIO
 from aatest.session import SessionHandler
 
-from saml2test.tool import ClTester
-from saml2test.io import SamlClIO
-from saml2test.setup import setup
+from saml2test.idp_test.tool import ClTester
+from saml2test.idp_test.io import SamlClIO
+from saml2test.idp_test.setup import setup
 
 __author__ = 'roland'
 

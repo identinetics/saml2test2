@@ -57,6 +57,6 @@ coverage.xml
 docs/_build/
 
 # PyBuilder
-target/
+src/saml2test/sp_test/target.py/
 
 .idea/

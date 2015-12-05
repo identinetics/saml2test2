@@ -8,8 +8,7 @@ from saml2.metadata import metadata_tostring_fix
 from saml2.sigver import security_context
 from saml2.validate import valid_instance
 
-from saml2test.util import read_multi_conf
-from saml2test import metadata
+from saml2test.idp_test.util import read_multi_conf
 
 __author__ = 'roland'
 
@@ -33,10 +32,6 @@ args = parser.parse_args()
 
 _cnf = importlib.import_module(args.config)
 
-# Can just ignore the Metadata that the SPs should load
-#acnf = list(_cnf.CONFIG.values())[0]
-#mds = metadata.load(True, acnf, _cnf.METADATA)
-
 res = read_multi_conf(_cnf, True)
 eds = []
 for key, cnf in res.items():
@@ -46,6 +41,7 @@ if args.valid:
     valid_for = int(args.valid) * 24
 else:
     valid_for = 0
+
 nspair = {"xs": "http://www.w3.org/2001/XMLSchema"}
 
 conf = Config()

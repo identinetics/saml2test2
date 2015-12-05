@@ -1,5 +1,4 @@
 from aatest import prof_util
-from aatest.time_util import in_a_while
 from saml2.time_util import utc_now
 
 __author__ = 'roland'

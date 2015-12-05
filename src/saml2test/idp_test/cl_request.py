@@ -16,12 +16,12 @@ import saml2.xmldsig as ds
 from saml2.mdstore import destinations
 from saml2.time_util import in_a_while
 from saml2test.check.check import VerifyFunctionality
-from saml2test.request import map_arguments
-from saml2test.request import PostRequest
-from saml2test.request import SoapRequest
-from saml2test.request import UnknownBinding
-from saml2test.request import ProtocolMessage
-from saml2test.request import RedirectRequest
+from saml2test.idp_test.request import map_arguments
+from saml2test.idp_test.request import PostRequest
+from saml2test.idp_test.request import SoapRequest
+from saml2test.idp_test.request import UnknownBinding
+from saml2test.idp_test.request import ProtocolMessage
+from saml2test.idp_test.request import RedirectRequest
 
 __author__ = 'roland'
 

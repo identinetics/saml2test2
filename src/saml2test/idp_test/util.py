@@ -4,13 +4,13 @@ import pkgutil
 from aatest import check as aa_check
 from aatest.func import factory as aafactory
 
-from saml2test import check_metadata
+from saml2test.check import check_metadata
 from saml2test import check as st_check
 
-from saml2test.func import factory
+from saml2test.idp_test.func import factory
 from saml2.config import SPConfig
-from saml2test.cl_request import factory as cl_factory
-from saml2test.wb_request import factory as wb_factory
+from saml2test.idp_test.cl_request import factory as cl_factory
+from saml2test.idp_test.wb_request import factory as wb_factory
 
 
 __author__ = 'roland'

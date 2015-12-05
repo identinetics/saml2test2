@@ -120,7 +120,7 @@ Flows:
       - eduPersonScopedAffiliation
       - mail
       - displayName
-      - schacHqomeOrganization
+      - schacHomeOrganization
     short_name: CoCo
   IDP-EntityCategory-rs:
     desc: Uses AuthnRequest to verify R&S entity category support
@@ -145,8 +145,7 @@ Flows:
     short_name: R&S
   IDP-EntityCategory-re_eu:
     desc: Uses AuthnRequest to verify R&E+EU entity category support
-    profile: entcat:se
-    profiles: 
+    profiles:
       - entcat:se
     sequence:
       - AuthnRedirectRequest

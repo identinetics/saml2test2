@@ -14,8 +14,8 @@ from saml2.response import AuthnResponse
 
 from saml2.s_utils import rndstr
 
-from saml2test.io import SamlClIO
-from saml2test.setup import setup
+from saml2test.idp_test.io import SamlClIO
+from saml2test.idp_test.setup import setup
 from saml2test.idp_test.sp.wb.result_db import ResultDB
 from saml2test.idp_test.sp.wb.tool import Tester
 

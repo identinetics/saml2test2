@@ -1,25 +1,28 @@
 import sys
 import inspect
 import logging
+
 from urllib.parse import urlencode
 
 from aatest import Unknown
-from saml2 import BINDING_HTTP_ARTIFACT, BINDING_HTTP_REDIRECT, \
-    BINDING_HTTP_POST
+from saml2 import BINDING_HTTP_ARTIFACT
+from saml2 import BINDING_HTTP_REDIRECT
+from saml2 import BINDING_HTTP_POST
 
 from saml2.httputil import Redirect
 from saml2.httputil import Response
 from saml2.httputil import SeeOther
 from saml2.httputil import ServiceError
 from saml2.s_utils import sid
-from saml2test.cl_request import LogOutRequest
 
-from saml2test.request import ProtocolMessage
-from saml2test.request import RedirectRequest
-from saml2test.request import PostRequest
-from saml2test.request import SoapRequest
-from saml2test.request import map_arguments
-from saml2test.request import ServiceProviderRequestHandlerError
+from saml2test.idp_test.cl_request import LogOutRequest
+
+from saml2test.idp_test.request import ProtocolMessage
+from saml2test.idp_test.request import RedirectRequest
+from saml2test.idp_test.request import PostRequest
+from saml2test.idp_test.request import SoapRequest
+from saml2test.idp_test.request import map_arguments
+from saml2test.idp_test.request import ServiceProviderRequestHandlerError
 
 from saml2test.check.check import VerifyFunctionality
 

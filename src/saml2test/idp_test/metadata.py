@@ -1,9 +1,5 @@
-from saml2 import saml
-from saml2 import md
-from saml2 import xmldsig
-from saml2 import xmlenc
 from saml2.config import SPConfig
-from saml2.mdstore import load_extensions, MetadataStore
+from saml2.mdstore import MetadataStore
 
 __author__ = 'roland'
 

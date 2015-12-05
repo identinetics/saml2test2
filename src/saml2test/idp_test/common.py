@@ -8,16 +8,8 @@ __author__ = 'roland'
 
 logger = logging.getLogger(__name__)
 
-class Trace(aatest.Trace):
-    @staticmethod
-    def format(resp):
-        _d = {"claims": resp.to_dict()}
-        if resp.jws_header:
-            _d["jws header parameters"] = resp.jws_header
-        if resp.jwe_header:
-            _d["jwe header parameters"] = resp.jwe_header
-        return _d
 
+class Trace(aatest.Trace):
     def response(self, resp):
         delta = time.time() - self.start
         try:

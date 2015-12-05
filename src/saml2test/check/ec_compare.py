@@ -20,6 +20,7 @@ OK = 0
 MISSING = 1
 EXTRA = 2
 
+
 class EntityCategoryTestStatus:
     def __init__(self, status):
         self._status = status

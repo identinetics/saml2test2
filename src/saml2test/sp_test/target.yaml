@@ -1,0 +1,55 @@
+AuthnResponse:
+  default_args:
+    authn:
+      authn_auth: 'http://lingon.catalogix.se/login'
+      class_ref: 'authn_password'
+    sign_assertion: 'always'
+    sign_digest_alg: 'ds.DIGEST_SHA256'
+    sign_response: 'never'
+    sign_signature_alg: 'ds.SIG_RSA_SHA256'
+
+IdPconstraints:
+  digest_algorithm:
+    - 'ds.DIGEST_SHA1'
+    - ds.DIGEST_SHA224
+    - ds.DIGEST_SHA256
+    - ds.DIGEST_SHA384
+    - ds.DIGEST_SHA512
+    - ds.DIGEST_RIPEMD160
+  signature_algorithm:
+    - ds.SIG_RSA_SHA224
+    - ds.SIG_RSA_SHA256
+    - ds.SIG_RSA_SHA384
+    - ds.SIG_RSA_SHA512
+  authnRequest_signature_required: true
+
+#entity_id: 'http://localhost:8087/sp.xml'
+#metadata:
+#start_page: http://localhost:8087
+
+# regex pattern that must be contained in the resulting echo page to validate
+# that the SP returned the right page after Login.
+echopageIdPattern:
+  - '<title>SAML Echo Service</title>'
+
+# list of regex patterns that must be contained in the resulting echo page to
+# validate that the SP's echo page returns expected SAML2 response values
+# (e.g. attribute values)
+echopageContentPattern:
+  - 'Given Name\\s*</td>\\s*<td>Roland</td>'
+  - 'Userid\\s*</td>\\s*<td>roland</td>'
+  - 'Surname\\s*</td>\\s*<td>Hedberg</td>'
+
+result:
+  matches:
+    content: '<h2>Your identity are'
+
+# This is the set of attributes and values that are returned in the
+# SAML Assertion
+identity:
+  given_name: Roland
+  sn: Hedberg
+
+# This is the value of the NameID that is return in the Subject in the
+# Assertion
+userid: roland

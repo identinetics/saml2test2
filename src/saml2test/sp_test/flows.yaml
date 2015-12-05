@@ -1,0 +1,11 @@
+sp-00:
+  name: 'Basic Login test expect HTTP 200 result'
+  desc: 'WebSSO verify authentication request, verify HTTP-Response after sending the SAML response'
+  sequence:
+    - Login
+    - AuthnRequest
+    - AuthnResponse
+  tests:
+    CheckHttpResponseOK: {}
+  profiles:
+    - saml2int
