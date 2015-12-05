@@ -1,6 +1,5 @@
 import inspect
 import logging
-from urllib.parse import urlencode
 import sys
 
 from aatest import Unknown
