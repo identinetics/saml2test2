@@ -19,17 +19,6 @@ class OperationError(Exception):
     pass
 
 
-# def restore_operation(conv, io, sh):
-#     cls = conv.events.last('operation').data
-#     _oper = cls(conv=conv, io=io, sh=sh)
-#     req_args = conv.events.last_item('request_args')
-#     _oper.request_inst = _oper.req_cls(conv, req_args,
-#                                        binding=_oper._binding)
-#     _oper.response_args = {
-#         "outstanding": conv.events.last_item('outstanding')}
-#     return _oper
-
-
 class ClTester(tool.Tester):
     def __init__(self, io, sh, profile, flows, check_factory,
                  msg_factory, cache, make_entity, map_prof,
@@ -40,17 +29,19 @@ class ClTester(tool.Tester):
         self.features = {}
         try:
             self.interactions = kwargs['interaction_conf']
-        except AttributeError:
+        except (KeyError, AttributeError):
             self.interactions = None
 
     def run(self, test_id, **kw_args):
         self.sh.session_setup(path=test_id)
         _flow = self.flows[test_id]
-        _cli = self.make_entity(_flow["sp"], **kw_args)
-        self.conv = Conversation(_flow, _cli, kw_args["msg_factory"],
+
+        _entity = self.make_entity(_flow["idp"], **kw_args)
+
+        self.conv = Conversation(_flow, _entity, kw_args["msg_factory"],
                                  trace_cls=Trace, **kw_args["conv_args"])
         self.conv.entity_id = kw_args["entity_id"]
-        _cli.conv = self.conv
+        _entity.conv = self.conv
         self.conv.sequence = self.sh.session["sequence"]
         if 'insecure' in kw_args:
             self.conv.interaction.verify_ssl = False
@@ -201,16 +192,22 @@ class ClTester(tool.Tester):
         except AttributeError:
             self.last_content = None
 
-    def handle_response(self, resp, index, allowed_status_codes=None):
+    def handle_response(self, resp, index, oper=None):
         if resp is None:
             return
 
-        if allowed_status_codes is None:
+        if oper is None:
             allowed_status_codes = [200]
+        else:
+            allowed_status_codes = oper.allowed_status_codes
 
         if resp.status_code in allowed_status_codes:
             if self.conv.interaction.interactions:
                 res = self.intermit(resp)
                 if isinstance(res, dict):
-                    _oper = restore_operation(self.conv, self.io, self.sh)
-                    _oper.handle_response(res)
+                    if oper is None:
+                        oper = restore_operation(self.conv, self.io, self.sh)
+
+                    oper.handle_response(res)
+            else:
+                oper.handle_response(resp)

@@ -21,7 +21,7 @@ class Trace(aatest.Trace):
         self.trace.append("%f %s: %s" % (delta, cl_name, txt))
 
 
-def make_client(sp, **kw_args):
+def make_entity(sp, **kw_args):
     try:
         conf = SPConfig().load(kw_args["spconf"][sp])
     except KeyError:

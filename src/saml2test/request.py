@@ -8,9 +8,10 @@ from aatest import Unknown
 from aatest.operation import Operation
 
 # from saml2 import samlp
-from saml2 import SAMLError, BINDING_SOAP
+from saml2 import SAMLError
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
+from saml2 import BINDING_SOAP
 from saml2.httputil import Response
 
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
@@ -56,7 +57,7 @@ class Request(Operation):
         self.req_args = {}
         self.op_args = {}
         self.csi = None
-        self.client = self.conv.client
+        self.entity = self.conv.entity
         self.trace = self.conv.trace
         self.relay_state = ''
         self.request_id = ''
@@ -78,7 +79,7 @@ class Request(Operation):
         raise NotImplemented
 
     def op_setup(self):
-        metadata = self.conv.client.metadata
+        metadata = self.conv.entity.metadata
         try:
             entity = metadata[self.conv.entity_id]
         except KeyError:
@@ -106,18 +107,6 @@ class Request(Operation):
                         break
 
 
-class ProtocolMessage(object):
-    def __init__(self, conv, req_args, binding):
-        self.conv = conv
-        self.client = conv.client
-        self.req_args = req_args
-        self.binding = binding
-        self.response_args = {}
-
-    def make_request(self):
-        raise NotImplementedError
-
-
 class RedirectRequest(Request):
     _class = None
     _args = {}
@@ -138,7 +127,7 @@ class RedirectRequest(Request):
 
         self.trace.info("redirect.url: {}".format(_loc))
         self.conv.events.store('time_stamp', (_loc, utc_time_sans_frac()))
-        res = self.client.send(_loc, _method)
+        res = self.entity.send(_loc, _method)
         self.trace.info("redirect response: {}".format(res.text))
         return res
 
@@ -181,7 +170,7 @@ class PostRequest(Request):
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
         self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
-        res = self.client.send(**send_args)
+        res = self.entity.send(**send_args)
         self.trace.info("post response: {}".format(res.text))
         return res
 
@@ -201,7 +190,7 @@ class SoapRequest(Request):
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
         self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
-        res = self.client.send(**send_args)
+        res = self.entity.send(**send_args)
         self.trace.info("post response: {}".format(res.text))
         return res
 

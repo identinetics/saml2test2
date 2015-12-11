@@ -17,12 +17,12 @@ from saml2.s_utils import sid
 
 from saml2test.idp_test.cl_request import LogOutRequest
 
-from saml2test.idp_test.request import ProtocolMessage
-from saml2test.idp_test.request import RedirectRequest
-from saml2test.idp_test.request import PostRequest
-from saml2test.idp_test.request import SoapRequest
-from saml2test.idp_test.request import map_arguments
-from saml2test.idp_test.request import ServiceProviderRequestHandlerError
+from saml2test.message import ProtocolMessage
+from saml2test.request import RedirectRequest
+from saml2test.request import PostRequest
+from saml2test.request import SoapRequest
+from saml2test.request import map_arguments
+from saml2test.request import ServiceProviderRequestHandlerError
 
 from saml2test.check.check import VerifyFunctionality
 
@@ -48,7 +48,7 @@ class AuthnRequest(ProtocolMessage):
 
         return resp
 
-    def make_request(self):
+    def construct_message(self):
         """
         A slightly modified version of the
         prepare_for_negotiated_authenticate() method of saml2.client.Saml2Client
@@ -61,7 +61,7 @@ class AuthnRequest(ProtocolMessage):
         except KeyError:
             pass
 
-        destination = self.client._sso_location(**args)
+        destination = self.entity._sso_location(**args)
 
         if not destination:
             logger.error(
@@ -75,7 +75,7 @@ class AuthnRequest(ProtocolMessage):
         self.req_args = map_arguments(self.req_args,
                                       {'name_id.format': 'nameid_format'})
 
-        request_id, request = self.client.create_authn_request(
+        request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
         self.conv.events.store('protocol_request', request)
@@ -93,7 +93,7 @@ class AuthnRequest(ProtocolMessage):
             except KeyError:
                 pass
 
-        http_info = self.client.apply_binding(self.binding, _req_str,
+        http_info = self.entity.apply_binding(self.binding, _req_str,
                                               destination, **args)
 
         self.conv.events.store('http_info', http_info)
@@ -104,9 +104,9 @@ class AuthnRequest(ProtocolMessage):
         else:
             return http_info, request_id
 
-    def handle_response(self, result, response_args):
+    def handle_response(self, result, response_args, *args):
         logger.debug("response_args: {}".format(response_args))
-        _cli = self.conv.client
+        _cli = self.conv.entity
         try:
             resp = _cli.parse_authn_request_response(
                 result['SAMLResponse'], self.req_args['response_binding'],
@@ -138,9 +138,9 @@ class AuthnRequest(ProtocolMessage):
 
 
 class Discovery(ProtocolMessage):
-    def make_request(self):
+    def construct_message(self):
         session_id = sid()
-        sp = self.client
+        sp = self.entity
         url = sp.config.getattr("endpoints", "sp")["discovery_response"][0][0]
         return_to = "{url}?{query}".format(
             url=url, query=urlencode(({"sid": session_id})))
@@ -152,7 +152,7 @@ class Discovery(ProtocolMessage):
         self.conv.events.store("discovery redirect url", redirect_url)
         return SeeOther(redirect_url)
 
-    def handle_response(self, result, response_args):
+    def handle_response(self, result, response_args, *args):
         idp_entity_id = result["entityID"]
         session_id = result["sid"]
         self.conv.events.store("discovery response", response_args)
@@ -170,7 +170,7 @@ class AuthnRedirectRequest(RedirectRequest):
     def _make_request(self):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
-        response, request_id = self.request_inst.make_request()
+        response, request_id = self.request_inst.construct_message()
         self.conv.events.store('outstanding', {request_id: "/"})
         return response
 
@@ -186,7 +186,7 @@ class AuthnPostRequest(PostRequest):
     def _make_request(self):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
-        http_info, request_id = self.request_inst.make_request()
+        http_info, request_id = self.request_inst.construct_message()
         self.conv.events.store('outstanding', {request_id: "/"})
         return http_info
 
@@ -202,7 +202,7 @@ class AttributeQuery(SoapRequest):
     def _make_request(self):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
-        http_info, request_id = self.request_inst.make_request()
+        http_info, request_id = self.request_inst.construct_message()
         self.conv.events.store('outstanding', {request_id: "/"})
         return http_info
 
@@ -217,7 +217,7 @@ class LogOutRequestSoap(SoapRequest):
     def _make_request(self):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
-        http_info, request_id = self.request_inst.make_request()
+        http_info, request_id = self.request_inst.construct_message()
         return http_info
 
     def handle_response(self, result, *args):

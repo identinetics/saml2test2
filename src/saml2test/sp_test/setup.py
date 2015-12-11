@@ -1,28 +1,23 @@
-#!/usr/bin/env python3
+from aatest import Trace
+import argparse
 import copy
-
 import importlib
 import logging
-import argparse
-
-from aatest.common import setup_logger
-
-from saml2test import metadata
-
-from saml2test.util import collect_ec
-from saml2test.util import get_check
-
-from saml2test.idp_test.common import make_entity
-from saml2test.idp_test.common import map_prof
-from saml2test.idp_test.common import Trace
-from saml2test.idp_test.prof_util import ProfileHandler
-from saml2test.idp_test.util import parse_yaml_conf
+from saml2.config import IdPConfig
 
 from saml2.saml import factory as saml_message_factory
 
+from aatest.common import setup_logger
+from saml2.server import Server
+
+from saml2test import metadata
+from saml2test.util import collect_ec, get_check
+from saml2test.sp_test.util import parse_yaml_conf
+import yaml
+
 __author__ = 'roland'
 
-logger = logging.getLogger("")
+logger = logging.getLogger(__name__)
 
 
 def setup(use='cl'):
@@ -35,12 +30,19 @@ def setup(use='cl'):
     parser.add_argument('-p', dest="profile", action='append')
     parser.add_argument('-t', dest="testid")
     parser.add_argument('-y', dest='yamlflow', action='append')
+    parser.add_argument('-T', dest="target_info")
+    parser.add_argument(
+        '-c', dest="ca_certs",
+        help=("CA certs to use to verify HTTPS server certificates, ",
+              "if HTTPS is used and no server CA certs are defined then ",
+              "no cert verification will be done"))
     parser.add_argument(dest="config")
+
     cargs = parser.parse_args()
 
     fdef = {'Flows': {}, 'Order': [], 'Desc': []}
     for flow_def in cargs.yamlflow:
-        spec = parse_yaml_conf(flow_def, use=use)
+        spec = parse_yaml_conf(flow_def)
         fdef['Flows'].update(spec['Flows'])
         for param in ['Order', 'Desc']:
             try:
@@ -60,9 +62,13 @@ def setup(use='cl'):
             del fdef['Flows'][key]
 
     CONF = importlib.import_module(cargs.config)
-    spconf = copy.deepcopy(CONF.CONFIG)
-    acnf = list(spconf.values())[0]
-    mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
+    idpconf = copy.deepcopy(CONF.CONFIG)
+    acnf = list(idpconf.values())[0]
+    mds = metadata.load(True, acnf, CONF.METADATA, 'idp')
+
+    stream = open(cargs.target_info, 'r')
+    target_info = yaml.safe_load(stream)
+    stream.close()
 
     if cargs.log_name:
         setup_logger(logger, cargs.log_name)
@@ -71,14 +77,15 @@ def setup(use='cl'):
     else:
         setup_logger(logger)
 
-    kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
+    kwargs = {"base_url": copy.copy(CONF.BASE), 'idpconf': idpconf,
               "flows": fdef['Flows'], "orddesc": fdef['Order'],
               "desc": fdef['Desc'], 'metadata': mds,
               "profile": cargs.profile, "msg_factory": saml_message_factory,
-              "check_factory": get_check, "profile_handler": ProfileHandler,
+              "check_factory": get_check, 'ca_certs': cargs.ca_certs,
               "cache": {}, "entity_id": cargs.entity_id,
-              'map_prof': map_prof, 'make_entity': make_entity,
-              'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()}}
+              "profile_handler": None, 'map_prof': None,
+              'make_entity': make_entity, 'trace_cls': Trace,
+              'conv_args': {'entcat': collect_ec(), 'target_info': target_info}}
 
     if cargs.interaction:
         kwargs['interaction_conf'] = importlib.import_module(
@@ -88,3 +95,16 @@ def setup(use='cl'):
         kwargs["insecure"] = True
 
     return cargs.testid, kwargs
+
+
+def make_entity(idp, **kw_args):
+    try:
+        conf = IdPConfig().load(kw_args["idpconf"][idp])
+    except KeyError:
+        logging.warning(
+            "known IDP configs: {}".format(kw_args["idpconf"].keys()))
+        raise
+
+    conf.metadata = kw_args['metadata']
+
+    return Server(config=conf)

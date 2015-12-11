@@ -4,24 +4,18 @@ from aatest.func import factory as aafactory
 
 from saml2test.check import check_metadata
 
-from saml2test.idp_test.func import factory
-from saml2test.idp_test.cl_request import factory as cl_factory
-from saml2test.idp_test.wb_request import factory as wb_factory
+from saml2test.sp_test.operation import factory as cls_factory
+from saml2test.sp_test.func import factory as func_factory
 
 
 __author__ = 'roland'
 
 
-def _get_cls(name, use='cl'):
-    if use == 'cl':
-        factory = cl_factory
-    else:
-        factory = wb_factory
-
+def _get_cls(name):
     try:
         _mod, _cls = name.split('.')
     except ValueError:
-        cls = factory(name)
+        cls = cls_factory(name)
     else:
         if _mod == 'check_metadata':
             cls = check_metadata.factory(_cls)
@@ -30,15 +24,15 @@ def _get_cls(name, use='cl'):
     return cls
 
 
-def _get_func(dic):
+def get_funcs(dic):
     """
 
-    :param dic: A key, value dictionary
+    :param dic: Dictionary
     :return: A dictionary with the keys replace with references to functions
     """
     res = {}
     for fname, val in dic.items():
-        func = factory(fname)
+        func = func_factory(fname)
         if func is None:
             func = aafactory(fname)
 
@@ -49,7 +43,7 @@ def _get_func(dic):
     return res
 
 
-def parse_yaml_conf(cnf_file, use='cl'):
+def parse_yaml_conf(cnf_file):
     stream = open(cnf_file, 'r')
     yc = yaml.safe_load(stream)
     stream.close()
@@ -58,9 +52,9 @@ def parse_yaml_conf(cnf_file, use='cl'):
         for func in spec["sequence"]:
             if isinstance(func, dict):  # Must be only one key, value item
                 key, val = list(func.items())[0]
-                seq.append((_get_cls(key), _get_func(val)))
+                seq.append((_get_cls(key), get_funcs(val)))
             else:
-                seq.append(_get_cls(func, use))
+                seq.append(_get_cls(func))
         spec["sequence"] = seq
 
     return yc
