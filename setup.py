@@ -14,14 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 
 from setuptools import setup, find_packages
 
 __author__ = 'rohe0002'
 
+version = ''
+with open('src/saml2/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
 setup(
     name="saml2test",
-    version="1.0.0",
+    version=version,
     description="Test framework for testing SAML2 IDPs and SPs conformance",
     author="Roland Hedberg",
     author_email="roland.hedberg@umu.se",
