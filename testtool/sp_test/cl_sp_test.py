@@ -27,7 +27,8 @@ if __name__ == "__main__":
 
         io = SamlClIO(**kwargs)
         tester = ClTester(io, sh, **kwargs)
-        tester.run(test_id, **kwargs)
+        if tester.run(test_id, **kwargs):
+            io.debug_log(sh.session, test_id)
     else:
         for tid in sh.session["flow_names"]:
             # New fresh session handler for every test

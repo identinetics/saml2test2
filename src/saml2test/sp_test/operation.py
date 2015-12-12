@@ -26,6 +26,7 @@ class Login(Operation):
         self.conv.events.store('start_page', self.start_page)
         self.conv.trace.info("Doing GET on {}".format(self.start_page))
         res = self.conv.entity.send(self.start_page)
+        self.conv.events.store('response', res)
         self.conv.trace.info("Got a {} response".format(res.status_code))
         if res.status_code in [302, 303]:
             loc = res.headers['location']
@@ -162,6 +163,7 @@ class FollowRedirect(Operation):
         else:
             url = base_url + loc
         res = self.conv.entity.send(url)
+        self.conv.events.store('response', res)
         self.conv.trace.info("Got a {} response".format(res.status_code))
         self.conv.trace.info("Received HTML: {}".format(res.text))
         return res

@@ -1,5 +1,6 @@
 import inspect
 import sys
+from urllib.parse import parse_qs
 
 from aatest.check import Check
 from aatest.check import CRITICAL
@@ -247,6 +248,55 @@ class VerifyIfRequestIsSigned(Check):
         # This check is done as part of the normal message parsing
 
         pass
+
+
+class Verify_AuthnRequest(Check):
+    cid = 'verify_authnrequest'
+
+    def _func(self, conv):
+        redirect = conv.events.last_item('redirect')
+        if not '?' in redirect:
+            self._message = "Incorrect redirect url"
+            self._status = CRITICAL
+            return {}
+
+        req = dict(
+            [(k, v[0]) for k, v in parse_qs(redirect.split('?')[1]).items()])
+
+        try:
+            saml_req = req["SAMLRequest"]
+        except KeyError:
+            self._message = "No SAMLRequest query parameter"
+            self._status = CRITICAL
+            return {}
+
+        _srv = conv.entity
+        if not _srv.parse_authn_request(saml_req):
+            self._message = "No or incorrect AuthnRequest"
+            self._status = CRITICAL
+
+        return {}
+
+
+class VerifyEndpoint(Check):
+    cid = 'has_endpoint'
+
+    def _func(self, conv):
+        entity_id = conv.events.last_item('issuer')
+        md = conv.entity.metadata
+        try:
+            srv = md.service(entity_id, self._kwargs['typ'],
+                             self._kwargs['service'],
+                             binding=self._kwargs['binding'])
+        except KeyError:
+            self._message = "Can't find service"
+            self._status = CRITICAL
+        else:
+            if not srv:
+                self._message = "Can't find service"
+                self._status = CRITICAL
+
+        return {}
 
 
 def factory(cid):

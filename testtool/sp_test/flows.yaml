@@ -8,13 +8,15 @@ Flows:
           set_allowed_status_codes:
             - 302
             - 303
-          add_assertion:
-            check_http_response: ''
-            verify_endpoint:
-              binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-              service: single_sign_on_service
-            verify_authnrequest: ''
+          add_post_assertion:
+              http_response: {}
+              verify_authnrequest: {}
       - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
           set_userid: ''
           set_identity: ''
           set_authn: {}
@@ -22,27 +24,31 @@ Flows:
             - 302
             - 303
       - FollowRedirect
-    assertion:
-      http_response: 200
+    assert:
+        http_response:
+            status_code:
+              - 200
     profiles:
       - saml2int
     idp: basic
   SP-AuthnRedirect-01:
     name: 'Basic Login test expect HTTP 200 result'
-    desc: 'WebSSO verify authentication request, verify HTTP-Response after sending the SAML response'
+    desc: 'WebSSO verify authentication request, verify correct page was returned'
     sequence:
       - Login:
           set_start_page: ''
           set_allowed_status_codes:
             - 302
             - 303
-          add_assertion:
-            check_http_response: ''
-            verify_endpoint:
-              binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-              service: single_sign_on_service
-            verify_authnrequest: ''
+          add_post_assertion:
+              http_response: {}
+              verify_authnrequest: {}
       - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
           set_userid: ''
           set_identity: ''
           set_authn: {}
@@ -50,9 +56,11 @@ Flows:
             - 302
             - 303
       - FollowRedirect
-    assertion:
-      http_response: 200
-      verify_page: {}
+    assert:
+        http_response:
+          status_code:
+            - 200
+        verify_page: {}
     profiles:
       - saml2int
     idp: basic
