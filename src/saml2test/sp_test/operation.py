@@ -23,10 +23,13 @@ class Login(Operation):
 
     def run(self, **kwargs):
         self.conv.events.store('start_page', self.start_page)
+        self.conv.trace.info("Doing GET on {}".format(self.start_page))
         res = self.conv.entity.send(self.start_page)
-        loc = res.headers['location']
-        self.conv.events.store('redirect', loc)
-        self.conv.trace.info("redirect response: {}".format(res.text))
+        self.conv.trace.info("Got a {} response".format(res.status_code))
+        if res.status_code in [302, 303]:
+            loc = res.headers['location']
+            self.conv.events.store('redirect', loc)
+            self.conv.trace.info("Received HTML: {}".format(res.text))
         return res
 
     def handle_response(self, result, response_args=None, *args):
@@ -48,9 +51,13 @@ class Login(Operation):
 
         _srv = self.conv.entity
         _req = _srv.parse_authn_request(saml_req)
+        self.conv.trace.reply(_req.xmlstr)
+        _msg = _req.message
+        self.conv.trace.info("{}: {}".format(_msg.__class__.__name__, _msg))
+        self.conv.trace.info('issuer: {}'.format(_msg.issuer.text))
         self.conv.events.store('protocol_message:xml', _req.xmlstr)
-        self.conv.events.store('protocol_message', _req.message)
-        self.conv.events.store('issuer', _req.message.issuer.text)
+        self.conv.events.store('protocol_message', _msg)
+        self.conv.events.store('issuer', _msg.issuer.text)
 
 
 class AuthenticationResponse(ProtocolMessage):
@@ -70,12 +77,19 @@ class AuthenticationResponse(ProtocolMessage):
         _args.update(self.msg_args)
         _resp = self.conv.entity.create_authn_response(self.identity, **_args)
 
+        self.conv.trace.info('Constructed response message: {}'.format(_resp))
+
         if self.op_type == "ecp":
             kwargs = {"soap_headers": [
                 ecp.Response(
                     assertion_consumer_service_url=resp_args['destination'])]}
         else:
             kwargs = {}
+
+        self.conv.trace.info(
+            "Response binding used: {}".format(resp_args['binding']))
+        self.conv.trace.info(
+            "Destination for response: {}".format(resp_args['destination']))
 
         # because I don't plan to involve a web browser
         if resp_args['binding'] == BINDING_HTTP_POST:
@@ -145,7 +159,8 @@ class FollowRedirect(Operation):
         else:
             url = base_url + loc
         res = self.conv.entity.send(url)
-        self.conv.trace.info("redirect response: {}".format(res.status_code))
+        self.conv.trace.info("Got a {} response".format(res.status_code))
+        self.conv.trace.info("Received HTML: {}".format(res.text))
         return res
 
     def handle_response(self, response, *args):
