@@ -60,7 +60,7 @@ class ClTester(tool.Tester):
 
     def my_endpoints(self):
         return [e for e, b in
-                self.conv.client.config.getattr("endpoints", "sp")[
+                self.conv.entity.config.getattr("endpoints", "sp")[
                     "assertion_consumer_service"]]
 
     def intermit(self, response):
@@ -92,7 +92,7 @@ class ClTester(tool.Tester):
                 for redirect_uri in self.my_endpoints():
                     if url.startswith(redirect_uri):
                         # Back at the RP
-                        self.conv.client.cookiejar = self.cjar["rp"]
+                        self.conv.entity.cookiejar = self.cjar["rp"]
                         for_me = True
                         try:
                             base, query = url.split("?")
@@ -110,7 +110,7 @@ class ClTester(tool.Tester):
                 else:
                     try:
                         logger.info("GET %s" % url)
-                        response = self.conv.client.send(url, "GET")
+                        response = self.conv.entity.send(url, "GET")
                     except Exception as err:
                         raise FatalError("%s" % err)
 

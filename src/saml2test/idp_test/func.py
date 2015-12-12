@@ -15,7 +15,7 @@ def set_name_id_policy(oper, args):
 
 
 def set_user_credentials(oper, args):
-    _client = oper.conv.client
+    _client = oper.conv.entity
     _client.user = args["user"]
     _client.passwd = args["password"]
 

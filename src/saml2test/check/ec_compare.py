@@ -246,7 +246,7 @@ class VerifyEntityCategory(Check):
     test_result_cls = EntityCategoryTestResult
 
     def __call__(self, conv=None, output=None):
-        conf = conv.client.config
+        conf = conv.entity.config
         ava = conv.events.get_message('protocol_response', AuthnResponse).ava
         req_attr = conf.getattr('required_attributes', 'sp')
         entcat = conv.extra_args["entcat"]

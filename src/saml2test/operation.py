@@ -1,9 +1,11 @@
-import inspect
-from aatest.check import WARNING
-from aatest.check import Check
-from aatest.operation import Operation
-from saml2.saml import NAMEID_FORMAT_TRANSIENT
 import sys
+import inspect
+
+from aatest import Unknown
+from aatest.check import WARNING
+from aatest.operation import Operation
+
+from saml2.saml import NAMEID_FORMAT_TRANSIENT
 
 __author__ = 'roland'
 
@@ -76,13 +78,10 @@ class CheckSaml2IntMetaData(Metadata):
                 return res
 
 
-def factory(cid):
-    for name, obj in inspect.getmembers(sys.modules[__name__]):
-        if inspect.isclass(obj) and issubclass(obj, Check):
-            try:
-                if obj.cid == cid:
-                    return obj
-            except AttributeError:
-                pass
+def factory(name):
+    for fname, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.isclass(obj):
+            if name == fname:
+                return obj
 
-    return None
+    raise Unknown("Couldn't find the operation: '{}'".format(name))

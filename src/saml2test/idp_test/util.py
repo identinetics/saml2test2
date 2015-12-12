@@ -1,9 +1,11 @@
+from aatest import Unknown
 import yaml
 
 from aatest.func import factory as aafactory
 
 from saml2test.check import check_metadata
 
+from saml2test import operation
 from saml2test.idp_test.func import factory
 from saml2test.idp_test.cl_request import factory as cl_factory
 from saml2test.idp_test.wb_request import factory as wb_factory
@@ -19,14 +21,13 @@ def _get_cls(name, use='cl'):
         factory = wb_factory
 
     try:
-        _mod, _cls = name.split('.')
-    except ValueError:
         cls = factory(name)
-    else:
-        if _mod == 'check_metadata':
-            cls = check_metadata.factory(_cls)
-        else:
+    except Unknown:
+        try:
+            cls = operation.factory(name)
+        except Unknown:
             raise Exception("Unknown Module: '{}'".format(name))
+
     return cls
 
 

@@ -12,7 +12,7 @@ class ProfileHandler(prof_util.ProfileHandler):
             res = {}
         else:
             try:
-                md = list(_conv.client.metadata.metadata.values())[0]
+                md = list(_conv.entity.metadata.metadata.values())[0]
                 iss = list(md.entity.keys())[0]
             except TypeError:
                 iss = ""

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import copy
-
 import importlib
 import logging
 import argparse
+import requests
 
 from aatest.common import setup_logger
 
@@ -19,6 +19,9 @@ from saml2test.idp_test.prof_util import ProfileHandler
 from saml2test.idp_test.util import parse_yaml_conf
 
 from saml2.saml import factory as saml_message_factory
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 __author__ = 'roland'
 

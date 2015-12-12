@@ -22,14 +22,41 @@ Flows:
             - 302
             - 303
       - FollowRedirect
-    assertions:
-      check_http_response: ''
+    assertion:
+      http_response: 200
     profiles:
       - saml2int
     idp: basic
-    tests:
-      - verify_page
-      
+  SP-AuthnRedirect-01:
+    name: 'Basic Login test expect HTTP 200 result'
+    desc: 'WebSSO verify authentication request, verify HTTP-Response after sending the SAML response'
+    sequence:
+      - Login:
+          set_start_page: ''
+          set_allowed_status_codes:
+            - 302
+            - 303
+          add_assertion:
+            check_http_response: ''
+            verify_endpoint:
+              binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+              service: single_sign_on_service
+            verify_authnrequest: ''
+      - AuthenticationResponseRedirect:
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_allowed_status_codes:
+            - 302
+            - 303
+      - FollowRedirect
+    assertion:
+      http_response: 200
+      verify_page: {}
+    profiles:
+      - saml2int
+    idp: basic
+
 Order:
   - SP-Metadata
   - SP-AuthnRedirect

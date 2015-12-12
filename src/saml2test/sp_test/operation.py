@@ -9,6 +9,7 @@ from saml2 import BINDING_HTTP_POST
 
 from saml2.profile import ecp
 from saml2.samlp import AuthnRequest
+from saml2.sigver import verify_redirect_signature
 from saml2.time_util import utc_time_sans_frac
 from saml2test.message import ProtocolMessage
 from saml2test.sp_test.response import RedirectResponse
@@ -39,9 +40,11 @@ class Login(Operation):
         if isinstance(result, Response):
             # result should be a redirect (302 or 303)
             loc = result.headers['location']
-            query = parse_qs(loc.split('?')[1])
-            saml_req = query["SAMLRequest"][0]
-            self.conv.events.store('RelayState', query["RelayState"][0])
+            req = dict(
+                [(k, v[0]) for k, v in parse_qs(loc.split('?')[1]).items()])
+            saml_req = req["SAMLRequest"]
+            self.conv.events.store("request", req)
+            self.conv.events.store('RelayState', req["RelayState"])
         else:
             saml_req = result["SAMLRequest"]
             try:

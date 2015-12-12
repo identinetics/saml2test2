@@ -80,16 +80,20 @@ class AuthnRequest(ProtocolMessage):
         return http_info, request_id
 
     def handle_response(self, result, response_args, **kwargs):
-        _cli = self.conv.client
+        _cli = self.conv.entity
+        try:
+            _outstanding = response_args['outstanding']
+        except KeyError:
+            _outstanding = self.conv.events.last_item('outstanding')
         resp = _cli.parse_authn_request_response(
             result['SAMLResponse'], self.req_args['response_binding'],
-            response_args["outstanding"])
+            _outstanding)
         self.conv.events.store('protocol_response', resp)
 
 
 class LogOutRequest(ProtocolMessage):
     def construct_message(self):
-        _cli = self.conv.client
+        _cli = self.conv.entity
         _entity_id = self.req_args['entity_id']
         _name_id = self.req_args['name_id']
 
@@ -170,7 +174,7 @@ class LogOutRequest(ProtocolMessage):
         return http_info, req_id
 
     def handle_response(self, result, response_args, *args):
-        resp = self.conv.client.parse_logout_request_response(result['text'],
+        resp = self.conv.entity.parse_logout_request_response(result['text'],
                                                               self.binding)
         self.conv.events.store('protocol_response', resp)
 

@@ -13,7 +13,7 @@ from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
 from saml2.samlp import AuthnRequest
 from saml2.samlp import STATUS_SUCCESS
 from saml2.response import AuthnResponse
-
+from saml2.sigver import verify_redirect_signature
 
 __author__ = 'roland'
 
@@ -65,7 +65,7 @@ class VerifyAttributes(Check):
     def __call__(self, conv=None, output=None):
         ava = conv.events.get_message('protocol_response', AuthnResponse).ava
 
-        conf = conv.client.config
+        conf = conv.entity.config
         entcat = conv.extra_args["entcat"]
 
         req_attr = conf.getattr('required_attributes', 'sp')
@@ -102,7 +102,7 @@ class VerifyFunctionality(Check):
     """
 
     def _nameid_format_support(self, conv, nameid_format):
-        md = conv.client.metadata
+        md = conv.entity.metadata
         entity = md[conv.entity_id]
         for idp in entity["idpsso_descriptor"]:
             for nformat in idp["name_id_format"]:
@@ -115,7 +115,7 @@ class VerifyFunctionality(Check):
         return {}
 
     def _srv_support(self, conv, service):
-        md = conv.client.metadata
+        md = conv.entity.metadata
         entity = md[conv.entity_id]
         for desc in ["idpsso_descriptor", "attribute_authority_descriptor",
                      "auth_authority_descriptor"]:
@@ -134,7 +134,7 @@ class VerifyFunctionality(Check):
 
     def _binding_support(self, conv, request, binding, typ):
         service = REQ2SRV[request]
-        md = conv.client.metadata
+        md = conv.entity.metadata
         entity_id = conv.entity_id
         func = getattr(md, service, None)
         try:
@@ -184,7 +184,7 @@ class CheckLogoutSupport(Check):
     msg = "Does not support logout"
 
     def _func(self, conv):
-        mds = conv.client.metadata.metadata[0]
+        mds = conv.entity.metadata.metadata[0]
         # Should only be one
         ed = mds.entity.values()[0]
 
@@ -216,7 +216,7 @@ class VerifyLogout(Check):
 
         # Check that there are no valid cookies
         # should only result in a warning
-        httpc = conv.client
+        httpc = conv.entity
         try:
             assert httpc.cookies(conv.destination) == {}
         except AssertionError:
@@ -224,6 +224,29 @@ class VerifyLogout(Check):
             self._status = WARNING
 
         return {}
+
+
+class VerifyIfRequestIsSigned(Check):
+    """
+    Verify that a Request is signed. If HTTP_REDIRECT is used the
+    whole message can be signed. Otherwise the XML document must be signed.
+    """
+    cid = 'request_is_signed'
+    msg = 'Request was not signed'
+
+    def _func(self, conv):
+        req = conv.events.last_item('request')
+        # First, was the whole message signed
+        if 'SigAlg' in req:
+            if not verify_redirect_signature(req['SAMLRequest'],
+                                             conv.entity.sec):
+                conv.trace.error(
+                    "Was not able to verify Redirect message signature")
+
+        # Secondly, was the XML doc signed
+        # This check is done as part of the normal message parsing
+
+        pass
 
 
 def factory(cid):
