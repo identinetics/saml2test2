@@ -36,7 +36,7 @@ class SamlClIO(IO):
     def represent_result(info, session):
         return represent_result(info, session)
 
-    def dump_log(self, session, test_id):
+    def debug_log(self, session, test_id):
         try:
             _conv = session["conv"]
         except KeyError:
@@ -44,32 +44,40 @@ class SamlClIO(IO):
         else:
             try:
                 _pi = self.profile_handler(session).get_profile_info(test_id)
+            except TypeError:
+                _pi = None
             except Exception as err:
                 raise
 
+            sline = 60*"="
             if _pi:
-                sline = 60*"="
                 output = ["%s: %s" % (k, _pi[k]) for k in ["Issuer", "Profile",
                                                            "Test ID"]]
-                output.append("Timestamp: %s" % in_a_while())
-                output.extend(["", sline, ""])
-                output.extend(trace_output(_conv.trace))
-                output.extend(["", sline, ""])
-                dat = _conv.events.get_data('test_output')
-                output.extend(test_output(dat))
-                output.extend(["", sline, ""])
-                # and lastly the result
-                info = {
-                    "test_output": dat,
-                    "trace": _conv.trace
-                }
-                output.append(
-                    "RESULT: {}".format(self.represent_result(info, session)))
-                output.append("")
+            else:
+                output = []
 
-                txt = "\n".join(output)
+            output.append("Timestamp: %s" % in_a_while())
+            output.extend(["", sline, ""])
+            output.extend(trace_output(_conv.trace))
+            output.extend(["", sline, ""])
+            dat = _conv.events.get_data('test_output')
+            output.extend(test_output(dat))
+            output.extend(["", sline, ""])
+            for ev in _conv.events:
+                output.append('{}'.format(ev))
+            output.extend(["", sline, ""])
+            # and lastly the result
+            info = {
+                "test_output": dat,
+                "trace": _conv.trace
+            }
+            output.append(
+                "RESULT: {}".format(self.represent_result(info, session)))
+            output.append("")
 
-                print(txt)
+            txt = "\n".join(output)
+
+            print(txt)
 
     @staticmethod
     def result(session):

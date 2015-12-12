@@ -13,7 +13,7 @@ logger = logging.getLogger("")
 
 
 if __name__ == "__main__":
-    test_id, kwargs = setup()
+    test_id, kwargs, opargs = setup()
 
     sh = SessionHandler(session={}, **kwargs)
     sh.init_session({}, profile=kwargs['profile'])
@@ -36,4 +36,13 @@ if __name__ == "__main__":
             io = SamlClIO(**kwargs)
             tester = ClTester(io, _sh, **kwargs)
             if tester.run(tid, **kwargs):
-                io.result(_sh.session)
+                if 'debug' in opargs and opargs['debug']:
+                    io.debug_log(_sh.session, tid)
+                else:
+                    io.result(_sh.session)
+            else:
+                io.debug_log(_sh.session, tid)
+
+            if 'dump' in opargs and opargs['dump']:
+                io.dump_log(_sh.session, tid)
+

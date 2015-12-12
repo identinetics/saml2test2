@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 def setup(use='cl'):
     parser = argparse.ArgumentParser()
+    parser.add_argument('-d', dest="debug", action='store_true')
+    parser.add_argument('-D', dest="dump", action='store_true')
     parser.add_argument('-e', dest="entity_id")
     parser.add_argument('-f', dest='flows')
     parser.add_argument('-i', dest="interaction")
@@ -87,6 +89,12 @@ def setup(use='cl'):
               'make_entity': make_entity, 'trace_cls': Trace,
               'conv_args': {'entcat': collect_ec(), 'target_info': target_info}}
 
+    opargs = {}
+    if cargs.debug:
+        opargs["debug"] = True
+    if cargs.dump:
+        opargs["dump"] = True
+
     if cargs.interaction:
         kwargs['interaction_conf'] = importlib.import_module(
             cargs.interaction).INTERACTION
@@ -94,7 +102,7 @@ def setup(use='cl'):
     if cargs.insecure:
         kwargs["insecure"] = True
 
-    return cargs.testid, kwargs
+    return cargs.testid, kwargs, opargs
 
 
 def make_entity(idp, **kw_args):
