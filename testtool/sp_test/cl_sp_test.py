@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import logging
 
-from aatest.io import ClIO
 from aatest.session import SessionHandler
 
 from saml2test.sp_test.tool import ClTester
@@ -34,7 +33,7 @@ if __name__ == "__main__":
             # New fresh session handler for every test
             _sh = SessionHandler({}, **kwargs)
             _sh.init_session({}, profile=kwargs['profile'])
-            io = ClIO(**kwargs)
+            io = SamlClIO(**kwargs)
             tester = ClTester(io, _sh, **kwargs)
             if tester.run(tid, **kwargs):
-                io.result(sh.session)
+                io.result(_sh.session)

@@ -2,7 +2,7 @@ import sys
 import inspect
 import logging
 from requests import Response
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlparse, urlunparse
 
 from aatest.operation import Operation
 from saml2 import BINDING_HTTP_POST
@@ -22,8 +22,7 @@ class Login(Operation):
     start_page = ''
 
     def run(self, **kwargs):
-        self.conv.events.store(
-            'time_stamp', (self.start_page, utc_time_sans_frac()))
+        self.conv.events.store('start_page', self.start_page)
         res = self.conv.entity.send(self.start_page)
         loc = res.headers['location']
         self.conv.events.store('redirect', loc)
@@ -97,8 +96,11 @@ class AuthenticationResponse(ProtocolMessage):
 
         return http_args
 
-    def handle_response(self, result, response_args):
-        self.conv.events.store('result', result)
+    def handle_response(self, result, *args):
+        if result.status_code in [302, 303]:
+            self.conv.events.store('redirect', result)
+        else:
+            self.conv.events.store('result', result)
 
 
 class AuthenticationResponseRedirect(RedirectResponse):
@@ -124,7 +126,30 @@ class AuthenticationResponseRedirect(RedirectResponse):
         return http_info
 
     def handle_response(self, result, *args):
-        self.request_inst.handle_response(result, self.response_args)
+        self.msg.handle_response(result, self.response_args)
+
+
+class FollowRedirect(Operation):
+    def __init__(self, conv, io, sh, **kwargs):
+        Operation.__init__(self, conv, io, sh, **kwargs)
+        self.send_args = kwargs
+
+    def run(self):
+        base_url = self.conv.events.last_item('start_page')
+        _redirect = self.conv.events.last_item('redirect')
+        loc = _redirect.headers['location']
+        if loc.startswith('/'):
+            p = list(urlparse(base_url))
+            p[2] = loc
+            url = urlunparse(p)
+        else:
+            url = base_url + loc
+        res = self.conv.entity.send(url)
+        self.conv.trace.info("redirect response: {}".format(res.status_code))
+        return res
+
+    def handle_response(self, response, *args):
+        self.conv.events.store('html_src', response.text)
 
 
 def factory(name):

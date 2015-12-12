@@ -34,9 +34,8 @@ echopageIdPattern:
 # validate that the SP's echo page returns expected SAML2 response values
 # (e.g. attribute values)
 echopageContentPattern:
-  - 'Given Name\\s*</td>\\s*<td>Roland</td>'
-  - 'Userid\\s*</td>\\s*<td>roland</td>'
-  - 'Surname\\s*</td>\\s*<td>Hedberg</td>'
+  - 'givenName</td>[^<]*<td>Roland</td>'
+  - 'sn</td>[^<]*<td>Hedberg</td>'
 
 result:
   matches:

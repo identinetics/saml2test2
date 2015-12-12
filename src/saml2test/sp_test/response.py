@@ -55,7 +55,7 @@ class RedirectResponse(Response):
         if isinstance(send_args, Response):
             return send_args
 
-        self.trace.info("send_args: {}".format(send_args))
+        self.conv.events.store("send_args", send_args)
         self.conv.events.store('time_stamp',
                                (send_args['url'], utc_time_sans_frac()))
         res = self.entity.send(**send_args)

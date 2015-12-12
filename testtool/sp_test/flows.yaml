@@ -21,11 +21,14 @@ Flows:
           set_allowed_status_codes:
             - 302
             - 303
+      - FollowRedirect
     assertions:
       check_http_response: ''
     profiles:
       - saml2int
     idp: basic
+    tests:
+      - verify_page
       
 Order:
   - SP-Metadata
