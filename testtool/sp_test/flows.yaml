@@ -5,24 +5,26 @@ Flows:
     sequence:
       - Login:
           set_start_page: ''
-          set_allowed_status_codes:
-            - 302
-            - 303
-          add_post_assertion:
-              http_response: {}
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
               verify_authnrequest: {}
       - AuthenticationResponseRedirect:
-          add_pre_assertion:
+          add_pre_condition:
               has_endpoint:
                   typ: 'spsso_descriptor'
                   binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                   service: 'assertion_consumer_service'
           set_userid: ''
-          set_identity: ''
+          set_identity: {}
           set_authn: {}
-          set_allowed_status_codes:
-            - 302
-            - 303
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
       - FollowRedirect
     assert:
         http_response:

@@ -196,18 +196,12 @@ class ClTester(tool.Tester):
         if resp is None:
             return
 
-        if oper is None:
-            allowed_status_codes = [200]
+        if self.conv.interaction.interactions:
+            res = self.intermit(resp)
+            if isinstance(res, dict):
+                if oper is None:
+                    oper = restore_operation(self.conv, self.io, self.sh)
+
+                oper.handle_response(res)
         else:
-            allowed_status_codes = oper.allowed_status_codes
-
-        if resp.status_code in allowed_status_codes:
-            if self.conv.interaction.interactions:
-                res = self.intermit(resp)
-                if isinstance(res, dict):
-                    if oper is None:
-                        oper = restore_operation(self.conv, self.io, self.sh)
-
-                    oper.handle_response(res)
-            else:
-                oper.handle_response(resp)
+            oper.handle_response(resp)

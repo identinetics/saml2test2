@@ -26,7 +26,7 @@ class Login(Operation):
         self.conv.events.store('start_page', self.start_page)
         self.conv.trace.info("Doing GET on {}".format(self.start_page))
         res = self.conv.entity.send(self.start_page)
-        self.conv.events.store('response', res)
+        self.conv.events.store('http response', res)
         self.conv.trace.info("Got a {} response".format(res.status_code))
         if res.status_code in [302, 303]:
             loc = res.headers['location']
@@ -44,7 +44,7 @@ class Login(Operation):
             req = dict(
                 [(k, v[0]) for k, v in parse_qs(loc.split('?')[1]).items()])
             saml_req = req["SAMLRequest"]
-            self.conv.events.store("request", req)
+            self.conv.events.store("response dict", req)
             self.conv.events.store('RelayState', req["RelayState"])
         else:
             saml_req = result["SAMLRequest"]
@@ -59,8 +59,8 @@ class Login(Operation):
         _msg = _req.message
         self.conv.trace.info("{}: {}".format(_msg.__class__.__name__, _msg))
         self.conv.trace.info('issuer: {}'.format(_msg.issuer.text))
-        self.conv.events.store('protocol_message:xml', _req.xmlstr)
-        self.conv.events.store('protocol_message', _msg)
+        self.conv.events.store('response:xml', _req.xmlstr)
+        self.conv.events.store('response', _msg)
         self.conv.events.store('issuer', _msg.issuer.text)
 
 
@@ -134,8 +134,7 @@ class AuthenticationResponseRedirect(RedirectResponse):
         self.msg = self.msg_cls(self.conv, self.req_args, binding=self._binding,
                                 **self.msg_args)
 
-        _authn_req = self.conv.events.get_message('protocol_message',
-                                                  AuthnRequest)
+        _authn_req = self.conv.events.get_message('response', AuthnRequest)
         resp_args = self.conv.entity.response_args(_authn_req)
         self.conv.events.store('response args', resp_args)
 
@@ -163,7 +162,7 @@ class FollowRedirect(Operation):
         else:
             url = base_url + loc
         res = self.conv.entity.send(url)
-        self.conv.events.store('response', res)
+        self.conv.events.store('http response', res)
         self.conv.trace.info("Got a {} response".format(res.status_code))
         self.conv.trace.info("Received HTML: {}".format(res.text))
         return res

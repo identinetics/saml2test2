@@ -7,7 +7,7 @@ from aatest.io import IO
 from aatest.io import SIGN
 from aatest.summation import end_tags
 from aatest.summation import trace_output
-from aatest.summation import test_output
+from aatest.summation import do_assertions
 from aatest.summation import test_summation
 from aatest.summation import represent_result
 
@@ -60,15 +60,14 @@ class SamlClIO(IO):
             output.extend(["", sline, ""])
             output.extend(trace_output(_conv.trace))
             output.extend(["", sline, ""])
-            dat = _conv.events.get_data('test_output')
-            output.extend(test_output(dat))
+            output.extend(do_assertions(_conv.events))
             output.extend(["", sline, ""])
             for ev in _conv.events:
                 output.append('{}'.format(ev))
             output.extend(["", sline, ""])
             # and lastly the result
             info = {
-                "test_output": dat,
+                "test_output": do_assertions(_conv.events),
                 "trace": _conv.trace
             }
             output.append(
