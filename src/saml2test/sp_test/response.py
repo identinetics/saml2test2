@@ -56,9 +56,9 @@ class RedirectResponse(Response):
             return send_args
 
         self.conv.events.store("send_args", send_args)
-        self.conv.events.store('time_stamp',
-                               (send_args['url'], utc_time_sans_frac()))
+        self.conv.events.store('send', send_args['url'])
         res = self.entity.send(**send_args)
+        self.conv.events.store('http response', res)
         self.trace.info("Got a {} response".format(res.status_code))
         self.trace.info("Received HTML: {}".format(res.text))
         return res

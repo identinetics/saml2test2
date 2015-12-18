@@ -82,7 +82,7 @@ class Tester(tool.Tester):
             raise
 
         if self.conv.events.last_item('operation') == Done:
-            self.conv.events.store('test_output', ("X", END_TAG))
+            self.conv.events.store('condition', END_TAG)
             return True
         else:
             return False
@@ -91,7 +91,7 @@ class Tester(tool.Tester):
         if resp is None:
             return
 
-        self.conv.events.store('response', resp)
+        self.conv.events.store('received', resp)
         logger.debug(resp)
 
         _oper = restore_operation(self.conv, self.io, self.sh)

@@ -1,5 +1,6 @@
 import logging
 import flask
+from aatest.check import State
 
 from beaker.middleware import SessionMiddleware
 
@@ -137,7 +138,7 @@ def acs():
 
     tester.handle_response(flask.request.form, {})
     test_id = tester.conv.events.last_item('test_id')
-    tester.conv.events.store("test_result", (test_id, tester.test_result()))
+    tester.conv.events.store("condition", State(test_id=test_id, message=tester.test_result()))
     test_results = dict([x for x in tester.conv.events.get_data('test_result')])
 
     _check = tester.conv.events.get_data('check')

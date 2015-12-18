@@ -78,7 +78,7 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
-        self.conv.events.store('protocol_request', request)
+        self.conv.events.store('request', request)
         self.conv.events.store('request_args', self.req_args)
 
         _req_str = str(request)
@@ -134,7 +134,7 @@ class AuthnRequest(ProtocolMessage):
         #                 resp.in_response_to))
 
         self.conv.trace.reply(resp)
-        self.conv.events.store('protocol_response', resp)
+        self.conv.events.store('response', resp)
 
 
 class Discovery(ProtocolMessage):

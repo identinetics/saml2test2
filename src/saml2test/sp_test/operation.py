@@ -116,7 +116,7 @@ class AuthenticationResponse(ProtocolMessage):
 
     def handle_response(self, result, *args):
         if result.status_code in [302, 303]:
-            self.conv.events.store('redirect', result)
+            self.conv.events.store('http response', result)
         else:
             self.conv.events.store('result', result)
 
@@ -169,7 +169,7 @@ class FollowRedirect(Operation):
         return res
 
     def handle_response(self, response, *args):
-        self.conv.events.store('html_src', response.text)
+        self.conv.events.store('html', response.text)
 
 
 def factory(name):

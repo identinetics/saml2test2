@@ -56,6 +56,7 @@ class Request(Operation):
         self.expect_error = {}
         self.req_args = {}
         self.op_args = {}
+        self.msg_param = {}
         self.csi = None
         self.entity = self.conv.entity
         self.trace = self.conv.trace
@@ -84,7 +85,7 @@ class Request(Operation):
             entity = metadata[self.conv.entity_id]
         except KeyError:
             raise MissingMetadata("No metadata available for {}".format(
-                self.conv.entity_id))
+                    self.conv.entity_id))
 
         for arg in ['nameid_format', 'response_binding']:
             if not arg in self.req_args:
@@ -126,8 +127,9 @@ class RedirectRequest(Request):
                 break
 
         self.trace.info("redirect.url: {}".format(_loc))
-        self.conv.events.store('time_stamp', (_loc, utc_time_sans_frac()))
+        self.conv.events.store('send', {'url': _loc, 'method': _method})
         res = self.entity.send(_loc, _method)
+        self.conv.events.store('http response', res)
         self.trace.info("redirect response: {}".format(res.text))
         return res
 
@@ -169,8 +171,9 @@ class PostRequest(Request):
 
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
+        self.conv.events.store('send', **send_args)
         res = self.entity.send(**send_args)
+        self.conv.events.store('http response', res)
         self.trace.info("post response: {}".format(res.text))
         return res
 
@@ -189,8 +192,9 @@ class SoapRequest(Request):
         # _method = info['method']
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.events.store('timestamp', (_loc, utc_time_sans_frac()))
+        self.conv.events.store('send', **send_args)
         res = self.entity.send(**send_args)
+        self.conv.events.store('http response', res)
         self.trace.info("post response: {}".format(res.text))
         return res
 
