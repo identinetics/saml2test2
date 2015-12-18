@@ -1,0 +1,121 @@
+p {
+    line-height: 1em;
+}
+
+.status-help-box {
+    border: 1px solid lightgray;
+    width: 140px;
+    height: 3em;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.status-not-run {
+    background-color: white;
+}
+
+.status-ok {
+    background-color: #b0e399;
+}
+
+.status-too-few {
+    background-color: #fdff7f;
+}
+
+.status-too-many {
+    background-color: #ff9900;
+}
+
+.status-too-few-too-many {
+    background-color: #ff7f7f;
+}
+
+.border-below {
+    border-bottom: 1px solid rgba(200, 200, 200, 1);
+}
+
+.border-between {
+    /* border between Bootstrap columns */
+    display: flex;
+}
+
+.border-between > [class*='col-']:before {
+    background: #e3e3e3;
+    bottom: 0;
+    content: " ";
+    left: 0;
+    position: absolute;
+    width: 1px;
+    top: 0;
+    flex: 1;
+}
+
+.border-between > [class*='col-']:first-child:before {
+    display: none;
+}
+
+.no-margin {
+    margin: 0px;
+}
+
+.accordion-toggle:before {
+    /* symbol for "opening" panels */
+    font-family: "Glyphicons Halflings"; /* essential for enabling glyphicon */
+    content: "\e114";
+    float: left;
+    color: grey;
+    position: relative;
+    font-size: 15pt;
+    margin-left: 5px;
+}
+
+.accordion-toggle.collapsed:before {
+    /* symbol for "collapsed" panels */
+    content: "\e080";
+}
+
+.panel-heading:hover h3 {
+    text-decoration: underline;
+}
+
+.results-table {
+    margin: 0px;
+    table-layout: fixed;
+}
+
+.results-table th, .results-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.results-table td {
+    text-align: center;
+}
+
+.results-table thead th:first-child {
+    width: 20%;
+}
+
+.results-table button {
+    width: 100%;
+}
+
+.ellipsis-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#accordion a {
+    color: black;
+}
+
+#heading_instructions .accordion-toggle:before {
+    font-size: 11pt;
+    margin-right: 5px;
+    margin-left: -10px;
+    padding: 0px
+}
