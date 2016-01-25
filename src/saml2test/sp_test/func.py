@@ -34,6 +34,10 @@ def set_authn(oper, args):
         oper.msg_args['authn']['authn_instant'] = utc_time_sans_frac()
 
 
+def add_post_condition(oper, args):
+    pass
+
+
 def factory(name):
     for fname, obj in inspect.getmembers(sys.modules[__name__]):
         if inspect.isfunction(obj):

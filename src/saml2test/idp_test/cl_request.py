@@ -46,13 +46,13 @@ class AuthnRequest(ProtocolMessage):
         logger.info("destination to provider: %s", destination)
 
         self.req_args = map_arguments(self.req_args,
-                                      {'name_id.format':'nameid_format'})
+                                      {'name_id.format': 'nameid_format'})
 
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
         self.conv.events.store('request_args', self.req_args)
-        self.conv.events.store('request', request)
+        self.conv.events.store('protocol_request', request)
 
         _req_str = str(request)
 
@@ -88,7 +88,7 @@ class AuthnRequest(ProtocolMessage):
         resp = _cli.parse_authn_request_response(
             result['SAMLResponse'], self.req_args['response_binding'],
             _outstanding)
-        self.conv.events.store('response', resp)
+        self.conv.events.store('protocol_response', resp)
 
 
 class LogOutRequest(ProtocolMessage):
@@ -127,7 +127,7 @@ class LogOutRequest(ProtocolMessage):
             expire=expire, session_indexes=session_indexes)
 
         self.conv.events.store('request_args', self.req_args)
-        self.conv.events.store('request', request)
+        self.conv.events.store('protocol_request', request)
 
         # to_sign = []
         if self.binding.startswith("http://"):
@@ -176,7 +176,7 @@ class LogOutRequest(ProtocolMessage):
     def handle_response(self, result, response_args, *args):
         resp = self.conv.entity.parse_logout_request_response(result['text'],
                                                               self.binding)
-        self.conv.events.store('response', resp)
+        self.conv.events.store('protocol_response', resp)
 
 
 class AuthnRedirectRequest(RedirectRequest):
@@ -234,7 +234,7 @@ class LogOutRequestSoap(SoapRequest):
 
     def _make_request(self):
         self.request_inst = self.req_cls(self.conv, self.req_args,
-                                          binding=BINDING_SOAP)
+                                         binding=BINDING_SOAP)
         http_info, request_id = self.request_inst.construct_message()
         return http_info
 

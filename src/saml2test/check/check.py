@@ -25,7 +25,7 @@ class VerifySubject(Check):
 
     cid = 'verify_subject'
 
-    def __call__(self, conv=None, output=None):
+    def _func(self, conv=None, output=None):
         response = conv.events.get_message('protocol_response',
                                            AuthnResponse).response
         # Assumes only one assertion
@@ -33,7 +33,6 @@ class VerifySubject(Check):
         subj = response.assertion[0].subject
         request = conv.events.get_message('protocol_request', AuthnRequest)
 
-        res = {}
         # Nameid format
         nformat = sp_name_qualifier = ''
         if "name_id.format" in self._kwargs:
@@ -47,15 +46,16 @@ class VerifySubject(Check):
             sp_name_qualifier = request.name_id_policy.sp_name_qualifier
 
         if nformat:
-            try:
-                assert subj.name_id.format == nformat
+            if subj.name_id.format == nformat:
                 if sp_name_qualifier:
-                    assert subj.name_id.sp_name_qualifier == sp_name_qualifier
-            except AssertionError:
-                res['message'] = "The IdP returns wrong NameID format"
-                res['status'] = CRITICAL
+                    if subj.name_id.sp_name_qualifier != sp_name_qualifier:
+                        self._message = "The IdP returns wrong NameID format"
+                        self._status = CRITICAL
+            else:
+                self._message = "The IdP returns wrong NameID format"
+                self._status = CRITICAL
 
-        return res
+        return {}
 
 
 class VerifyAttributes(Check):
@@ -63,7 +63,7 @@ class VerifyAttributes(Check):
 
     cid = 'verify_attributes'
 
-    def __call__(self, conv=None, output=None):
+    def _func(self, conv=None):
         ava = conv.events.get_message('protocol_response', AuthnResponse).ava
 
         conf = conv.entity.config
@@ -85,16 +85,11 @@ class VerifyAttributes(Check):
                     missing.append(attr)
 
         if missing:
-            res = {
-                "message":
-                    "Attributes I expected but not received: {}".format(
-                        missing),
-                'status': CRITICAL
-            }
-        else:
-            res = {}
+            self._message = "Attributes I expected but not received: {}".format(
+                missing)
+            self._status = CRITICAL
 
-        return res
+        return {}
 
 
 class VerifyFunctionality(Check):
@@ -209,20 +204,16 @@ class VerifyLogout(Check):
         # Check that the logout response says it was a success
         resp = conv.events.last_item('protocol_response')
         status = resp.response.status
-        try:
-            assert status.status_code.value == STATUS_SUCCESS
-        except AssertionError:
+        if status.status_code.value != STATUS_SUCCESS:
             self._message = self.msg
             self._status = CRITICAL
+        else:
+            # Check that there are no valid cookies
+            # should only result in a warning
 
-        # Check that there are no valid cookies
-        # should only result in a warning
-        httpc = conv.entity
-        try:
-            assert httpc.cookies(conv.destination) == {}
-        except AssertionError:
-            self._message = "Remaining cookie ?"
-            self._status = WARNING
+            if conv.entity.cookies(conv.destination):
+                self._message = "Remaining cookie ?"
+                self._status = WARNING
 
         return {}
 

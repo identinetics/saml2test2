@@ -1,6 +1,9 @@
 import logging
+from aatest.io import eval_state
+from aatest.summation import trace_output, condition
+from aatest.verify import Verify
 import flask
-from aatest.check import State
+from aatest.check import State, OK, STATUSCODE
 
 from beaker.middleware import SessionMiddleware
 
@@ -11,9 +14,11 @@ from flask.templating import render_template
 
 from aatest.session import SessionHandler
 # import pickle
+from saml2.httputil import ServiceError
 from saml2.response import AuthnResponse
 
 from saml2.s_utils import rndstr
+from saml2.time_util import in_a_while
 
 from saml2test.idp_test.io import SamlClIO
 from saml2test.idp_test.setup import setup
@@ -53,7 +58,7 @@ def setup_tester():
     tester.conv.base_url = app_args["base_url"]
     tester.conv.test_id = test_id
 
-    return tester
+    return tester, app_args
 
 
 def entcat_test(tinfo):
@@ -106,10 +111,8 @@ def run_test(test_id):
     tester = Tester(io, sh, **app_args)
     tester.setup(test_id, **app_args)
 
-    if 'events' not in flask.session:
-        flask.session["events"] = tester.conv.events
-    if 'trace' not in flask.session:
-        flask.session["trace"] = tester.conv.trace
+    flask.session["events"] = tester.conv.events
+    flask.session["trace"] = tester.conv.trace
 
     print("TRACE", tester.conv.trace)
     return tester.run(test_id, **app_args)
@@ -132,36 +135,42 @@ def run_test(test_id):
 
 @app.route("/acs/post", methods=["POST"])
 def acs():
-    tester = setup_tester()
+    tester, app_args = setup_tester()
     for ev in tester.conv.events:
         print(ev)
 
     tester.handle_response(flask.request.form, {})
-    test_id = tester.conv.events.last_item('test_id')
-    tester.conv.events.store("condition", State(test_id=test_id, message=tester.test_result()))
-    test_results = dict([x for x in tester.conv.events.get_data('test_result')])
 
-    _check = tester.conv.events.get_data('check')
-    check_result = {a: {b: c} for a, b, c in _check}
+    if 'assert' in tester.conv.flow:
+        _ver = Verify(app_args['check_factory'], app_args['msg_factory'],
+                      tester.conv)
+        _ver.test_sequence(tester.conv.flow["assert"])
 
-    print('{}{}{}'.format(30 * '-', 'CHECK', 30 * '-'))
-    print("CHECK", check_result)
-    print('{}{}{}'.format(30 * '-', 'RESULT', 30 * '-'))
-    print(test_results)
-    print('{}{}{}'.format(30 * '-', 'INFO', 30 * '-'))
-    print(app.config["TESTS"])
-    print('{}{}{}'.format(30 * '-', 'TRACE', 30 * '-'))
-    print("TRACE", tester.conv.trace)
-    print(60 * '-')
+    sline = 60 * "="
+    print("Timestamp: {}".format(in_a_while()))
+    print("\n", sline, "\n")
+    for l in trace_output(tester.conv.trace):
+        print(l)
+    print("\n", sline, "\n")
+    for l in condition(tester.conv.events):
+        print(l)
+    print("\n", sline, "\n")
 
-    for a, item in check_result.items():
-        for b, c in item.items():
-            if b == 'verify_entity_category':
-                print(a, b, c['test_result'].status)
+    try:
+        test_results = flask.session['test_results']
+    except KeyError:
+        test_results = {}
 
     entcat_tests = dict(
         [(t, entcat_test(v)) for t, v in app.config['TESTS'].items()])
 
+    test_results[tester.conv.events.get_data('test_id')[0]] = eval_state(
+        tester.conv.events)
+
+    check_result = ['{}: {}'.format(s.test_id, STATUSCODE[s.status]) for s in
+                    tester.conv.events.get_data('condition')]
+
+    flask.session['test_results'] = test_results
     return render_template("test_main.html",
                            base=tester.conv.base_url,
                            tests=app.config["TESTS"],

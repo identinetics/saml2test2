@@ -15,11 +15,11 @@ from saml2.mdstore import REQ2SRV
 from saml2.pack import http_redirect_message, http_form_post_message
 from saml2.s_utils import rndstr
 
-
 __author__ = 'roland'
 
 try:
     from xml.etree import cElementTree as ElementTree
+
     if ElementTree.VERSION < '1.3.0':
         # cElementTree has no support for register_namespace
         # neither _namespace_map, thus we sacrify performance
@@ -27,7 +27,6 @@ try:
         from xml.etree import ElementTree
 except ImportError:
     import cElementTree as ElementTree
-
 
 logger = logging.getLogger(__name__)
 
@@ -160,11 +159,11 @@ class Conversation(tool.Conversation):
                     res.status_code, res.text))
                 raise HTTPError(res.text)
 
-        self.last_response = res
-        try:
-            self.last_content = res.text
-        except AttributeError:
-            self.last_content = None
+        # self.last_response = res
+        # try:
+        #     self.last_content = res.text
+        # except AttributeError:
+        #     self.last_content = None
 
         return res
 
@@ -184,7 +183,7 @@ class Conversation(tool.Conversation):
         _oper = phase(self)
         _oper.setup()
         self.args = _oper.args
-        #self.oper.args = _oper.args.copy()
+        # self.oper.args = _oper.args.copy()
         self.args["entity_id"] = self.entity_id
         self.oper = _oper
         self.entity.cookiejar = self.cjar["browser"]
@@ -221,15 +220,17 @@ class Conversation(tool.Conversation):
             "assertion_consumer_service"]]
 
     def handle_result(self):
+        http_resp = self.events.get_data('http_response')
         try:
-            if self.last_response.status_code in [302, 303]:
+            if http_resp.status_code in [302, 303]:
                 return False
         except AttributeError:
             pass
 
         _resp = None
         try:
-            response = self.oper.post_processing(self.last_content)
+            response = self.oper.post_processing(
+                self.events.last_of(['response', 'http_response']))
             if isinstance(response, dict):
                 try:
                     assert self.relay_state == response["RelayState"]

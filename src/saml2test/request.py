@@ -171,7 +171,7 @@ class PostRequest(Request):
 
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.events.store('send', **send_args)
+        self.conv.events.store('send', send_args)
         res = self.entity.send(**send_args)
         self.conv.events.store('http response', res)
         self.trace.info("post response: {}".format(res.text))
@@ -192,7 +192,7 @@ class SoapRequest(Request):
         # _method = info['method']
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.events.store('send', **send_args)
+        self.conv.events.store('send', send_args)
         res = self.entity.send(**send_args)
         self.conv.events.store('http response', res)
         self.trace.info("post response: {}".format(res.text))

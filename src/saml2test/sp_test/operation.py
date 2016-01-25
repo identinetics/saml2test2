@@ -2,15 +2,15 @@ import sys
 import inspect
 import logging
 from requests import Response
-from urllib.parse import parse_qs, urlparse, urlunparse
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
 
 from aatest.operation import Operation
 from saml2 import BINDING_HTTP_POST
 
 from saml2.profile import ecp
 from saml2.samlp import AuthnRequest
-from saml2.sigver import verify_redirect_signature
-from saml2.time_util import utc_time_sans_frac
 from saml2test.message import ProtocolMessage
 from saml2test.sp_test.response import RedirectResponse
 
@@ -44,7 +44,7 @@ class Login(Operation):
             req = dict(
                 [(k, v[0]) for k, v in parse_qs(loc.split('?')[1]).items()])
             saml_req = req["SAMLRequest"]
-            self.conv.events.store("response dict", req)
+            self.conv.events.store("response", req)
             self.conv.events.store('RelayState', req["RelayState"])
         else:
             saml_req = result["SAMLRequest"]
@@ -60,7 +60,7 @@ class Login(Operation):
         self.conv.trace.info("{}: {}".format(_msg.__class__.__name__, _msg))
         self.conv.trace.info('issuer: {}'.format(_msg.issuer.text))
         self.conv.events.store('response:xml', _req.xmlstr)
-        self.conv.events.store('response', _msg)
+        self.conv.events.store('protocol_response', _req)
         self.conv.events.store('issuer', _msg.issuer.text)
 
 
@@ -115,10 +115,7 @@ class AuthenticationResponse(ProtocolMessage):
         return http_args
 
     def handle_response(self, result, *args):
-        if result.status_code in [302, 303]:
-            self.conv.events.store('http response', result)
-        else:
-            self.conv.events.store('result', result)
+        self.conv.events.store('http response', result)
 
 
 class AuthenticationResponseRedirect(RedirectResponse):
@@ -134,7 +131,8 @@ class AuthenticationResponseRedirect(RedirectResponse):
         self.msg = self.msg_cls(self.conv, self.req_args, binding=self._binding,
                                 **self.msg_args)
 
-        _authn_req = self.conv.events.get_message('response', AuthnRequest)
+        _authn_req = self.conv.events.get_message('protocol_response',
+                                                  AuthnRequest)
         resp_args = self.conv.entity.response_args(_authn_req)
         self.conv.events.store('response args', resp_args)
 

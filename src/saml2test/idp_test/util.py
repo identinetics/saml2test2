@@ -59,7 +59,7 @@ def parse_yaml_conf(cnf_file, use='cl'):
         for func in spec["sequence"]:
             if isinstance(func, dict):  # Must be only one key, value item
                 key, val = list(func.items())[0]
-                seq.append((_get_cls(key), _get_func(val)))
+                seq.append((_get_cls(key, use), _get_func(val)))
             else:
                 seq.append(_get_cls(func, use))
         spec["sequence"] = seq

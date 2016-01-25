@@ -34,6 +34,7 @@ def setup(use='cl'):
     parser.add_argument('-f', dest='flows')
     parser.add_argument('-i', dest="interaction")
     parser.add_argument('-k', dest="insecure", action='store_true')
+    parser.add_argument('-x', dest="break", action='store_true')
     parser.add_argument('-l', dest="log_name")
     parser.add_argument('-p', dest="profile", action='append')
     parser.add_argument('-t', dest="testid")
@@ -75,7 +76,7 @@ def setup(use='cl'):
         setup_logger(logger)
 
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
-              "flows": fdef['Flows'], "orddesc": fdef['Order'],
+              "flows": fdef['Flows'], "order": fdef['Order'],
               "desc": fdef['Desc'], 'metadata': mds,
               "profile": cargs.profile, "msg_factory": saml_message_factory,
               "check_factory": get_check, "profile_handler": ProfileHandler,
@@ -90,4 +91,4 @@ def setup(use='cl'):
     if cargs.insecure:
         kwargs["insecure"] = True
 
-    return cargs.testid, kwargs
+    return cargs, kwargs

@@ -14,20 +14,21 @@ logger = logging.getLogger("")
 
 
 if __name__ == "__main__":
-    test_id, kwargs = setup()
+    cargs, kwargs = setup()
 
-    if test_id:
-        if test_id not in kwargs['flows']:
+    if cargs.testid:
+        if cargs.testid not in kwargs['flows']:
             print(
                 "The test id ({}) does not appear in the test definitions".format(
-                    test_id))
+                    cargs.testid))
             exit()
 
         io = SamlClIO(**kwargs)
         sh = SessionHandler(session={}, **kwargs)
         sh.init_session({}, profile=kwargs['profile'])
         tester = ClTester(io, sh, **kwargs)
-        tester.run(test_id, **kwargs)
+        tester.run(cargs.testid, **kwargs)
+        io.result(sh.session)
     else:
         _sh = SessionHandler(session={}, **kwargs)
         _sh.init_session({}, profile=kwargs['profile'])

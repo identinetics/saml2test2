@@ -100,8 +100,7 @@ class ClTester(tool.Tester):
                             pass
                         else:
                             response = parse_qs(query)
-                            self.last_response = response
-                            self.last_content = response
+                            self.conv.events.store('response', response)
                             return response
 
                 if for_me:
@@ -117,8 +116,7 @@ class ClTester(tool.Tester):
                     content = response.text
                     logger.info("<-- CONTENT: %s" % content)
                     self.position = url
-                    self.last_content = content
-                    self.response = response
+                    self.conv.events.store('http_response', response.text)
 
                     if response.status_code >= 400:
                         done = True
@@ -168,13 +166,10 @@ class ClTester(tool.Tester):
             try:
                 response = _op(self, url, response, self.features, **op_args)
                 if isinstance(response, dict):
-                    self.last_response = response
-                    self.last_content = response
+                    self.conv.events.store('response', response)
                     return response
                 content = response.text
-                self.position = response.url
-                self.last_content = content
-                self.response = response
+                self.conv.events.store('http_response', response)
 
                 if response.status_code >= 400:
                     txt = "Got status code '%s', error: %s" % (
@@ -185,12 +180,6 @@ class ClTester(tool.Tester):
                 raise
             except Exception as err:
                 self.conv.trace.error(err)
-
-        self.last_response = response
-        try:
-            self.last_content = response.text
-        except AttributeError:
-            self.last_content = None
 
     def handle_response(self, resp, index, oper=None):
         if resp is None:

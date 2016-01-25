@@ -33,6 +33,10 @@ def set_message_param(oper, args):
     oper.msg_param.update(args)
 
 
+def add_post_condition(oper, args):
+    pass
+
+
 def factory(name):
     for fname, obj in inspect.getmembers(sys.modules[__name__]):
         if inspect.isfunction(obj):

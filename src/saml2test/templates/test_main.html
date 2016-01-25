@@ -33,11 +33,11 @@
   <a href="/tests/{{ test_id }}">
     {# First the status marker which is clickable #}
     {% if result %}
-      {% if result.status == 1 %}
+      {% if result == 1 %}
         <img src="/static/green.png" alt="Green">
-      {% elif result.status == 2 %}
+      {% elif result == 2 %}
         <img src="/static/yellow.png" alt="Yellow">
-      {% elif result.status == 3 %}
+      {% elif result == 3 %}
         <img src="/static/red.png" alt="Red">
       {% else %}
         <img src="/static/qmark.jpg" alt="QuestionMark">
@@ -57,14 +57,14 @@
 </li>
 {% endmacro %}
 
-{% macro render_list(base, test_info, test_results, check_result, ec_tests) %}
+{% macro render_list(base, tests, test_results, check_result, ec_tests) %}
   <ul>
-  {% for test_id, info in test_info|dictsort %}
+  {% for test_id, info in tests|dictsort %}
     {% if test_id in test_results.keys() %}
       {% if ec_tests[test_id] %}
-        {{ render_ec_line(test_id, base, info, check_result[test_id])}}
+        {{ render_ec_line(test_id, base, info, test_results[test_id])}}
       {% else %}
-        {{ render_line(test_id, base, info, check_result[test_id]) }}
+        {{ render_line(test_id, base, info, test_results[test_id]) }}
       {% endif %}
     {% else %}
       {{ render_line(test_id, base, info) }}
