@@ -33,15 +33,11 @@ class OperationError(Exception):
 class ClTester(tool.Tester):
     def __init__(self, io, sh, profile, flows, check_factory,
                  msg_factory, cache, make_entity, map_prof,
-                 trace_cls, **kwargs):
+                 trace_cls, com_handler, **kwargs):
         tool.Tester.__init__(self, io, sh, profile, flows,
                              check_factory, msg_factory, cache, make_entity,
-                             map_prof, trace_cls, **kwargs)
+                             map_prof, trace_cls, com_handler, **kwargs)
         self.features = {}
-        try:
-            self.interactions = kwargs['interaction_conf']
-        except AttributeError:
-            self.interactions = None
 
     def run(self, test_id, **kw_args):
         self.sh.session_setup(path=test_id)
@@ -52,12 +48,13 @@ class ClTester(tool.Tester):
         self.conv.entity_id = kw_args["entity_id"]
         _cli.conv = self.conv
         self.conv.sequence = self.sh.session["sequence"]
-        if 'insecure' in kw_args:
-            self.conv.interaction.verify_ssl = False
 
-        if self.interactions:
-            self.conv.interaction.interactions = self.interactions
         self.sh.session["conv"] = self.conv
+
+        self.com_handler.conv = self.conv
+        self.com_handler.auto_close_urls = self.my_endpoints()
+        if 'insecure' in kw_args:
+            self.com_handler.verify_ssl = False
 
         # noinspection PyTypeChecker
         try:
@@ -71,139 +68,3 @@ class ClTester(tool.Tester):
         return [e for e, b in
                 self.conv.entity.config.getattr("endpoints", "sp")[
                     "assertion_consumer_service"]]
-
-    def intermit(self, response):
-        _last_action = None
-        _same_actions = 0
-        if response.status_code >= 400:
-            done = True
-        else:
-            done = False
-
-        url = response.url
-        content = response.text
-        while not done:
-            rdseq = []
-            while response.status_code in [302, 301, 303]:
-                url = response.headers["location"]
-                if url in rdseq:
-                    raise FatalError("Loop detected in redirects")
-                else:
-                    rdseq.append(url)
-                    if len(rdseq) > 8:
-                        raise FatalError(
-                            "Too long sequence of redirects: %s" % rdseq)
-
-                logger.info("HTTP %d Location: %s" % (response.status_code,
-                                                      url))
-                # If back to me
-                for_me = False
-                for redirect_uri in self.my_endpoints():
-                    if url.startswith(redirect_uri):
-                        # Back at the RP
-                        self.conv.entity.cookiejar = self.cjar["rp"]
-                        for_me = True
-                        try:
-                            base, query = url.split("?")
-                        except ValueError:
-                            pass
-                        else:
-                            response = parse_qs(query)
-                            self.conv.events('response', response)
-                            return response
-
-                if for_me:
-                    done = True
-                    break
-                else:
-                    try:
-                        logger.info("GET %s" % url)
-                        response = self.conv.entity.send(url, "GET")
-                    except Exception as err:
-                        raise FatalError("%s" % err)
-
-                    content = response.text
-                    logger.info("<-- CONTENT: %s" % content)
-                    self.position = url
-                    self.conv.events('http_response', response)
-                    self.response = response
-
-                    if response.status_code >= 400:
-                        done = True
-                        break
-
-            if done or url is None:
-                break
-
-            _base = url.split("?")[0]
-
-            try:
-                _spec = self.conv.interaction.pick_interaction(response, _base)
-            except InteractionNeeded:
-                self.position = url
-                cnt = content.replace("\n", '').replace("\t", '').replace("\r",
-                                                                          '')
-                logger.error("URL: %s" % url)
-                logger.error("Page Content: %s" % cnt)
-                raise
-            except KeyError:
-                self.position = url
-                cnt = content.replace("\n", '').replace("\t", '').replace("\r",
-                                                                          '')
-                logger.error("URL: %s" % url)
-                logger.error("Page Content: %s" % cnt)
-                #self.err_check("interaction-needed")
-
-            if _spec == _last_action:
-                _same_actions += 1
-                if _same_actions >= 3:
-                    self.conv.trace.error("Interaction loop detection")
-                    raise OperationError()
-            else:
-                _last_action = _spec
-
-            if len(_spec) > 2:
-                logger.info(">> %s <<" % _spec["page-type"])
-                if _spec["page-type"] == "login":
-                    self.login_page = content
-
-            _op = Action(_spec["control"])
-            if self.conv.interaction.verify_ssl == False:
-                op_args = {"verify": False}
-            else:
-                op_args = {}
-
-            try:
-                response = _op(self, url, response, self.features, **op_args)
-                if isinstance(response, dict):
-                    self.conv.events.store('response', response)
-                    return response
-                content = response.text
-                self.conv.events.store('http_response', response)
-
-                if response.status_code >= 400:
-                    txt = "Got status code '%s', error: %s" % (
-                        response.status_code, content)
-                    logger.error(txt)
-                    raise OperationError()
-            except (FatalError, InteractionNeeded, OperationError):
-                raise
-            except Exception as err:
-                self.conv.trace.error(err)
-
-        #self.last_response = response
-        # try:
-        #     self.last_content = response.text
-        # except AttributeError:
-        #     self.last_content = None
-
-    def handle_response(self, resp, index, oper=None):
-        if resp is None:
-            return
-
-        if self.conv.interaction.interactions:
-            res = self.intermit(resp)
-            if isinstance(res, dict):
-                if not oper:
-                    oper = restore_operation(self.conv, self.io, self.sh)
-                oper.handle_response(res)
