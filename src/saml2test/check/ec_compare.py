@@ -3,7 +3,8 @@ import sys
 import inspect
 
 from aatest.check import Check
-from aatest.check import TestResult
+from aatest.check import State
+from aatest.events import EV_PROTOCOL_RESPONSE
 
 from saml2.entity_category.edugain import COCO
 from saml2.entity_category.refeds import RESEARCH_AND_SCHOLARSHIP
@@ -34,15 +35,15 @@ class EntityCategoryTestStatus:
         return self._status.value
 
 
-class EntityCategoryTestResult(TestResult):
+class EntityCategoryTestResult(State):
     name = 'entity_category_test_result'
 
     def __init__(self, test_id, status, name, mti=False, specifics=None):
-        TestResult.__init__(self, test_id, status, name, mti=mti)
+        State.__init__(self, test_id, status, name, mti=mti)
         self.specifics = specifics or []
 
     def __str__(self):
-        _str = [TestResult.__str__(self)]
+        _str = [State.__str__(self)]
         for spec in self.specifics:
             _str.append('{}'.format(spec))
         return '\n'.join(_str)
@@ -247,7 +248,7 @@ class VerifyEntityCategory(Check):
 
     def __call__(self, conv=None, output=None):
         conf = conv.entity.config
-        ava = conv.events.get_message('protocol_response', AuthnResponse).ava
+        ava = conv.events.get_message(EV_PROTOCOL_RESPONSE, AuthnResponse).ava
         req_attr = conf.getattr('required_attributes', 'sp')
         entcat = conv.extra_args["entcat"]
 

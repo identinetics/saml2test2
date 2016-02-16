@@ -6,6 +6,10 @@ from aatest.check import Check
 from aatest.check import CRITICAL
 from aatest.check import OK
 from aatest.check import WARNING
+from aatest.events import EV_PROTOCOL_RESPONSE
+from aatest.events import EV_REQUEST
+from aatest.events import EV_REDIRECT_URL
+from aatest.events import EV_PROTOCOL_REQUEST
 
 from saml2.mdstore import REQ2SRV
 from saml2.s_utils import UnknownPrincipal
@@ -26,12 +30,12 @@ class VerifySubject(Check):
     cid = 'verify_subject'
 
     def _func(self, conv=None, output=None):
-        response = conv.events.get_message('protocol_response',
+        response = conv.events.get_message(EV_PROTOCOL_RESPONSE,
                                            AuthnResponse).response
         # Assumes only one assertion
         # TODO deal with more then one assertion if necessary
         subj = response.assertion[0].subject
-        request = conv.events.get_message('protocol_request', AuthnRequest)
+        request = conv.events.get_message(EV_PROTOCOL_REQUEST, AuthnRequest)
 
         # Nameid format
         nformat = sp_name_qualifier = ''
@@ -64,7 +68,7 @@ class VerifyAttributes(Check):
     cid = 'verify_attributes'
 
     def _func(self, conv=None):
-        ava = conv.events.get_message('protocol_response', AuthnResponse).ava
+        ava = conv.events.get_message(EV_PROTOCOL_RESPONSE, AuthnResponse).ava
 
         conf = conv.entity.config
         entcat = conv.extra_args["entcat"]
@@ -202,7 +206,7 @@ class VerifyLogout(Check):
 
     def _func(self, conv):
         # Check that the logout response says it was a success
-        resp = conv.events.last_item('protocol_response')
+        resp = conv.events.last_item(EV_PROTOCOL_RESPONSE)
         status = resp.response.status
         if status.status_code.value != STATUS_SUCCESS:
             self._message = self.msg
@@ -227,7 +231,7 @@ class VerifyIfRequestIsSigned(Check):
     msg = 'Request was not signed'
 
     def _func(self, conv):
-        req = conv.events.last_item('request')
+        req = conv.events.last_item(EV_REQUEST)
         # First, was the whole message signed
         if 'SigAlg' in req:
             if not verify_redirect_signature(req['SAMLRequest'],
@@ -245,7 +249,7 @@ class Verify_AuthnRequest(Check):
     cid = 'verify_authnrequest'
 
     def _func(self, conv):
-        redirect = conv.events.last_item('redirect')
+        redirect = conv.events.last_item(EV_REDIRECT_URL)
         if not '?' in redirect:
             self._message = "Incorrect redirect url"
             self._status = CRITICAL

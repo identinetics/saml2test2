@@ -1,10 +1,12 @@
+from aatest.events import EV_SEND
+from aatest.events import EV_REDIRECT_URL
+from aatest.events import EV_HTTP_RESPONSE
 from aatest.operation import Operation
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_SOAP
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
-from saml2.time_util import utc_time_sans_frac
 from saml2test.request import MissingMetadata
 
 __author__ = 'roland'
@@ -55,10 +57,10 @@ class RedirectResponse(Response):
         if isinstance(send_args, Response):
             return send_args
 
-        self.conv.events.store("send_args", send_args)
-        self.conv.events.store('send', send_args['url'])
+        self.conv.events.store(EV_SEND, send_args)
+        self.conv.events.store(EV_REDIRECT_URL, send_args['url'])
         res = self.entity.send(**send_args)
-        self.conv.events.store('http response', res)
+        self.conv.events.store(EV_HTTP_RESPONSE, res)
         self.trace.info("Got a {} response".format(res.status_code))
         self.trace.info("Received HTML: {}".format(res.text))
         return res

@@ -5,6 +5,11 @@ import logging
 from urllib.parse import urlencode
 
 from aatest import Unknown
+from aatest.events import EV_PROTOCOL_REQUEST
+from aatest.events import EV_REQUEST_ARGS
+from aatest.events import EV_HTTP_ARGS
+from aatest.events import EV_RESPONSE
+from aatest.events import EV_REDIRECT_URL
 from saml2 import BINDING_HTTP_ARTIFACT
 from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_HTTP_POST
@@ -78,8 +83,8 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
-        self.conv.events.store('protocol_request', request)
-        self.conv.events.store('request_args', self.req_args)
+        self.conv.events.store(EV_PROTOCOL_REQUEST, request)
+        self.conv.events.store(EV_REQUEST_ARGS, self.req_args)
 
         _req_str = str(request)
 
@@ -96,7 +101,7 @@ class AuthnRequest(ProtocolMessage):
         http_info = self.entity.apply_binding(self.binding, _req_str,
                                               destination, **args)
 
-        self.conv.events.store('http_info', http_info)
+        self.conv.events.store(EV_HTTP_ARGS, http_info)
         self.conv.trace.info("http_info: {}".format(http_info))
 
         if self.binding in [BINDING_HTTP_REDIRECT, BINDING_HTTP_POST]:
@@ -134,7 +139,7 @@ class AuthnRequest(ProtocolMessage):
         #                 resp.in_response_to))
 
         self.conv.trace.reply(resp)
-        self.conv.events.store('response', resp)
+        self.conv.events.store(EV_RESPONSE, resp)
 
 
 class Discovery(ProtocolMessage):
@@ -149,13 +154,13 @@ class Discovery(ProtocolMessage):
             sp.config.entityid,
             **{"return": return_to})
         logger.debug("Redirect to Discovery Service: %s", redirect_url)
-        self.conv.events.store("discovery redirect url", redirect_url)
+        self.conv.events.store(EV_REDIRECT_URL, redirect_url, sub='discovery')
         return SeeOther(redirect_url)
 
     def handle_response(self, result, response_args, *args):
         idp_entity_id = result["entityID"]
         session_id = result["sid"]
-        self.conv.events.store("discovery response", response_args)
+        self.conv.events.store(EV_RESPONSE, response_args, sub='discovery')
         request_origin = response_args["outstanding"][session_id]
 
         del response_args["outstanding"][session_id]

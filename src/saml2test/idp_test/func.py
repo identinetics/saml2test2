@@ -1,5 +1,6 @@
 import inspect
 import sys
+from aatest.events import EV_PROTOCOL_RESPONSE
 from saml2.samlp import NameIDPolicy
 
 __author__ = 'roland'
@@ -21,7 +22,7 @@ def set_user_credentials(oper, args):
 
 
 def setup_logout(oper, args):
-    resp = oper.conv.events.last_item('protocol_response')
+    resp = oper.conv.events.last_item(EV_PROTOCOL_RESPONSE)
     assertion = resp.assertion
     subj = assertion.subject
     oper.req_args["name_id"] = subj.name_id

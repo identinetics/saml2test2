@@ -1,14 +1,10 @@
 import logging
-from urllib.parse import parse_qs
 
 from aatest import tool
-from aatest import FatalError
 from aatest import exception_trace
 from aatest import Trace
-from aatest.conversation import Conversation
-from aatest.interaction import Action
-from aatest.interaction import InteractionNeeded
-from saml2test.tool import restore_operation
+
+from saml2test.conversation import Conversation
 
 logger = logging.getLogger(__name__)
 
@@ -17,17 +13,6 @@ __author__ = 'roland'
 
 class OperationError(Exception):
     pass
-
-
-# def restore_operation(conv, io, sh):
-#     cls = conv.events.last('operation').data
-#     _oper = cls(conv=conv, io=io, sh=sh)
-#     req_args = conv.events.last_item('request_args')
-#     _oper.request_inst = _oper.req_cls(conv, req_args,
-#                                        binding=_oper._binding)
-#     _oper.response_args = {
-#         "outstanding": conv.events.last_item('outstanding')}
-#     return _oper
 
 
 class ClTester(tool.Tester):

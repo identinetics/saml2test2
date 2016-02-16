@@ -5,6 +5,8 @@ from urllib.parse import urlencode
 
 from aatest import Break
 from aatest import Unknown
+from aatest.events import EV_SEND
+from aatest.events import EV_HTTP_RESPONSE
 from aatest.operation import Operation
 
 # from saml2 import samlp
@@ -16,7 +18,6 @@ from saml2.httputil import Response
 
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
-from saml2.time_util import utc_time_sans_frac
 
 __author__ = 'roland'
 
@@ -127,9 +128,9 @@ class RedirectRequest(Request):
                 break
 
         self.trace.info("redirect.url: {}".format(_loc))
-        self.conv.events.store('send', {'url': _loc, 'method': _method})
+        self.conv.events.store(EV_SEND, {'url': _loc, 'method': _method})
         res = self.entity.send(_loc, _method)
-        self.conv.events.store('http response', res)
+        self.conv.events.store(EV_HTTP_RESPONSE, res)
         self.trace.info("redirect response: {}".format(res.text))
         return res
 
@@ -171,9 +172,9 @@ class PostRequest(Request):
 
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.events.store('send', send_args)
+        self.conv.events.store(EV_SEND, send_args)
         res = self.entity.send(**send_args)
-        self.conv.events.store('http response', res)
+        self.conv.events.store(EV_HTTP_RESPONSE, res)
         self.trace.info("post response: {}".format(res.text))
         return res
 
@@ -192,9 +193,9 @@ class SoapRequest(Request):
         # _method = info['method']
         _loc = send_args['url']
         self.trace.info("post.url: {}".format(_loc))
-        self.conv.events.store('send', send_args)
+        self.conv.events.store(EV_SEND, send_args)
         res = self.entity.send(**send_args)
-        self.conv.events.store('http response', res)
+        self.conv.events.store(EV_HTTP_RESPONSE, res)
         self.trace.info("post response: {}".format(res.text))
         return res
 

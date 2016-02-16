@@ -1,6 +1,10 @@
 import sys
 import inspect
 import logging
+from aatest.events import EV_HTTP_RESPONSE
+from aatest.events import EV_REDIRECT_URL
+from aatest.events import EV_RESPONSE
+from aatest.events import EV_PROTOCOL_RESPONSE
 from requests import Response
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
@@ -26,11 +30,11 @@ class Login(Operation):
         self.conv.events.store('start_page', self.start_page)
         self.conv.trace.info("Doing GET on {}".format(self.start_page))
         res = self.conv.entity.send(self.start_page)
-        self.conv.events.store('http response', res)
+        self.conv.events.store(EV_HTTP_RESPONSE, res)
         self.conv.trace.info("Got a {} response".format(res.status_code))
         if res.status_code in [302, 303]:
             loc = res.headers['location']
-            self.conv.events.store('redirect', loc)
+            self.conv.events.store(EV_REDIRECT_URL, loc, sub='login')
             self.conv.trace.info("Received HTML: {}".format(res.text))
         return res
 
@@ -44,7 +48,7 @@ class Login(Operation):
             req = dict(
                 [(k, v[0]) for k, v in parse_qs(loc.split('?')[1]).items()])
             saml_req = req["SAMLRequest"]
-            self.conv.events.store("response", req)
+            self.conv.events.store(EV_RESPONSE, req)
             self.conv.events.store('RelayState', req["RelayState"])
         else:
             saml_req = result["SAMLRequest"]
@@ -59,8 +63,8 @@ class Login(Operation):
         _msg = _req.message
         self.conv.trace.info("{}: {}".format(_msg.__class__.__name__, _msg))
         self.conv.trace.info('issuer: {}'.format(_msg.issuer.text))
-        self.conv.events.store('response:xml', _req.xmlstr)
-        self.conv.events.store('protocol_response', _req)
+        self.conv.events.store(EV_RESPONSE, _req.xmlstr, sub='xml')
+        self.conv.events.store(EV_PROTOCOL_RESPONSE, _req)
         self.conv.events.store('issuer', _msg.issuer.text)
 
 
@@ -115,7 +119,7 @@ class AuthenticationResponse(ProtocolMessage):
         return http_args
 
     def handle_response(self, result, *args):
-        self.conv.events.store('http response', result)
+        self.conv.events.store(EV_HTTP_RESPONSE, result)
 
 
 class AuthenticationResponseRedirect(RedirectResponse):
@@ -134,7 +138,7 @@ class AuthenticationResponseRedirect(RedirectResponse):
         _authn_req = self.conv.events.get_message('protocol_response',
                                                   AuthnRequest)
         resp_args = self.conv.entity.response_args(_authn_req)
-        self.conv.events.store('response args', resp_args)
+        self.conv.events.store(EV_RESPONSE_ARGS, resp_args)
 
         http_info = self.msg.construct_message(resp_args)
 
@@ -160,7 +164,7 @@ class FollowRedirect(Operation):
         else:
             url = base_url + loc
         res = self.conv.entity.send(url)
-        self.conv.events.store('http response', res)
+        self.conv.events.store(EV_HTTP_RESPONSE, res)
         self.conv.trace.info("Got a {} response".format(res.status_code))
         self.conv.trace.info("Received HTML: {}".format(res.text))
         return res

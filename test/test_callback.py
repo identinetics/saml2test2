@@ -18,6 +18,7 @@ TEST_ATTRIBUTE_STATEMENT = """<?xml version="1.0" encoding="utf-8"?>
 </AttributeStatement>
 """
 
+
 def test_callback():
     cb = Callback()
 

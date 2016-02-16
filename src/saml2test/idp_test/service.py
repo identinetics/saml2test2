@@ -142,8 +142,7 @@ def acs():
     tester.handle_response(flask.request.form, {})
 
     if 'assert' in tester.conv.flow:
-        _ver = Verify(app_args['check_factory'], app_args['msg_factory'],
-                      tester.conv)
+        _ver = Verify(app_args['check_factory'], tester.conv)
         _ver.test_sequence(tester.conv.flow["assert"])
 
     sline = 60 * "="

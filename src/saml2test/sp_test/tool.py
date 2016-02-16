@@ -6,6 +6,8 @@ from aatest import FatalError
 from aatest import exception_trace
 from aatest import Trace
 from aatest.conversation import Conversation
+from aatest.events import EV_RESPONSE
+from aatest.events import EV_HTTP_RESPONSE
 from aatest.interaction import Action
 from aatest.interaction import InteractionNeeded
 from saml2test.tool import restore_operation
@@ -100,7 +102,7 @@ class ClTester(tool.Tester):
                             pass
                         else:
                             response = parse_qs(query)
-                            self.conv.events.store('response', response)
+                            self.conv.events.store(EV_RESPONSE, response)
                             return response
 
                 if for_me:
@@ -116,7 +118,7 @@ class ClTester(tool.Tester):
                     content = response.text
                     logger.info("<-- CONTENT: %s" % content)
                     self.position = url
-                    self.conv.events.store('http_response', response.text)
+                    self.conv.events.store(EV_HTTP_RESPONSE, response.text)
 
                     if response.status_code >= 400:
                         done = True
@@ -166,10 +168,10 @@ class ClTester(tool.Tester):
             try:
                 response = _op(self, url, response, self.features, **op_args)
                 if isinstance(response, dict):
-                    self.conv.events.store('response', response)
+                    self.conv.events.store(EV_RESPONSE, response)
                     return response
                 content = response.text
-                self.conv.events.store('http_response', response)
+                self.conv.events.store(EV_HTTP_RESPONSE, response)
 
                 if response.status_code >= 400:
                     txt = "Got status code '%s', error: %s" % (

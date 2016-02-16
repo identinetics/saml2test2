@@ -3,7 +3,11 @@ from aatest import tool
 from aatest import END_TAG
 from aatest import Trace
 from aatest import exception_trace
+from aatest.check import State, OK
 from aatest.conversation import Conversation
+from aatest.events import EV_CONDITION
+from aatest.events import EV_RESPONSE
+from aatest.events import EV_OPERATION
 from aatest.session import Done
 from aatest.verify import Verify
 from saml2test.tool import restore_operation
@@ -59,7 +63,7 @@ class Tester(tool.Tester):
             funcs = {}
 
         logger.info("<--<-- {} --- {} -->-->".format(index, cls))
-        self.conv.events.store('operation', cls)
+        self.conv.events.store(EV_OPERATION, cls)
         try:
             _oper = cls(conv=self.conv, io=self.io, sh=self.sh)
             _oper.setup()
@@ -73,8 +77,7 @@ class Tester(tool.Tester):
     def test_result(self):
         try:
             if self.conv.flow["tests"]:
-                _ver = Verify(self.chk_factory, self.conv.msg_factory,
-                              self.conv)
+                _ver = Verify(self.chk_factory, self.conv)
                 _ver.test_sequence(self.conv.flow["tests"])
         except KeyError:
             pass
@@ -82,7 +85,7 @@ class Tester(tool.Tester):
             raise
 
         if self.conv.events.last_item('operation') == Done:
-            self.conv.events.store('condition', END_TAG)
+            self.conv.events.store(EV_CONDITION, State(END_TAG, status=OK))
             return True
         else:
             return False
@@ -91,7 +94,7 @@ class Tester(tool.Tester):
         if resp is None:
             return
 
-        self.conv.events.store('received', resp)
+        self.conv.events.store(EV_RESPONSE, resp)
         logger.debug(resp)
 
         _oper = restore_operation(self.conv, self.io, self.sh)
