@@ -44,3 +44,4 @@ def test_2():
                                        'IDP-EntityCategory-re_nren_sfs',
                                        'IDP-EntityCategory-rs',
                                        'IDP-Logout-soap']
+

@@ -18,10 +18,16 @@ from saml2test.idp_test.common import make_entity
 from saml2test.idp_test.common import map_prof
 from saml2test.idp_test.common import Trace
 from saml2test.idp_test.prof_util import ProfileHandler
-from saml2test.idp_test.util import parse_yaml_conf
+from saml2test.idp_test.func import factory
+from saml2test.idp_test.cl_request import factory as cl_factory
+from saml2test.idp_test.wb_request import factory as wb_factory
+
+from aatest.parse_cnf import parse_json_conf
+from aatest.parse_cnf import parse_yaml_conf
 
 from saml2.saml import factory as saml_message_factory
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from saml2test import operation
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -30,8 +36,16 @@ __author__ = 'roland'
 logger = logging.getLogger("")
 
 
-def load_flows(fdef, yamlflow, use):
-    spec = parse_yaml_conf(yamlflow, use=use)
+def load_flows(fdef, flow_spec, use):
+    cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
+
+    if flow_spec.endswith('.yaml'):
+        spec = parse_yaml_conf(flow_spec, cls_factories, factory, use=use)
+    elif flow_spec.endswith('.json'):
+        spec = parse_json_conf(flow_spec, cls_factories, factory, use=use)
+    else:
+        raise Exception('Unknown file type')
+
     for param in ['Flows', 'Desc']:
         try:
             fdef[param].update(spec[param])
@@ -66,7 +80,7 @@ def setup(use='cl'):
 
     conf = yaml.safe_load(open(cargs.toolconf, 'r'))
     try:
-        for yf in conf['yaml_flow']:
+        for yf in conf['flows']:
             fdef = load_flows(fdef, yf, use)
     except KeyError:
         pass

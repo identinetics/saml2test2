@@ -1,6 +1,6 @@
 entity_id: https://localhost:8088/idp.xml
-yaml_flow:
-    - ../flows.yaml
+flows:
+    - ../flows.json
 interaction: interaction
 profile:
     - saml2int

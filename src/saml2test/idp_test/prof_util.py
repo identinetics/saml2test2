@@ -17,7 +17,7 @@ class ProfileHandler(prof_util.ProfileHandler):
             except TypeError:
                 iss = ""
 
-            profile = self.to_profile("dict")
+            profile = self.to_profile("list")
 
             if test_id is None:
                 try:
@@ -36,4 +36,4 @@ class ProfileHandler(prof_util.ProfileHandler):
         return res
 
     def to_profile(self, representation="list"):
-        return None
+        return self.session["profile"]
