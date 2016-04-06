@@ -67,14 +67,15 @@ def arg(param, cargs, conf):
             return None
 
 
-def setup(use='cl'):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-k', dest="insecure", action='store_true')
-    parser.add_argument('-x', dest="break", action='store_true')
-    parser.add_argument('-t', dest="testid")
-    parser.add_argument('-T', dest='toolconf')
-    parser.add_argument(dest="config")
-    cargs = parser.parse_args()
+def setup(use='cl', cargs=None):
+    if cargs is None:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-k', dest="insecure", action='store_true')
+        parser.add_argument('-x', dest="break", action='store_true')
+        parser.add_argument('-t', dest="testid")
+        parser.add_argument('-T', dest='toolconf')
+        parser.add_argument(dest="config")
+        cargs = parser.parse_args()
 
     fdef = {'Flows': {}, 'Order': [], 'Desc': {}}
 
@@ -109,12 +110,17 @@ def setup(use='cl'):
         setup_logger(logger)
 
     ch = []
-    for item in conf['content_handler']:
-        for key, kwargs in item.items():  # should only be one
-            if key == 'robobrowser':
-                from aatest.contenthandler import robobrowser
-                ch.append(robobrowser.factory(**kwargs))
-    comhandler = ComHandler(ch)
+    try:
+        c_handler = conf['content_handler']
+    except KeyError:
+        comhandler = None
+    else:
+        for item in c_handler:
+            for key, kwargs in item.items():  # should only be one
+                if key == 'robobrowser':
+                    from aatest.contenthandler import robobrowser
+                    ch.append(robobrowser.factory(**kwargs))
+        comhandler = ComHandler(ch)
 
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
               "flows": fdef['Flows'], "order": fdef['Order'],
@@ -124,7 +130,7 @@ def setup(use='cl'):
               "cache": {}, "entity_id": conf['entity_id'],
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
-              'com_handler': comhandler}
+              'com_handler': comhandler, 'conf': CONF}
 
     if cargs.insecure or conf['insecure']:
         kwargs["insecure"] = True

@@ -44,21 +44,21 @@ class ClTester(tool.Tester):
                                  trace_cls=Trace, **kw_args["conv_args"])
         self.conv.entity_id = kw_args["entity_id"]
         _entity.conv = self.conv
-        self.conv.sequence = self.sh.session["sequence"]
+        self.conv.sequence = self.sh["sequence"]
         if 'insecure' in kw_args:
             self.conv.interaction.verify_ssl = False
 
         if self.interactions:
             self.conv.interaction.interactions = self.interactions
-        self.sh.session["conv"] = self.conv
+        self.sh["conv"] = self.conv
 
         # noinspection PyTypeChecker
         try:
             return self.run_flow(test_id)
         except Exception as err:
             exception_trace("", err, logger)
-            self.io.dump_log(self.sh.session, test_id)
-            return self.io.err_response(self.sh.session, "run", err)
+            self.inut.print_info(self.sh, test_id)
+            return self.inut.err_response(self.sh, "run", err)
 
     def my_endpoints(self):
         return [e for e, b in

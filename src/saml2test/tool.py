@@ -1,12 +1,13 @@
+from aatest.events import EV_REQUEST_ARGS
+
 __author__ = 'roland'
 
 
-def restore_operation(conv, io, sh):
+def restore_operation(conv, inut, sh):
     cls = conv.events.last('operation').data
-    _oper = cls(conv=conv, io=io, sh=sh)
-    req_args = conv.events.last_item('request_args')
-    _oper.request_inst = _oper.req_cls(conv, req_args,
-                                       binding=_oper._binding)
-    _oper.response_args = {
+    oper = cls(conv=conv, inut=inut, sh=sh)
+    req_args = conv.events.last_item(EV_REQUEST_ARGS)
+    oper.request_inst = oper.req_cls(conv, req_args, binding=oper._binding)
+    oper.response_args = {
         "outstanding": conv.events.last_item('outstanding')}
-    return _oper
+    return oper

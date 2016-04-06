@@ -518,11 +518,11 @@
     }
   },
   "Desc": {
-    "IDP-Connection": "IdP Connection",
-    "IDP-EntityCategory": "Entity Category Compliance",
-    "IDP-Logout": "IDP Logout",
-    "IDP-Metadata": "Idp metadata",
-    "IDP-AuthnRedirect": "IDP Authentication HTTP Redirect",
-    "IDP-AuthnPost": "IDP Authentication using HTTP POST"
+    "Connection": "IdP Connection",
+    "EntityCategory": "Entity Category Compliance",
+    "Logout": "IDP Logout",
+    "Metadata": "Idp metadata",
+    "AuthnRedirect": "IDP Authentication HTTP Redirect",
+    "AuthnPost": "IDP Authentication using HTTP POST"
   }
 }

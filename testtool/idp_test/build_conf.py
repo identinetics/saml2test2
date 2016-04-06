@@ -6,6 +6,7 @@ import yaml
 from base_conf import CONFIG
 from base_conf import BASE
 from base_conf import METADATA
+from base_conf import PORT
 
 __author__ = 'rolandh'
 
@@ -44,6 +45,7 @@ for key, spec in COMBOS.items():
     cnf[key] = _config
 
 _str = "METADATA = {}\n".format(METADATA)
+_str += "PORT = '{}'\n".format(PORT)
 _str += "BASE = '{}'\n".format(BASE)
 _str += "CONFIG = {}".format(pp.pformat(cnf))
 #_str = _str.replace("u'", "'")

@@ -1,6 +1,7 @@
 import inspect
 import logging
 import sys
+import traceback
 
 from aatest import Unknown
 
@@ -31,6 +32,12 @@ __author__ = 'roland'
 logger = logging.getLogger(__name__)
 
 
+def who_am_i():
+    stack = traceback.extract_stack()
+    filename, codeline, funcName, text = stack[-2]
+    return funcName
+
+
 class AuthnRequest(ProtocolMessage):
     def construct_message(self):
         """
@@ -55,8 +62,10 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
-        self.conv.events.store(EV_REQUEST_ARGS, self.req_args)
-        self.conv.events.store(EV_PROTOCOL_REQUEST, request)
+        self.conv.events.store(EV_REQUEST_ARGS, self.req_args,
+                               sender=self.__class__, sub='construct_message')
+        self.conv.events.store(EV_PROTOCOL_REQUEST, request,
+                               sender=self.__class__, sub='construct_message')
 
         _req_str = str(request)
 
@@ -80,7 +89,8 @@ class AuthnRequest(ProtocolMessage):
             http_info = self.entity.apply_binding(self.binding, _req_str,
                                                   destination, **args)
 
-        self.conv.events.store(EV_HTTP_ARGS, http_info)
+        self.conv.events.store(EV_HTTP_ARGS, http_info, sender=self.__class__,
+                               sub='construct_message')
         return http_info, request_id
 
     def handle_response(self, result, response_args, **kwargs):
@@ -92,7 +102,8 @@ class AuthnRequest(ProtocolMessage):
         resp = _cli.parse_authn_request_response(
             result['SAMLResponse'], self.req_args['response_binding'],
             _outstanding)
-        self.conv.events.store(EV_PROTOCOL_RESPONSE, resp)
+        self.conv.events.store(EV_PROTOCOL_RESPONSE, resp,
+                               sender=self.__class__, sub='handle_response')
 
 
 class LogOutRequest(ProtocolMessage):
@@ -130,8 +141,10 @@ class LogOutRequest(ProtocolMessage):
             reason=self.req_args['reason'],
             expire=expire, session_indexes=session_indexes)
 
-        self.conv.events.store(EV_REQUEST_ARGS, self.req_args)
-        self.conv.events.store(EV_PROTOCOL_REQUEST, request)
+        self.conv.events.store(EV_REQUEST_ARGS, self.req_args,
+                               sender=self.__class__, sub='construct_message')
+        self.conv.events.store(EV_PROTOCOL_REQUEST, request,
+                               sender=self.__class__, sub='construct_message')
 
         # to_sign = []
         if self.binding.startswith("http://"):
@@ -173,14 +186,16 @@ class LogOutRequest(ProtocolMessage):
                 "name_id": code(_name_id), "reason": self.req_args['reason'],
                 "not_on_of_after": expire, "sign": sign}
 
-        self.conv.events.store(EV_HTTP_ARGS, http_info)
+        self.conv.events.store(EV_HTTP_ARGS, http_info, sender=self.__class__,
+                               sub='construct_message')
 
         return http_info, req_id
 
     def handle_response(self, result, response_args, *args):
         resp = self.conv.entity.parse_logout_request_response(result['text'],
                                                               self.binding)
-        self.conv.events.store(EV_PROTOCOL_RESPONSE, resp)
+        self.conv.events.store(EV_PROTOCOL_RESPONSE, resp,
+                               sender=self.__class__, sub='handle_response')
 
 
 class AuthnRedirectRequest(RedirectRequest):
@@ -193,7 +208,8 @@ class AuthnRedirectRequest(RedirectRequest):
                                          binding=self._binding,
                                          msg_param=self.msg_param)
         http_info, request_id = self.request_inst.construct_message()
-        self.conv.events.store('outstanding', {request_id: "/"})
+        self.conv.events.store('outstanding', {request_id: "/"},
+                               sender=self.__class__, sub='make_request')
         return http_info
 
     def handle_response(self, result, *args):
@@ -209,7 +225,8 @@ class AuthnPostRequest(PostRequest):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
         http_info, request_id = self.request_inst.construct_message()
-        self.conv.events.store('outstanding', {request_id: "/"})
+        self.conv.events.store('outstanding', {request_id: "/"},
+                               sender=self.__class__)
         return http_info
 
     def handle_response(self, result, *args):
@@ -225,7 +242,8 @@ class AttributeQuery(SoapRequest):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
         http_info, request_id = self.request_inst.construct_message()
-        self.conv.events.store('outstanding', {request_id: "/"})
+        self.conv.events.store('outstanding', {request_id: "/"},
+                               sender=self.__class__, sub='make_request')
         return http_info
 
     def handle_response(self, result, *args):

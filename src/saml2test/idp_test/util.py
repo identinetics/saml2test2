@@ -1,4 +1,5 @@
 from aatest import Unknown
+from saml2.time_util import in_a_while
 import yaml
 
 from aatest.func import factory as aafactory
@@ -67,3 +68,27 @@ def parse_yaml_conf(cnf_file, use='cl'):
     return yc
 
 
+def get_profile_info(session, test_id=None):
+    try:
+        _conv = session["conv"]
+    except KeyError:
+        pass
+    else:
+        try:
+            idp = _conv.entity_id
+        except (TypeError, KeyError):
+            idp = ""
+
+        profile = session['profile']
+
+        if test_id is None:
+            try:
+                test_id = session["testid"]
+            except KeyError:
+                return {}
+
+        return {"IdP": idp, "Profile": profile, "Test ID": test_id,
+                "Test description": session["node"].desc,
+                "Timestamp": in_a_while()}
+
+    return {}

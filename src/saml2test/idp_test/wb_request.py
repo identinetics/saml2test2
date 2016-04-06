@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 from aatest import Unknown
 from aatest.events import EV_PROTOCOL_REQUEST
+from aatest.events import EV_PROTOCOL_RESPONSE
 from aatest.events import EV_REQUEST_ARGS
 from aatest.events import EV_HTTP_ARGS
 from aatest.events import EV_RESPONSE
@@ -20,8 +21,6 @@ from saml2.httputil import SeeOther
 from saml2.httputil import ServiceError
 from saml2.s_utils import sid
 
-from saml2test.idp_test.cl_request import LogOutRequest
-
 from saml2test.message import ProtocolMessage
 from saml2test.request import RedirectRequest
 from saml2test.request import PostRequest
@@ -30,6 +29,7 @@ from saml2test.request import map_arguments
 from saml2test.request import ServiceProviderRequestHandlerError
 
 from saml2test.check.check import VerifyFunctionality
+from saml2test.message import LogOutRequest
 
 __author__ = 'roland'
 
@@ -83,8 +83,10 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
-        self.conv.events.store(EV_PROTOCOL_REQUEST, request)
-        self.conv.events.store(EV_REQUEST_ARGS, self.req_args)
+        self.conv.events.store(EV_PROTOCOL_REQUEST, request,
+                               sender=self.__class__)
+        self.conv.events.store(EV_REQUEST_ARGS, self.req_args,
+                               sender=self.__class__)
 
         _req_str = str(request)
 
@@ -101,7 +103,7 @@ class AuthnRequest(ProtocolMessage):
         http_info = self.entity.apply_binding(self.binding, _req_str,
                                               destination, **args)
 
-        self.conv.events.store(EV_HTTP_ARGS, http_info)
+        self.conv.events.store(EV_HTTP_ARGS, http_info, sender=self.__class__)
         self.conv.trace.info("http_info: {}".format(http_info))
 
         if self.binding in [BINDING_HTTP_REDIRECT, BINDING_HTTP_POST]:
@@ -139,7 +141,8 @@ class AuthnRequest(ProtocolMessage):
         #                 resp.in_response_to))
 
         self.conv.trace.reply(resp)
-        self.conv.events.store(EV_RESPONSE, resp)
+        self.conv.events.store(EV_PROTOCOL_RESPONSE, resp,
+                               sender=self.__class__)
 
 
 class Discovery(ProtocolMessage):
@@ -154,13 +157,15 @@ class Discovery(ProtocolMessage):
             sp.config.entityid,
             **{"return": return_to})
         logger.debug("Redirect to Discovery Service: %s", redirect_url)
-        self.conv.events.store(EV_REDIRECT_URL, redirect_url, sub='discovery')
+        self.conv.events.store(EV_REDIRECT_URL, redirect_url,
+                               sub='construct_message', sender=self.__class__)
         return SeeOther(redirect_url)
 
     def handle_response(self, result, response_args, *args):
         idp_entity_id = result["entityID"]
         session_id = result["sid"]
-        self.conv.events.store(EV_RESPONSE, response_args, sub='discovery')
+        self.conv.events.store(EV_RESPONSE, response_args,
+                               sub='handle_response', sender=self.__class__)
         request_origin = response_args["outstanding"][session_id]
 
         del response_args["outstanding"][session_id]
@@ -176,7 +181,8 @@ class AuthnRedirectRequest(RedirectRequest):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
         response, request_id = self.request_inst.construct_message()
-        self.conv.events.store('outstanding', {request_id: "/"})
+        self.conv.events.store('outstanding', {request_id: "/"},
+                               sub='make_request', sender=self.__class__)
         return response
 
     def handle_response(self, result, *args):
@@ -192,27 +198,29 @@ class AuthnPostRequest(PostRequest):
         self.request_inst = self.req_cls(self.conv, self.req_args,
                                          binding=self._binding)
         http_info, request_id = self.request_inst.construct_message()
-        self.conv.events.store('outstanding', {request_id: "/"})
+        self.conv.events.store('outstanding', {request_id: "/"},
+                               sub='make_request', sender=self.__class__)
         return http_info
 
     def handle_response(self, result, *args):
         self.request_inst.handle_response(result, self.response_args)
 
 
-class AttributeQuery(SoapRequest):
-    request = "authn_request"
-    req_cls = AuthnRequest
-    tests = {}
-
-    def _make_request(self):
-        self.request_inst = self.req_cls(self.conv, self.req_args,
-                                         binding=self._binding)
-        http_info, request_id = self.request_inst.construct_message()
-        self.conv.events.store('outstanding', {request_id: "/"})
-        return http_info
-
-    def handle_response(self, result, *args):
-        self.request_inst.handle_response(result, self.response_args)
+# class AttributeQuery(SoapRequest):
+#     request = "authn_request"
+#     req_cls = AttributeRequest
+#     tests = {}
+#
+#     def _make_request(self):
+#         self.request_inst = self.req_cls(self.conv, self.req_args,
+#                                          binding=self._binding)
+#         http_info, request_id = self.request_inst.construct_message()
+#         self.conv.events.store('outstanding', {request_id: "/"},
+#                                sub='make_request', sender=self.__class__)
+#         return http_info
+#
+#     def handle_response(self, result, *args):
+#         self.request_inst.handle_response(result, self.response_args)
 
 
 class LogOutRequestSoap(SoapRequest):

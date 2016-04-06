@@ -15,7 +15,8 @@ if get_xmlsec_binary:
 else:
     xmlsec_path = '/usr/local/bin/xmlsec1'
 
-BASE = "http://localhost:8087"
+PORT = 8087
+BASE = "http://localhost:{}/".format(PORT)
 
 # CoCo gives access to these attributes:
 # "eduPersonPrincipalName", "eduPersonScopedAffiliation", "mail",
@@ -23,7 +24,7 @@ BASE = "http://localhost:8087"
 
 CONFIG = {
     'description': 'Basic SP',
-    "entityid": "{base}/{sp_id}/sp.xml",
+    "entityid": "{base}{sp_id}/sp.xml",
     "key_file": "./pki/mykey.pem",
     "cert_file": "./pki/mycert.pem",
     'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
@@ -31,16 +32,16 @@ CONFIG = {
         'sp': {
             'endpoints': {
                 "assertion_consumer_service": [
-                    ("{base}/acs/redirect",BINDING_HTTP_REDIRECT),
-                    ("{base}/acs/post", BINDING_HTTP_POST),
-                    ("{base}/acs/artifact", BINDING_HTTP_ARTIFACT),
-                    ("{base}/ecp", BINDING_PAOS)
+                    ("{base}acs/redirect",BINDING_HTTP_REDIRECT),
+                    ("{base}acs/post", BINDING_HTTP_POST),
+                    ("{base}acs/artifact", BINDING_HTTP_ARTIFACT),
+                    ("{base}ecp", BINDING_PAOS)
                 ],
                 "single_logout_service": [
-                    ("{base}/slo", BINDING_SOAP)
+                    ("{base}slo", BINDING_SOAP)
                 ],
                 'discovery_response': [
-                    ('{base}/disco', BINDING_DISCO)]
+                    ('{base}disco', BINDING_DISCO)]
             }
         },
     },

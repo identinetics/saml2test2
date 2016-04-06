@@ -1,0 +1,7 @@
+entity_id: https://localhost:8088/idp.xml
+flows:
+    - ../flows.json
+profile:
+    - saml2int
+samlconf: conf
+insecure: true

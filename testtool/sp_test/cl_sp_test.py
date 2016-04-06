@@ -16,7 +16,7 @@ if __name__ == "__main__":
     test_id, kwargs, opargs = setup()
 
     sh = SessionHandler(session={}, **kwargs)
-    sh.init_session({}, profile=kwargs['profile'])
+    sh.init_session(profile=kwargs['profile'])
 
     if test_id:
         if test_id not in kwargs['flows']:
@@ -25,25 +25,25 @@ if __name__ == "__main__":
                     test_id))
             exit()
 
-        io = SamlClIO(**kwargs)
-        tester = ClTester(io, sh, **kwargs)
+        inut = SamlClIO(**kwargs)
+        tester = ClTester(inut, sh, **kwargs)
         if tester.run(test_id, **kwargs):
-            io.debug_log(sh.session, test_id)
+            inut.print_info(sh, test_id)
     else:
-        for tid in sh.session["flow_names"]:
+        for tid in sh["flow_names"]:
             # New fresh session handler for every test
             _sh = SessionHandler({}, **kwargs)
-            _sh.init_session({}, profile=kwargs['profile'])
-            io = SamlClIO(**kwargs)
-            tester = ClTester(io, _sh, **kwargs)
+            _sh.init_session(profile=kwargs['profile'])
+            inut = SamlClIO(**kwargs)
+            tester = ClTester(inut, _sh, **kwargs)
             if tester.run(tid, **kwargs):
                 if 'debug' in opargs and opargs['debug']:
-                    io.debug_log(_sh.session, tid)
+                    inut.print_info(tid)
                 else:
-                    io.result(_sh.session)
+                    inut.result(_sh)
             else:
-                io.debug_log(_sh.session, tid)
+                inut.debug_log(_sh, tid)
 
             if 'dump' in opargs and opargs['dump']:
-                io.dump_log(_sh.session, tid)
+                inut.print_info(tid)
 

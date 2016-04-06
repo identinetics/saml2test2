@@ -1,6 +1,7 @@
+PORT = 8087
 METADATA = [
     {'metadata': [('./local_idp.xml',)], 'class': 'saml2.mdstore.MetaDataFile'}]
-BASE = 'http://localhost:8087'
+BASE = 'http://localhost:8087/'
 CONFIG = {
     'basic': {
         'cert_file': './pki/mycert.pem',
