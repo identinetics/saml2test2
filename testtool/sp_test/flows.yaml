@@ -39,11 +39,11 @@ Flows:
     sequence:
       - Login:
           set_start_page: ''
-          set_allowed_status_codes:
-            - 302
-            - 303
           add_post_assertion:
-              http_response: {}
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
               verify_authnrequest: {}
       - AuthenticationResponseRedirect:
           add_pre_assertion:
@@ -54,9 +54,11 @@ Flows:
           set_userid: ''
           set_identity: ''
           set_authn: {}
-          set_allowed_status_codes:
-            - 302
-            - 303
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
       - FollowRedirect
     assert:
         http_response:
@@ -72,5 +74,5 @@ Order:
   - SP-AuthnRedirect
 
 Desc:
-  SP-Metadata: Idp metadata
-  SP-AuthnRedirect: SP Authentication HTTP Redirect
+  Metadata: Idp metadata
+  AuthnRedirect: SP Authentication HTTP Redirect

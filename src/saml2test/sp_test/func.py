@@ -1,6 +1,7 @@
 import inspect
 import sys
-import time
+from aatest.func import add_pre_condition
+from aatest.func import add_post_condition
 from saml2.time_util import utc_time_sans_frac
 
 __author__ = 'roland'
@@ -34,8 +35,12 @@ def set_authn(oper, args):
         oper.msg_args['authn']['authn_instant'] = utc_time_sans_frac()
 
 
-def add_post_condition(oper, args):
-    pass
+def add_post_assertion(oper, args):
+    add_post_condition(oper,args)
+
+
+def add_pre_assertion(oper, args):
+    add_pre_condition(oper, args)
 
 
 def factory(name):

@@ -105,14 +105,12 @@ def setup(use='cl'):
     return cargs.testid, kwargs, opargs
 
 
-def make_entity(idp, **kw_args):
+def make_entity(idp_name='basic', **kw_args):
     try:
-        conf = IdPConfig().load(kw_args["idpconf"][idp])
+        conf = kw_args["idpconf"][idp_name]
     except KeyError:
         logging.warning(
             "known IDP configs: {}".format(kw_args["idpconf"].keys()))
         raise
-
-    conf.metadata = kw_args['metadata']
 
     return Server(config=conf)

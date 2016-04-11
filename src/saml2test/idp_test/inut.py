@@ -12,7 +12,6 @@ from aatest.check import WARNING
 from aatest.check import INCOMPLETE
 from saml2.httputil import NotFound
 from saml2.httputil import Response
-from saml2test.idp_test.util import get_profile_info
 
 logger = logging.getLogger(__name__)
 

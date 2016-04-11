@@ -1,22 +1,25 @@
 import sys
 import inspect
 import logging
+
+from aatest.events import EV_HTML_SRC
 from aatest.events import EV_HTTP_RESPONSE
+from aatest.events import EV_PROTOCOL_RESPONSE
 from aatest.events import EV_REDIRECT_URL
 from aatest.events import EV_RESPONSE
-from aatest.events import EV_PROTOCOL_RESPONSE
-from requests import Response
-from urllib.parse import parse_qs
+from aatest.events import EV_RESPONSE_ARGS
+from aatest.operation import Operation
+
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
-from aatest.operation import Operation
 from saml2 import BINDING_HTTP_POST
-
 from saml2.profile import ecp
-from saml2.samlp import AuthnRequest
+from saml2.request import AuthnRequest
+
 from saml2test.message import ProtocolMessage
 from saml2test.sp_test.response import RedirectResponse
+import six
 
 __author__ = 'roland'
 
@@ -38,24 +41,9 @@ class Login(Operation):
             self.conv.trace.info("Received HTML: {}".format(res.text))
         return res
 
-    def handle_response(self, result, response_args=None, *args):
+    def handle_response(self, saml_req, response_args=None, *args):
         if response_args is not None:
             logger.debug("response_args: {}".format(response_args))
-
-        if isinstance(result, Response):
-            # result should be a redirect (302 or 303)
-            loc = result.headers['location']
-            req = dict(
-                [(k, v[0]) for k, v in parse_qs(loc.split('?')[1]).items()])
-            saml_req = req["SAMLRequest"]
-            self.conv.events.store(EV_RESPONSE, req)
-            self.conv.events.store('RelayState', req["RelayState"])
-        else:
-            saml_req = result["SAMLRequest"]
-            try:
-                self.conv.events.store('RelayState', result["RelayState"])
-            except KeyError:
-                pass
 
         _srv = self.conv.entity
         _req = _srv.parse_authn_request(saml_req)
@@ -119,7 +107,10 @@ class AuthenticationResponse(ProtocolMessage):
         return http_args
 
     def handle_response(self, result, *args):
-        self.conv.events.store(EV_HTTP_RESPONSE, result)
+        if isinstance(result, six.string_types):
+            self.conv.events.store(EV_REDIRECT_URL, result)
+        else:
+            self.conv.events.store(EV_HTTP_RESPONSE, result)
 
 
 class AuthenticationResponseRedirect(RedirectResponse):
@@ -127,17 +118,17 @@ class AuthenticationResponseRedirect(RedirectResponse):
     msg_cls = AuthenticationResponse
     tests = {}
 
-    def __init__(self, conv, io, sh, **kwargs):
-        RedirectResponse.__init__(self, conv, io, sh, **kwargs)
+    def __init__(self, conv, inut, sh, **kwargs):
+        RedirectResponse.__init__(self, conv, inut, sh, **kwargs)
         self.msg_args = {}
 
     def _make_response(self):
         self.msg = self.msg_cls(self.conv, self.req_args, binding=self._binding,
                                 **self.msg_args)
 
-        _authn_req = self.conv.events.get_message('protocol_response',
+        _authn_req = self.conv.events.get_message(EV_PROTOCOL_RESPONSE,
                                                   AuthnRequest)
-        resp_args = self.conv.entity.response_args(_authn_req)
+        resp_args = self.conv.entity.response_args(_authn_req.message)
         self.conv.events.store(EV_RESPONSE_ARGS, resp_args)
 
         http_info = self.msg.construct_message(resp_args)
@@ -149,14 +140,14 @@ class AuthenticationResponseRedirect(RedirectResponse):
 
 
 class FollowRedirect(Operation):
-    def __init__(self, conv, io, sh, **kwargs):
-        Operation.__init__(self, conv, io, sh, **kwargs)
+    def __init__(self, conv, inut, sh, **kwargs):
+        Operation.__init__(self, conv, inut, sh, **kwargs)
         self.send_args = kwargs
 
     def run(self):
         base_url = self.conv.events.last_item('start_page')
-        _redirect = self.conv.events.last_item('redirect')
-        loc = _redirect.headers['location']
+        loc = self.conv.events.last_item(EV_REDIRECT_URL)
+        #loc = _redirect.headers['location']
         if loc.startswith('/'):
             p = list(urlparse(base_url))
             p[2] = loc
@@ -170,7 +161,7 @@ class FollowRedirect(Operation):
         return res
 
     def handle_response(self, response, *args):
-        self.conv.events.store('html', response.text)
+        self.conv.events.store(EV_HTML_SRC, response)
 
 
 def factory(name):

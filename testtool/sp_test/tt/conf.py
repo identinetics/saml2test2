@@ -1,13 +1,20 @@
+from saml2 import BINDING_SOAP
+from saml2 import BINDING_URI
+from saml2 import BINDING_HTTP_POST
+from saml2 import BINDING_HTTP_REDIRECT
+from saml2 import BINDING_HTTP_ARTIFACT
+
 METADATA = [{
     'class': 'saml2.mdstore.MetaDataFile',
     'metadata': [('/Users/rolandh/code/pysaml2/example/sp-wsgi/sp.xml',)]
 }]
-BASE = 'http://localhost:8088'
+PORT = 8086
+BASE = 'http://localhost:{}'.format(PORT)
 CONFIG = {
     'basic': {
         'cert_file': '../../pki/mycert.pem',
         'description': 'Basic IDP',
-        'entityid': 'http://localhost:8088/basic/idp.xml',
+        'entityid': '{}/basic/idp.xml'.format(BASE),
         'key_file': '../../pki/mykey.pem',
         'name_form':
             'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
@@ -15,46 +22,29 @@ CONFIG = {
             'idp': {
                 'endpoints': {
                     'artifact_resolution_service': [
-                        ('http://localhost:8088/ars',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')],
+                        ('{}/ars'.format(BASE), BINDING_SOAP)],
                     'assertion_id_request_service': [
-                        ('http://localhost:8088/airs',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:URI')],
+                        ('{}/airs'.format(BASE), BINDING_URI)],
                     'authn_query_service': [
-                        ('http://localhost:8088/aqs',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')],
+                        ('{}/aqs'.format(BASE), BINDING_SOAP)],
                     'manage_name_id_service': [
-                        ('http://localhost:8088/mni/soap',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP'),
-                        ('http://localhost:8088/mni/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        ('http://localhost:8088/mni/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        ('http://localhost:8088/mni/art',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact')],
+                        ('{}/mni/soap'.format(BASE), BINDING_SOAP),
+                        ('{}/mni/post'.format(BASE), BINDING_HTTP_POST),
+                        ('{}/mni/redirect'.format(BASE), BINDING_HTTP_REDIRECT),
+                        ('{}/mni/art'.format(BASE), BINDING_HTTP_ARTIFACT)],
                     'name_id_mapping_service': [
-                        ('http://localhost:8088/nim/soap',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP'),
-                        ('http://localhost:8088/nim/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        ('http://localhost:8088/nim/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        ('http://localhost:8088/nim/art',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact')],
+                        ('{}/nim/soap'.format(BASE), BINDING_SOAP),
+                        ('{}/nim/post'.format(BASE), BINDING_HTTP_POST),
+                        ('{}/nim/redirect'.format(BASE), BINDING_HTTP_REDIRECT),
+                        ('{}/nim/art'.format(BASE), BINDING_HTTP_ARTIFACT)],
                     'single_logout_service': [
-                        ('http://localhost:8088/slo/soap',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP'),
-                        ('http://localhost:8088/slo/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST')],
+                        ('{}/slo/soap'.format(BASE), BINDING_SOAP),
+                        ('{}/slo/post'.format(BASE), BINDING_HTTP_POST)],
                     'single_sign_on_service': [
-                        ('http://localhost:8088/sso/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        ('http://localhost:8088/sso/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        ('http://localhost:8088/sso/art',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        ('http://localhost:8088/sso/paos',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]},
+                        ('{}/sso/redirect'.format(BASE), BINDING_HTTP_REDIRECT),
+                        ('{}/sso/post'.format(BASE), BINDING_HTTP_POST),
+                        ('{}/sso/art'.format(BASE), BINDING_HTTP_ARTIFACT),
+                        ('{}/sso/paos'.format(BASE), BINDING_SOAP)]},
                 'policy': {
                     'default': {
                         'attribute_restrictions': None,
