@@ -20,6 +20,8 @@ Flows:
           set_userid: ''
           set_identity: {}
           set_authn: {}
+          set_op_args:
+              sign_response: true
           add_post_condition:
               http_response:
                   status_code:
@@ -54,6 +56,8 @@ Flows:
           set_userid: ''
           set_identity: ''
           set_authn: {}
+          set_op_args:
+              sign_response: true
           add_post_condition:
               http_response:
                   status_code:
@@ -65,6 +69,560 @@ Flows:
           status_code:
             - 200
         verify_page: {}
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-02:
+    name: 'Require AuthnRequest to be signed'
+    desc: 'Same as SP-AuthnRedirect-00, check if the request is signed'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+              request_is_signed: ''
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+      - FollowRedirect
+    assert:
+        http_response:
+          status_code:
+            - 200
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-03:
+    name: 'Reject unsigned response/assertion'
+    desc: 'Check if SP flags missing signature with HTTP 500'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: false
+              sign_assertion: false
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-04:
+    name: 'Reject siganture with invalid IDP key'
+    desc: 'IDP-key for otherwise valid signature not in metadata - expect HTTP 500 result'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+          set_arg:
+              signing_key: 'keys/one.pem'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-05:
+    name: 'Verify digest algorithm'
+    desc: 'Trigger WebSSO AuthnRequest and verify that the used digest algorithm was one from the approved set.'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: null
+              verify_digest_alg: null
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-06:
+    name: 'Verify signature algorithm'
+    desc: 'Trigger WebSSO AuthnRequest and verify that the used signature algorithm was one from the approved set.'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: null
+              verify_signature_alg: null
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-07:
+    name: 'Missing SubjectConfirmationData element'
+    desc: 'SP should accept a Response without a SubjectConfirmationData element. If confirmation method is SCM_SENDER_VOUCHES'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              assertion_args:
+                  subject_confirmation_method: 'urn:oasis:names:tc:SAML:2.0:cm:sender-vouches'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+      - FollowRedirect
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-08:
+    desc: 'SP should not accept a Response as valid, when the StatusCode is not success'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_identity: ''
+          set_op_args:
+              sign_response: true
+              status:
+                - 'urn:oasis:names:tc:SAML:2.0:status:AuthnFailed'
+                - 'Authentication failed'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 400
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-09:
+    desc: "SP should accept a NameID with Format: persistent"
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              name_id_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+      - FollowRedirect
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-10:
+    desc: 'SP should accept a NameID with Format: e-mail'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              name_id_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+      - FollowRedirect
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-11:
+    desc: 'Do SP work with unknown NameID Format, such as : foo'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              name_id_format: 'foo:bar'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+      - FollowRedirect
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-12:
+    desc: 'SP should not accept a response InResponseTo which is chosen randomly'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+          set_response_args:
+              in_response_to: 'some_dummy_value'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-13:
+    desc: 'SP should not accept an assertion InResponseTo which is chosen randomly'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+          set_response_args:
+              assertion:
+                  subject:
+                      subject_confirmation:
+                          subject_confirmation_data:
+                              in_response_to: 'dummy_value'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-14:
+    desc: 'Does the SP allow the InResponseTo attribute to be missing from the Response element?'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+          set_response_args:
+              in_response_to: null
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-15:
+    desc: 'SP should not accept a broken DestinationURL attribute'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+          set_response_args:
+              assertion_args:
+                subject_confirmation_specs:
+                  recipient: 'mail:foobar@example.com'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-16:
+    desc: 'SP should not accept wrong Recipient attribute'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              assertion_args:
+                subject_confirmation_specs:
+                  recipient: 'http://foobar.example.com/'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-17:
+    desc: 'SP should not accept missing Recipient attribute'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              assertion_args:
+                consumer_url: null
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-18:
+    desc: 'Accept a Response with a SubjectConfirmationData elements with a correct @Address attribute'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              assertion_args:
+                subject_confirmation_data:
+                  address: '0.0.0.0'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+    profiles:
+      - saml2int
+    idp: basic
+  SP-AuthnRedirect-19:
+    desc: 'Should not accept a Response with a SubjectConfirmationData elements with a incorrect @Address attribute'
+    sequence:
+      - Login:
+          set_start_page: ''
+          add_post_assertion:
+              http_response:
+                  status_code:
+                    - 302
+                    - 303
+              verify_authnrequest: {}
+      - AuthenticationResponseRedirect:
+          add_pre_assertion:
+              has_endpoint:
+                  typ: 'spsso_descriptor'
+                  binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                  service: 'assertion_consumer_service'
+          set_userid: ''
+          set_identity: ''
+          set_authn: {}
+          set_op_args:
+              sign_response: true
+              assertion_args:
+                subject_address: '10.0.0.1'
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 500
     profiles:
       - saml2int
     idp: basic

@@ -1,8 +1,16 @@
 import copy
 import importlib
 import logging
+import os
 import sys
 import traceback
+from os import listdir
+from os.path import isdir
+from os.path import isfile
+from os.path import join
+from saml2 import extension_elements_to_elements
+from saml2.attribute_converter import ac_factory
+from saml2.extension import algsupport
 import yaml
 
 from aatest import Trace
@@ -215,7 +223,7 @@ class Application(object):
                     return resp(environ, start_response)
                 else:
                     resp = ServiceError('Unkown service error')
-                    return resp(environ)
+                    return resp(environ, start_response)
             return tester.display_test_list()
 
         for endpoint, (service, binding) in self.endpoints:
@@ -237,9 +245,51 @@ class Application(object):
         return resp(environ, start_response)
 
 
+def key_handling(key_dir):
+    if isdir(key_dir):
+        only_files = [f for f in listdir(key_dir) if isfile(join(key_dir, f))]
+    else:
+        os.makedirs(key_dir)
+        only_files = []
+
+    if only_files == []:
+        only_files = ['one.pem']
+        for fil in only_files:
+            key = RSA.generate(2048)
+            f = open(join(key_dir, fil),'w')
+            f.write(key.exportKey('PEM').decode('utf8'))
+            f.close()
+
+    return {key_dir: only_files}
+
+
+
+def find_allowed_algorithms(metadata_file, ic):
+    mds = MetadataStore(ic.attribute_converters, ic,
+                        disable_ssl_certificate_validation=True)
+
+    mds.imp([{
+        "class": "saml2.mdstore.MetaDataFile",
+        "metadata": [(metadata_file,)]}])
+
+    md = mds.metadata[metadata_file]
+    ed = list(md.entity.values())[0]
+    res = {"digest_algorithms":[], "signing_algorithms":[]}
+
+    for elem in ed['extensions']['extension_elements']:
+        if elem['__class__'] == '{}&DigestMethod'.format(algsupport.NAMESPACE):
+            res['digest_algorithms'].append(elem['algorithm'])
+        elif elem['__class__'] == '{}&SigningMethod'.format(
+                algsupport.NAMESPACE):
+            res['signing_algorithms'].append(elem['algorithm'])
+
+    return res
+
+
 if __name__ == '__main__':
     import argparse
     from beaker.middleware import SessionMiddleware
+    from Cryptodome.PublicKey import RSA
 
     from cherrypy import wsgiserver
     from cherrypy.wsgiserver.ssl_builtin import BuiltinSSLAdapter
@@ -253,6 +303,8 @@ if __name__ == '__main__':
     parser.add_argument('-t', dest="target_info")
     parser.add_argument('-v', dest='verbose', action='store_true')
     parser.add_argument('-y', dest='yaml_flow', action='append')
+    parser.add_argument('-r', dest='rsa_key_dir', default='keys')
+    parser.add_argument('-m', dest='metadata')
     parser.add_argument(
         '-c', dest="ca_certs",
         help=("CA certs to use to verify HTTPS server certificates, ",
@@ -298,6 +350,9 @@ if __name__ == '__main__':
         _idp_conf[eid] = IdPConfig()
         _idp_conf[eid].load(config.CONFIG['basic'])
 
+    # Create necessary keys if I don't already have them
+    keys = key_handling('keys')
+
     if args.insecure:
         disable_validation = True
     else:
@@ -311,6 +366,11 @@ if __name__ == '__main__':
     for key in config.CONFIG.keys():
         _idp_conf[key].metadata = mds
 
+    if args.metadata:
+        algos = find_allowed_algorithms(args.metadata, ic)
+    else:
+        algos = {}
+
     kwargs = {"base_url": copy.copy(config.BASE), 'idpconf': _idp_conf,
               "flows": fdef['Flows'], "order": fdef['Order'],
               "desc": fdef['Desc'], 'metadata': mds,
@@ -321,7 +381,8 @@ if __name__ == '__main__':
               'trace_cls': Trace, 'lookup': LOOKUP,
               'make_entity': make_entity,
               # 'conv_args': {'entcat': collect_ec(),
-              'target_info': target_info
+              'target_info': target_info, 'signing_key': keys,
+              'algorithms': algos
               }
 
     if args.ca_certs:

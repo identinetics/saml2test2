@@ -6,11 +6,12 @@ from aatest.check import Check
 from aatest.check import CRITICAL
 from aatest.check import OK
 from aatest.check import WARNING
-from aatest.events import EV_PROTOCOL_RESPONSE
-from aatest.events import EV_REQUEST
-from aatest.events import EV_REDIRECT_URL
 from aatest.events import EV_PROTOCOL_REQUEST
+from aatest.events import EV_PROTOCOL_RESPONSE
+from aatest.events import EV_REDIRECT_URL
+from aatest.events import EV_RESPONSE
 
+from saml2 import request
 from saml2.mdstore import REQ2SRV
 from saml2.s_utils import UnknownPrincipal
 from saml2.s_utils import UnsupportedBinding
@@ -231,18 +232,22 @@ class VerifyIfRequestIsSigned(Check):
     msg = 'Request was not signed'
 
     def _func(self, conv):
-        req = conv.events.last_item(EV_REQUEST)
+        req = conv.events.last_item(EV_RESPONSE)
         # First, was the whole message signed
         if 'SigAlg' in req:
-            if not verify_redirect_signature(req['SAMLRequest'],
-                                             conv.entity.sec):
-                conv.trace.error(
-                    "Was not able to verify Redirect message signature")
+            if not verify_redirect_signature(
+                    req['SAMLRequest'], conv.entity.sec):
+                self._message = "Was not able to verify Redirect message " \
+                                "signature"
+                self._status = CRITICAL
 
         # Secondly, was the XML doc signed
-        # This check is done as part of the normal message parsing
+        req = conv.events.get_message(EV_PROTOCOL_REQUEST, request.AuthnRequest)
+        if req.message.signature is None:
+            self._message = 'Missing response signature'
+            self._status = CRITICAL
 
-        pass
+        return {}
 
 
 class Verify_AuthnRequest(Check):
@@ -250,7 +255,7 @@ class Verify_AuthnRequest(Check):
 
     def _func(self, conv):
         redirect = conv.events.last_item(EV_REDIRECT_URL)
-        if not '?' in redirect:
+        if '?' not in redirect:
             self._message = "Incorrect redirect url"
             self._status = CRITICAL
             return {}
@@ -290,6 +295,44 @@ class VerifyEndpoint(Check):
             if not srv:
                 self._message = "Can't find service"
                 self._status = CRITICAL
+
+        return {}
+
+
+class VerifyDigestAlgorithm(Check):
+    cid = 'verify_digest_alg'
+
+    def _func(self, conv):
+        digest_algorithms = conv.crypto_algorithms['digest_algorithms']
+        req = conv.events.get_message(EV_PROTOCOL_REQUEST, request.AuthnRequest)
+        if req.message.signature is None:
+            self._message = 'Missing response signature'
+            self._status = CRITICAL
+
+        for ref in req.message.signature.signed_info.reference:
+            if ref.digest_method.algorithm not in digest_algorithms:
+                self._message = "Not allowed digest algorithm: {}".format(
+                    ref.digest_method.algorithm)
+                self._status = CRITICAL
+                break
+
+        return {}
+
+
+class VerifSignatureAlgorithm(Check):
+    cid = 'verify_signature_alg'
+
+    def _func(self, conv):
+        signing_algorithms = conv.crypto_algorithms['signing_algorithms']
+        req = conv.events.get_message(EV_PROTOCOL_REQUEST, request.AuthnRequest)
+        if req.message.signature is None:
+            self._message = 'Missing response signature'
+            self._status = CRITICAL
+
+        sig_alg = req.message.signature.signed_info.signature_method.algorithm
+        if sig_alg not in signing_algorithms:
+            self._message = "Not allowed digest algorithm: {}".format(sig_alg)
+            self._status = CRITICAL
 
         return {}
 

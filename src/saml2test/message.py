@@ -28,6 +28,7 @@ class ProtocolMessage(object):
         self.binding = binding
         self.msg_param = msg_param or {}
         self.response_args = {}
+        self.op_args = {}
 
     def construct_message(self, *args):
         raise NotImplementedError

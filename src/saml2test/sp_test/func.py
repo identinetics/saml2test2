@@ -43,6 +43,14 @@ def add_pre_assertion(oper, args):
     add_pre_condition(oper, args)
 
 
+def sign_assertion(oper, args):
+    oper.sign_assertion = args
+
+
+def sign_response(oper, args):
+    oper.sign_response = args
+
+
 def factory(name):
     for fname, obj in inspect.getmembers(sys.modules[__name__]):
         if inspect.isfunction(obj):

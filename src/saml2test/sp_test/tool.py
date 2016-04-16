@@ -11,6 +11,7 @@ from aatest.check import State
 from aatest.conversation import Conversation
 from aatest.events import EV_RESPONSE, EV_CONDITION
 from aatest.events import EV_HTTP_RESPONSE
+from aatest.func import set_arg
 from aatest.interaction import Action
 from aatest.interaction import InteractionNeeded
 from aatest.result import Result, safe_path
@@ -240,6 +241,12 @@ class WebTester(tool.Tester):
         self.conv.entity_id = _ent.config.entityid
         #self.com_handler.conv = self.conv
         self.conv.sequence = self.sh["sequence"]
+
+        try:
+            self.conv.crypto_algorithms = kw_args['algorithms']
+        except KeyError:
+            pass
+
         self.sh["conv"] = self.conv
         return True
 
@@ -318,13 +325,12 @@ class WebTester(tool.Tester):
                         return resp["SAMLRequest"]
         else:
             try:
-                req = dict(
+                _resp = dict(
                     [(k, v[0]) for k, v in parse_qs(loc.split('?')[1]).items()])
             except IndexError:
                 return loc
             else:
-                self.conv.events.store(EV_RESPONSE, req)
-                self.conv.events.store('RelayState', req["RelayState"])
-                return req["SAMLRequest"]
-
+                self.conv.events.store(EV_RESPONSE, _resp)
+                self.conv.events.store('RelayState', _resp["RelayState"])
+                return _resp["SAMLRequest"]
 
