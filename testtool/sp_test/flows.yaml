@@ -227,8 +227,11 @@ Flows:
           set_authn: {}
           set_op_args:
               sign_response: true
-              assertion_args:
-                  subject_confirmation_method: 'urn:oasis:names:tc:SAML:2.0:cm:sender-vouches'
+              farg:
+                assertion:
+                  subject:
+                    subject_confirmation:
+                      method: 'urn:oasis:names:tc:SAML:2.0:cm:sender-vouches'
           add_post_condition:
               http_response:
                   status_code:
@@ -419,11 +422,12 @@ Flows:
           set_op_args:
               sign_response: true
           set_response_args:
+            farg:
               assertion:
-                  subject:
-                      subject_confirmation:
-                          subject_confirmation_data:
-                              in_response_to: 'dummy_value'
+                subject:
+                  subject_confirmation:
+                    subject_confirmation_data:
+                      in_response_to: 'dummy_value'
           add_post_condition:
               http_response:
                   status_code:
@@ -487,9 +491,12 @@ Flows:
           set_op_args:
               sign_response: true
           set_response_args:
-              assertion_args:
-                subject_confirmation_specs:
-                  recipient: 'mail:foobar@example.com'
+            farg:
+              assertion:
+                subject:
+                  subject_confirmation:
+                    subject_confirmation_data:
+                      recipient: 'mail:foobar@example.com'
           add_post_condition:
               http_response:
                   status_code:
@@ -520,10 +527,13 @@ Flows:
           set_identity: ''
           set_authn: {}
           set_op_args:
-              sign_response: true
-              assertion_args:
-                subject_confirmation_specs:
-                  recipient: 'http://foobar.example.com/'
+            sign_response: true
+            farg:
+              assertion:
+                subject:
+                  subject_confirmation:
+                    subject_confirmation_data:
+                      recipient: 'http://foobar.example.com/'
           add_post_condition:
               http_response:
                   status_code:
@@ -552,9 +562,13 @@ Flows:
           set_identity: ''
           set_authn: {}
           set_op_args:
-              sign_response: true
-              assertion_args:
-                consumer_url: null
+            sign_response: true
+            farg:
+              assertion:
+                subject:
+                  subject_confirmation:
+                    subject_confirmation_data:
+                      recipient: ''
           add_post_condition:
               http_response:
                   status_code:
@@ -583,10 +597,8 @@ Flows:
           set_identity: ''
           set_authn: {}
           set_op_args:
-              sign_response: true
-              assertion_args:
-                subject_confirmation_data:
-                  address: '0.0.0.0'
+            sign_response: true
+          set_subject_address: '127.0.0.1'
           add_post_condition:
               http_response:
                   status_code:
@@ -616,9 +628,8 @@ Flows:
           set_identity: ''
           set_authn: {}
           set_op_args:
-              sign_response: true
-              assertion_args:
-                subject_address: '10.0.0.1'
+            sign_response: true
+          set_subject_address: '10.0.0.1'
           add_post_condition:
               http_response:
                   status_code:

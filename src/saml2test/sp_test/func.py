@@ -1,10 +1,17 @@
 import inspect
+import os
 import sys
 from aatest.func import add_pre_condition
 from aatest.func import add_post_condition
+from saml2.argtree import add_path
 from saml2.time_util import utc_time_sans_frac
+import socket
 
 __author__ = 'roland'
+
+
+def get_ip():
+    return socket.gethostbyname(socket.gethostname())
 
 
 def set_start_page(oper, args):
@@ -33,6 +40,19 @@ def set_authn(oper, args):
         oper.msg_args['authn'] = oper.conv.extra_args[
             'target_info']['AuthnResponse']['default_args']['authn']
         oper.msg_args['authn']['authn_instant'] = utc_time_sans_frac()
+
+
+def set_subject_address(oper, args):
+    t = {}
+    if args == '0.0.0.0':
+        # set it to whatever IP address this machine has
+        ipaddress = get_ip()
+    else:
+        ipaddress = args
+
+    oper.op_args['farg'] = add_path(
+        t, ['assertion', 'subject', 'subject_confirmation',
+            'subject_confirmation_data', 'address', ipaddress])
 
 
 def add_post_assertion(oper, args):
