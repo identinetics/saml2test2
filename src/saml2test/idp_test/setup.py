@@ -8,6 +8,7 @@ import yaml
 
 from aatest.common import setup_logger
 from aatest.comhandler import ComHandler
+from saml2.httputil import Response
 
 from saml2test import metadata
 
@@ -130,7 +131,7 @@ def setup(use='cl', cargs=None):
               "cache": {}, "entity_id": conf['entity_id'],
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
-              'com_handler': comhandler, 'conf': CONF}
+              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response}
 
     if cargs.insecure or conf['insecure']:
         kwargs["insecure"] = True

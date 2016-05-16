@@ -1,9 +1,12 @@
 import inspect
-from aatest.check import WARNING
-from aatest.check import Check
-from aatest.operation import Operation
-from saml2.saml import NAMEID_FORMAT_TRANSIENT
 import sys
+
+from aatest.check import Check
+from aatest.check import TestResult
+from aatest.check import WARNING
+from aatest.operation import Operation
+
+from saml2.saml import NAMEID_FORMAT_TRANSIENT
 
 __author__ = 'roland'
 
@@ -22,17 +25,15 @@ class CheckSaml2IntMetaData(Metadata):
         # Should only be one of each
         md = list(mdict.values())[0]
         ed = list(md.entity.values())[0]
-        res = {}
+        res = TestResult('CheckSaml2IntMetaData')
 
         assert len(ed["idpsso_descriptor"])
         idpsso = ed["idpsso_descriptor"][0]
 
         # contact person
         if "contact_person" not in idpsso and "contact_person" not in ed:
-            res[
-                'message'] = "Metadata should contain contact person " \
-                             "information"
-            res['status'] = WARNING
+            res.message = "Metadata should contain contact person information"
+            res.status = WARNING
             return res
         else:
             item = []
@@ -46,23 +47,22 @@ class CheckSaml2IntMetaData(Metadata):
             if "support" in item and "technical" in item:
                 pass
             elif "support" not in item and "technical" not in item:
-                res['message'] = \
-                    "Missing technical and support contact information"
-                res['status'] = WARNING
+                res.message = "Missing technical and support contact information"
+                res.status = WARNING
             elif "technical" not in item:
-                res['message'] = "Missing technical contact information"
-                res['status'] = WARNING
+                res.message = "Missing technical contact information"
+                res.status = WARNING
             elif "support" not in item:
-                res['message'] = "Missing support contact information"
-                res['status'] = WARNING
+                res.message = "Missing support contact information"
+                res.status = WARNING
 
             if res:
                 return res
 
         # NameID format
         if "name_id_format" not in idpsso:
-            res['message'] = "Metadata should specify NameID format support"
-            res['status'] = WARNING
+            res.message = "Metadata should specify NameID format support"
+            res.status = WARNING
             return res
         else:
             # should support Transient
@@ -71,8 +71,8 @@ class CheckSaml2IntMetaData(Metadata):
                 id_formats.append(nformat["text"])
 
             if NAMEID_FORMAT_TRANSIENT not in id_formats:
-                res['message'] = "IdP should support Transient NameID Format"
-                res['status'] = WARNING
+                res.message = "IdP should support Transient NameID Format"
+                res.status = WARNING
                 return res
 
 

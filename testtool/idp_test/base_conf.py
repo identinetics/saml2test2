@@ -32,14 +32,13 @@ CONFIG = {
         'sp': {
             'endpoints': {
                 "assertion_consumer_service": [
-                    ("{base}acs/redirect",BINDING_HTTP_REDIRECT),
-                    ("{base}acs/post", BINDING_HTTP_POST),
-                    ("{base}acs/artifact", BINDING_HTTP_ARTIFACT),
-                    ("{base}ecp", BINDING_PAOS)
+                    # ("{base}acs/artifact", BINDING_HTTP_ARTIFACT),
+                    # ("{base}ecp", BINDING_PAOS)
+                    ("{base}acs/post", BINDING_HTTP_POST)
                 ],
-                "single_logout_service": [
-                    ("{base}slo", BINDING_SOAP)
-                ],
+                # "single_logout_service": [
+                #     ("{base}slo", BINDING_SOAP)
+                # ],
                 'discovery_response': [
                     ('{base}disco', BINDING_DISCO)]
             }

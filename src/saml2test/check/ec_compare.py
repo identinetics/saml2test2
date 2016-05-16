@@ -4,6 +4,8 @@ import inspect
 
 from aatest.check import Check
 from aatest.check import State
+from aatest.check import STATUSCODE
+from aatest.check import TestResult
 from aatest.events import EV_PROTOCOL_RESPONSE
 
 from saml2.entity_category.edugain import COCO
@@ -50,7 +52,9 @@ class EntityCategoryTestResult(State):
 
 
 class Result(object):
-    def __init__(self, ent_cat='', missing=None, extra=None, expected=None):
+    def __init__(self, ent_cat='', missing=None, extra=None,
+                 expected=None):
+        self.test_id = 'verify_entity_category'
         self.ent_cat = ent_cat
         self.missing = missing or []
         self.extra = extra or []
@@ -81,12 +85,12 @@ class Result(object):
         elif len(self.extra) > 0:
             return EXTRA
 
-    @property
-    def message(self):
-        return EntityCategoryTestStatus(self.status)
+    # @property
+    # def message(self):
+    #     return EntityCategoryTestStatus(self.status)
 
     @property
-    def short_status_text(self):
+    def message(self):
         return EntityCategoryTestStatus(self.status).short_text
 
     def received(self, ava, ec_attr):
@@ -122,12 +126,20 @@ class Result(object):
             and other.
         """
         assert isinstance(other, Result)
-        res = Result()
+        res = Result(self.test_id)
         res.ent_act = '{} and {}'.format(self.ent_cat, other.ent_cat)
         res.missing = self._and_list(self.missing, other.missing)
         res.expected = self._and_list(self.expected, other.expected)
         res.extra = self._not_in(self.extra, other.expected)
         return res
+
+    def __str__(self):
+        if self.status:
+            return '{}({}): status={}, message={}'.format(
+                self.test_id, self.ent_cat, STATUSCODE[self.status],
+                self.message)
+        else:
+            return '{}({}): status=?'.format(self.test_id, self.ent_cat)
 
 
 def verify_rs_compliance(ec, ava, req, ec_attr):
@@ -249,6 +261,7 @@ class VerifyEntityCategory(Check):
     def __call__(self, conv=None, output=None):
         conf = conv.entity.config
         ava = conv.events.get_message(EV_PROTOCOL_RESPONSE, AuthnResponse).ava
+        conv.events.store('AVA', ava)
         req_attr = conf.getattr('required_attributes', 'sp')
         entcat = conv.extra_args["entcat"]
 
@@ -288,9 +301,9 @@ class VerifyEntityCategory(Check):
         if non_compliant:
             self._message = 'Non compliant'
             self._status = Warning
-            return {'test_result': non_compliant}
+            return non_compliant
 
-        return {}
+        return TestResult('VerifyEntityCategory')
 
 
 def factory(cid):

@@ -1,7 +1,8 @@
 entity_id: https://localhost:8088/idp.xml
 flows:
-    - ../flows.json
+    - ../entity_category.json
 profile:
-    - saml2int
+    - entcat
+    - entcat:se
 samlconf: conf
 insecure: true

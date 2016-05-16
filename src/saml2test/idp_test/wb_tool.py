@@ -9,7 +9,7 @@ from aatest.check import OK
 from aatest.conversation import Conversation
 from aatest.events import EV_CONDITION
 from aatest.events import EV_RESPONSE
-from aatest.result import safe_path
+from aatest.result import safe_path, Result
 from aatest.session import Done
 from aatest.verify import Verify
 
@@ -57,7 +57,8 @@ class Tester(tool.Tester):
             return self.run_flow(test_id)
         except Exception as err:
             exception_trace("", err, logger)
-            self.inut.print_info(self.sh, test_id)
+            res = Result(self.sh, None)
+            res.print_info(self.sh, test_id)
             return self.inut.err_response(self.sh, "run", err)
 
     def test_result(self):

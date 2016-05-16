@@ -4,6 +4,7 @@ import inspect
 
 from aatest.check import Check
 from aatest.check import CRITICAL
+from aatest.check import TestResult
 from aatest.events import EV_HTML_SRC
 
 __author__ = 'roland'
@@ -20,12 +21,13 @@ class VerifyPage(Check):
         html = conv.events.last_item(EV_HTML_SRC)
         pattern = conv.extra_args['target_info']['echopageContentPattern']
 
+        res = TestResult(self.cid)
         for pat in pattern:
             if not re.search(pat, html):
-                self._message = "Could not find '{}' on page".format(pat)
-                self._status = CRITICAL
+                res.message = "Could not find '{}' on page".format(pat)
+                res.status = CRITICAL
 
-        return {}
+        return res
 
 
 def factory(cid):

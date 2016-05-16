@@ -5,6 +5,7 @@ from urllib.parse import parse_qs
 from aatest.check import Check
 from aatest.check import CRITICAL
 from aatest.check import OK
+from aatest.check import TestResult
 from aatest.check import WARNING
 from aatest.events import EV_PROTOCOL_REQUEST
 from aatest.events import EV_PROTOCOL_RESPONSE
@@ -20,6 +21,7 @@ from saml2.samlp import AuthnRequest
 from saml2.samlp import STATUS_SUCCESS
 from saml2.response import AuthnResponse
 from saml2.sigver import verify_redirect_signature
+
 
 __author__ = 'roland'
 
@@ -50,17 +52,18 @@ class VerifySubject(Check):
         if request.name_id_policy:
             sp_name_qualifier = request.name_id_policy.sp_name_qualifier
 
+        res = TestResult(self.cid)
         if nformat:
             if subj.name_id.format == nformat:
                 if sp_name_qualifier:
                     if subj.name_id.sp_name_qualifier != sp_name_qualifier:
-                        self._message = "The IdP returns wrong NameID format"
-                        self._status = CRITICAL
+                        res.message = "The IdP returns wrong NameID format"
+                        res.status = CRITICAL
             else:
-                self._message = "The IdP returns wrong NameID format"
-                self._status = CRITICAL
+                res.message = "The IdP returns wrong NameID format"
+                res.status = CRITICAL
 
-        return {}
+        return res
 
 
 class VerifyAttributes(Check):
@@ -89,12 +92,13 @@ class VerifyAttributes(Check):
                 if attr in ec_attr and attr not in ava:
                     missing.append(attr)
 
+        res = TestResult(self.cid)
         if missing:
-            self._message = "Attributes I expected but not received: {}".format(
+            res.message = "Attributes I expected but not received: {}".format(
                 missing)
-            self._status = CRITICAL
+            res.status = CRITICAL
 
-        return {}
+        return res
 
 
 class VerifyFunctionality(Check):
@@ -108,12 +112,11 @@ class VerifyFunctionality(Check):
         for idp in entity["idpsso_descriptor"]:
             for nformat in idp["name_id_format"]:
                 if nameid_format == nformat["text"]:
-                    return {}
+                    return TestResult(self.cid)
 
-        self._message = "No support for NameIDFormat '%s'" % nameid_format
-        self._status = CRITICAL
-
-        return {}
+        return TestResult(
+            self.cid, status=CRITICAL,
+            message="No support for NameIDFormat '%s'" % nameid_format)
 
     def _srv_support(self, conv, service):
         md = conv.entity.metadata
@@ -127,38 +130,38 @@ class VerifyFunctionality(Check):
             else:
                 for srvgrp in srvgrps:
                     if service in srvgrp:
-                        return {}
+                        return TestResult(self.cid)
 
-        self._message = "No support for '%s'" % service
-        self._status = CRITICAL
-        return {}
+        return TestResult(self.cid, status=CRITICAL,
+                          message="No support for '%s'" % service)
 
     def _binding_support(self, conv, request, binding, typ):
         service = REQ2SRV[request]
         md = conv.entity.metadata
         entity_id = conv.entity_id
         func = getattr(md, service, None)
+        res = TestResult(self.cid)
         try:
             func(entity_id, binding, typ)
         except UnknownPrincipal:
-            self._message = "Unknown principal: %s" % entity_id
-            self._status = CRITICAL
+            res.message = "Unknown principal: %s" % entity_id
+            res.status = CRITICAL
         except UnsupportedBinding:
-            self._message = "Unsupported binding at the IdP: %s" % binding
-            self._status = CRITICAL
+            res.message = "Unsupported binding at the IdP: %s" % binding
+            res.status = CRITICAL
 
-        return {}
+        return res
 
     def _func(self, conv):
         oper = conv.oper
         args = conv.oper.args
         res = self._srv_support(conv, REQ2SRV[oper.request])
-        if self._status != OK:
+        if res.status != OK:
             return res
 
         res = self._binding_support(conv, oper.request, args["request_binding"],
                                     "idpsso")
-        if self._status != OK:
+        if res.status != OK:
             return res
 
         if "name_id.format" in args and args["name_id.format"]:
@@ -195,10 +198,9 @@ class CheckLogoutSupport(Check):
         try:
             assert idpsso["single_logout_service"]
         except AssertionError:
-            self._message = self.msg
-            self._status = CRITICAL
-
-        return {}
+            return TestResult(self.cid, status=CRITICAL, message=self.msg)
+        else:
+            return TestResult(self.cid)
 
 
 class VerifyLogout(Check):
@@ -209,18 +211,19 @@ class VerifyLogout(Check):
         # Check that the logout response says it was a success
         resp = conv.events.last_item(EV_PROTOCOL_RESPONSE)
         status = resp.response.status
+        res = TestResult(self.cid)
         if status.status_code.value != STATUS_SUCCESS:
-            self._message = self.msg
-            self._status = CRITICAL
+            res.message = self.msg
+            res.status = CRITICAL
         else:
             # Check that there are no valid cookies
             # should only result in a warning
 
             if conv.entity.cookies(conv.destination):
-                self._message = "Remaining cookie ?"
-                self._status = WARNING
+                res.message = "Remaining cookie ?"
+                res.status = WARNING
 
-        return {}
+        return res
 
 
 class VerifyIfRequestIsSigned(Check):
@@ -233,21 +236,22 @@ class VerifyIfRequestIsSigned(Check):
 
     def _func(self, conv):
         req = conv.events.last_item(EV_RESPONSE)
+        res = TestResult(self.cid)
         # First, was the whole message signed
         if 'SigAlg' in req:
             if not verify_redirect_signature(
                     req['SAMLRequest'], conv.entity.sec):
-                self._message = "Was not able to verify Redirect message " \
+                res.message = "Was not able to verify Redirect message " \
                                 "signature"
-                self._status = CRITICAL
+                res.status = CRITICAL
 
         # Secondly, was the XML doc signed
         req = conv.events.get_message(EV_PROTOCOL_REQUEST, request.AuthnRequest)
         if req.message.signature is None:
-            self._message = 'Missing response signature'
-            self._status = CRITICAL
+            res.message = 'Missing response signature'
+            res.status = CRITICAL
 
-        return {}
+        return res
 
 
 class Verify_AuthnRequest(Check):
@@ -255,10 +259,11 @@ class Verify_AuthnRequest(Check):
 
     def _func(self, conv):
         redirect = conv.events.last_item(EV_REDIRECT_URL)
+        res = TestResult(self.cid)
         if '?' not in redirect:
-            self._message = "Incorrect redirect url"
-            self._status = CRITICAL
-            return {}
+            res.message = "Incorrect redirect url"
+            res.status = CRITICAL
+            return res
 
         req = dict(
             [(k, v[0]) for k, v in parse_qs(redirect.split('?')[1]).items()])
@@ -266,16 +271,16 @@ class Verify_AuthnRequest(Check):
         try:
             saml_req = req["SAMLRequest"]
         except KeyError:
-            self._message = "No SAMLRequest query parameter"
-            self._status = CRITICAL
-            return {}
+            res.message = "No SAMLRequest query parameter"
+            res.status = CRITICAL
+            return res
 
         _srv = conv.entity
         if not _srv.parse_authn_request(saml_req):
-            self._message = "No or incorrect AuthnRequest"
-            self._status = CRITICAL
+            res.message = "No or incorrect AuthnRequest"
+            res.status = CRITICAL
 
-        return {}
+        return res
 
 
 class VerifyEndpoint(Check):
@@ -284,19 +289,20 @@ class VerifyEndpoint(Check):
     def _func(self, conv):
         entity_id = conv.events.last_item('issuer')
         md = conv.entity.metadata
+        res = TestResult(self.cid)
         try:
             srv = md.service(entity_id, self._kwargs['typ'],
                              self._kwargs['service'],
                              binding=self._kwargs['binding'])
         except KeyError:
-            self._message = "Can't find service"
-            self._status = CRITICAL
+            res.message = "Can't find service"
+            res.status = CRITICAL
         else:
             if not srv:
-                self._message = "Can't find service"
-                self._status = CRITICAL
+                res.message = "Can't find service"
+                res.status = CRITICAL
 
-        return {}
+        return res
 
 
 class VerifyDigestAlgorithm(Check):
@@ -305,18 +311,19 @@ class VerifyDigestAlgorithm(Check):
     def _func(self, conv):
         digest_algorithms = conv.crypto_algorithms['digest_algorithms']
         req = conv.events.get_message(EV_PROTOCOL_REQUEST, request.AuthnRequest)
+        res = TestResult(self.cid)
         if req.message.signature is None:
-            self._message = 'Missing response signature'
-            self._status = CRITICAL
+            res.message = 'Missing response signature'
+            res.status = CRITICAL
 
         for ref in req.message.signature.signed_info.reference:
             if ref.digest_method.algorithm not in digest_algorithms:
-                self._message = "Not allowed digest algorithm: {}".format(
+                res.message = "Not allowed digest algorithm: {}".format(
                     ref.digest_method.algorithm)
-                self._status = CRITICAL
+                res.status = CRITICAL
                 break
 
-        return {}
+        return res
 
 
 class VerifSignatureAlgorithm(Check):
@@ -325,16 +332,17 @@ class VerifSignatureAlgorithm(Check):
     def _func(self, conv):
         signing_algorithms = conv.crypto_algorithms['signing_algorithms']
         req = conv.events.get_message(EV_PROTOCOL_REQUEST, request.AuthnRequest)
+        res = TestResult(self.cid)
         if req.message.signature is None:
-            self._message = 'Missing response signature'
-            self._status = CRITICAL
+            res.message = 'Missing response signature'
+            res.status = CRITICAL
 
         sig_alg = req.message.signature.signed_info.signature_method.algorithm
         if sig_alg not in signing_algorithms:
-            self._message = "Not allowed digest algorithm: {}".format(sig_alg)
-            self._status = CRITICAL
+            res.message = "Not allowed digest algorithm: {}".format(sig_alg)
+            res.status = CRITICAL
 
-        return {}
+        return res
 
 
 def factory(cid):

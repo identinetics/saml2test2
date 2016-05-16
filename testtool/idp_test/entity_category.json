@@ -1,0 +1,314 @@
+{
+  "Desc": {
+    "EntityCategory": "Entity Category Compliance"
+  },
+  "Order": [
+    "IDP-EntityCategory"
+  ],
+  "Flows": {
+    "IDP-EntityCategory-coco": {
+      "desc": "Uses AuthnRequest to verify CoCo entity category support",
+      "profiles": [
+        "entcat"
+      ],
+      "assert": {
+        "verify_entity_category": null
+      },
+      "sp": "coco",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-coco",
+      "short_name": "CoCo",
+      "entity_category": [
+        "http://www.geant.net/uri/dataprotection-code-of-conduct/v1"
+      ],
+      "attribute_bundle": [
+        "eduPersonTargetedID",
+        "eduPersonPrincipalName",
+        "eduPersonScopedAffiliation",
+        "mail",
+        "displayName",
+        "schacHomeOrganization"
+      ]
+    },
+    "IDP-EntityCategory-re_eu": {
+      "desc": "Uses AuthnRequest to verify R&E+EU entity category support",
+      "profiles": [
+        "entcat:se"
+      ],
+      "assert": {
+        "verify_entity_category": {}
+      },
+      "sp": "re_eu",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-re_eu",
+      "short_name": "RE & EU",
+      "entity_category": [
+        "http://www.swamid.se/category/research-and-education",
+        "http://www.swamid.se/category/eu-adequate-protection"
+      ],
+      "attribute_bundle": [
+        "edupersontargetedid",
+        "givenName",
+        "displayName",
+        "sn",
+        "c",
+        "o",
+        "co",
+        "norEduOrgAcronym",
+        "schacHomeOrganization",
+        "eduPersonPrincipalName,",
+        "eduPersonScopedAffiliation",
+        "mail"
+      ]
+    },
+    "IDP-EntityCategory-re_nren": {
+      "desc": "Uses AuthnRequest to verify R&E+NREN entity category support",
+      "profiles": [
+        "entcat:se"
+      ],
+      "assert": {
+        "verify_entity_category": {}
+      },
+      "sp": "re_nren",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-re_nren",
+      "short_name": "RE & NREN",
+      "entity_category": [
+        "http://www.swamid.se/category/research-and-education",
+        "http://www.swamid.se/category/nren-service"
+      ],
+      "attribute_bundle": [
+        "edupersontargetedid",
+        "givenName",
+        "displayName",
+        "sn",
+        "c",
+        "o",
+        "co",
+        "norEduOrgAcronym",
+        "schacHomeOrganization",
+        "eduPersonPrincipalName,",
+        "eduPersonScopedAffiliation",
+        "mail"
+      ]
+    },
+    "IDP-EntityCategory-re_nren_sfs": {
+      "desc": "Uses AuthnRequest to verify R&E+NREN+SFS entity category support",
+      "profiles": [
+        "entcat:se"
+      ],
+      "assert": {
+        "verify_entity_category": {}
+      },
+      "sp": "re_nren_sfs",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-re_nre_sfs",
+      "short_name": "RE & HEI & SFS",
+      "entity_category": [
+        "http://www.swamid.se/category/research-and-education",
+        "http://www.swamid.se/category/nren-service",
+        "http://www.swamid.se/category/sfs-1993-1153"
+      ],
+      "attribute_bundle": [
+        "norEduPersonNIN",
+        "edupersontargetedid",
+        "givenName",
+        "displayName",
+        "sn",
+        "c",
+        "o",
+        "co",
+        "norEduOrgAcronym",
+        "schacHomeOrganization",
+        "eduPersonPrincipalName,",
+        "eduPersonScopedAffiliation",
+        "mail"
+      ]
+    },
+    "IDP-EntityCategory-none": {
+      "desc": "Uses AuthnRequest to check connectivity",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "add_post_condition": {
+              "http_response": {
+                "status_code": [
+                  200,
+                  302,
+                  303
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "tc_id": "idp-con-01",
+      "profiles": [
+        "entcat"
+      ],
+      "assert": {
+        "verify_attributes": null
+      },
+      "sp": "basic"
+    },
+    "IDP-EntityCategory-rs": {
+      "desc": "Uses AuthnRequest to verify R&S entity category support",
+      "profiles": [
+        "entcat"
+      ],
+      "assert": {
+        "verify_entity_category": {}
+      },
+      "sp": "rs",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-rs",
+      "short_name": "R&S",
+      "entity_category": [
+        "http://refeds.org/category/research-and-scholarship"
+      ],
+      "attribute_bundle": [
+        "edupersontargetedid",
+        "edupersonprincipalname",
+        "edupersonscopedaffiliation",
+        "mail",
+        "givenname",
+        "sn",
+        "displayname"
+      ]
+    },
+    "IDP-EntityCategory-re_hei": {
+      "desc": "Uses AuthnRequest to verify R&E+HEI entity category support",
+      "profiles": [
+        "entcat:se"
+      ],
+      "assert": {
+        "verify_entity_category": {}
+      },
+      "sp": "re_hei",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-re_hei",
+      "short_name": "RE & HEI",
+      "entity_category": [
+        "http://www.swamid.se/category/research-and-education",
+        "http://www.swamid.se/category/hei-service"
+      ],
+      "attribute_bundle": [
+        "edupersontargetedid",
+        "givenName",
+        "displayName",
+        "sn",
+        "c",
+        "o",
+        "co",
+        "norEduOrgAcronym",
+        "schacHomeOrganization",
+        "eduPersonPrincipalName,",
+        "eduPersonScopedAffiliation",
+        "mail"
+      ]
+    },
+    "IDP-EntityCategory-re_hei_sfs": {
+      "desc": "Uses AuthnRequest to verify R&E+HEI+SFS entity category support",
+      "profiles": [
+        "entcat:se"
+      ],
+      "assert": {
+        "verify_entity_category": {}
+      },
+      "sp": "re_nren_hei",
+      "sequence": [
+        {
+          "AuthnRedirectRequest": {
+            "set_allowed_status_codes": [
+              200,
+              302,
+              303
+            ]
+          }
+        }
+      ],
+      "tc_id": "idp-ec-re_hei_sfs",
+      "short_name": "RE & HEI & SFS",
+      "entity_category": [
+        "http://www.swamid.se/category/research-and-education",
+        "http://www.swamid.se/category/hei-service",
+        "http://www.swamid.se/category/sfs-1993-1153"
+      ],
+      "attribute_bundle": [
+        "norEduPersonNIN",
+        "edupersontargetedid",
+        "givenName",
+        "displayName",
+        "sn",
+        "c",
+        "o",
+        "co",
+        "norEduOrgAcronym",
+        "schacHomeOrganization",
+        "eduPersonPrincipalName,",
+        "eduPersonScopedAffiliation",
+        "mail"
+      ]
+    }
+  }
+}

@@ -1,5 +1,4 @@
 import inspect
-import os
 import sys
 from aatest.func import add_pre_condition
 from aatest.func import add_post_condition
