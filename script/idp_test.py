@@ -3,7 +3,7 @@
 import os
 import logging
 from aatest.check import State, OK
-from aatest.events import EV_CONDITION, NoSuchEvent
+from aatest.events import EV_CONDITION
 from aatest.result import Result
 from aatest.verify import Verify
 from future.backports.urllib.parse import quote_plus
@@ -152,7 +152,10 @@ class Application(object):
         elif path == 'reset':
             for param in ['flow', 'flow_names', 'index', 'node', 'profile',
                           'sequence', 'test_info', 'test_id', 'tests']:
-                del sh[param]
+                try:
+                    del sh[param]
+                except KeyError:
+                    pass
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:

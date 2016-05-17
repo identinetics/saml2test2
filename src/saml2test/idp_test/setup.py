@@ -4,6 +4,7 @@ import importlib
 import logging
 import argparse
 import requests
+import sys
 import yaml
 
 from aatest.common import setup_logger
@@ -98,6 +99,7 @@ def setup(use='cl', cargs=None):
         if key not in keep:
             del fdef['Flows'][key]
 
+    sys.path.insert(0, '.')
     CONF = importlib.import_module(conf['samlconf'])
     spconf = copy.deepcopy(CONF.CONFIG)
     acnf = list(spconf.values())[0]
