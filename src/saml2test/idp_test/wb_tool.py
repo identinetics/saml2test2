@@ -59,7 +59,7 @@ class Tester(tool.Tester):
             exception_trace("", err, logger)
             res = Result(self.sh, None)
             res.print_info(self.sh, test_id)
-            return self.inut.err_response(self.sh, "run", err)
+            return self.inut.err_response("run", err)
 
     def test_result(self):
         try:
@@ -116,7 +116,7 @@ class Tester(tool.Tester):
         except KeyError:  # Cookie delete broke session
             self.setup(path, **ENV)
         except Exception as err:
-            return self.inut.err_response(self.sh, "session_setup", err)
+            return self.inut.err_response("session_setup", err)
         else:
             self.conv = self.sh["conv"]
 
@@ -127,7 +127,7 @@ class Tester(tool.Tester):
         except Exception as err:
             exception_trace("", err, logger)
             self.inut.print_info(self.sh, path)
-            return self.inut.err_response(self.sh, "run", err)
+            return self.inut.err_response("run", err)
 
     def async_response(self, conf):
         index = self.sh["index"]

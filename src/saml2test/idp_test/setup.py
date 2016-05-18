@@ -133,7 +133,8 @@ def setup(use='cl', cargs=None):
               "cache": {}, "entity_id": conf['entity_id'],
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
-              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response}
+              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response,
+              'template_root': conf['template_root'], 'static': conf['static']}
 
     if cargs.insecure or conf['insecure']:
         kwargs["insecure"] = True

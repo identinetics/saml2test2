@@ -15,11 +15,18 @@ class ProfileHandler(prof_util.ProfileHandler):
         except KeyError:
             res = {}
         else:
+            # Should only be one
+            md = list(_conv.entity.metadata.metadata.values())[0]
             try:
-                md = list(_conv.entity.metadata.metadata.values())[0]
                 iss = list(md.entity.keys())[0]
             except TypeError:
                 iss = ""
+            except IndexError:
+                if md.entity_descr:
+                    iss = md.entity_descr.entity_id
+                elif md.entities_descr:
+                    # should only be one
+                    iss = md.entities_descr[0].entity_id
 
             profile = self.to_profile("list")
 

@@ -70,7 +70,7 @@ class ClTester(tool.Tester):
         except Exception as err:
             exception_trace("", err, logger)
             self.inut.print_info(self.sh, test_id)
-            return self.inut.err_response(self.sh, "run", err)
+            return self.inut.err_response("run", err)
 
     def my_endpoints(self):
         return [e for e, b in
