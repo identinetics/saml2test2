@@ -1,0 +1,10 @@
+entity_id: https://localhost:8088/idp.xml
+flows:
+    - flows.json
+profile:
+    - entcat
+    - entcat:se
+samlconf: conf
+insecure: true
+static: ../site/static
+template_root: ./
