@@ -151,7 +151,7 @@ class Application(object):
             return tester.cont(environ, self.webenv)
         elif path == 'reset':
             for param in ['flow', 'flow_names', 'index', 'node', 'profile',
-                          'sequence', 'test_info', 'test_id', 'tests']:
+                          'sequence', 'test_info', 'testid', 'tests']:
                 try:
                     del sh[param]
                 except KeyError:
@@ -159,7 +159,8 @@ class Application(object):
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:
-                return inut.sorry_response("", "No result to report")
+                return inut.sorry_response(self.webenv['base_url'],
+                                           "No result to report")
 
             return inut.opresult(tester.conv, sh)
         # expected path format: /<testid>[/<endpoint>]

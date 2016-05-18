@@ -95,11 +95,12 @@ class Tester(tool.Tester):
                 return self.inut.flow_list(self.sh)
             else:
                 try:
-                    resp = Redirect("%sopresult#%s" % (
-                        self.inut.conf.BASE, self.sh["testid"][0]))
+                    p = self.sh["testid"].split('-')
                 except KeyError:
                     return self.inut.flow_list(self.sh)
                 else:
+                    resp = Redirect("%sopresult#%s" % (self.inut.conf.BASE,
+                                                       p[1]))
                     return resp(self.inut.environ, self.inut.start_response)
         except Exception as err:
             exception_trace("display_test_list", err)
