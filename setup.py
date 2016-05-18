@@ -46,8 +46,8 @@ setup(
     install_requires=[
         "pysaml2",
         "requests >= 2.0.0",
-        ''
-        'flask'
     ],
+    scripts=["script/build_sp_conf.py", "script/mk_multi_metadata.py",
+             "script/idp_test.py"],
     zip_safe=False,
 )

@@ -79,6 +79,15 @@ class Application(object):
     def __init__(self, webenv):
         self.webenv = webenv
 
+    def _static(self, path):
+        if path in ["robots.txt", 'favicon.ico']:
+            return "{}/robots.txt".format(self.webenv['static'])
+        else:
+            for p in ['acs/site/static/', 'site/static/', 'static/', 'export/']:
+                if path.startswith(p):
+                    return '{}/{}'.format(self.webenv['static'], path[len(p):])
+        return ''
+
     def application(self, environ, start_response):
         LOGGER.info("Connection from: %s" % environ["REMOTE_ADDR"])
         session = environ['beaker.session']
@@ -99,17 +108,9 @@ class Application(object):
 
         tester = Tester(inut, sh, **self.webenv)
 
-        if path == "robots.txt":
-            return inut.static("static/robots.txt")
-        elif path == "favicon.ico":
-            return inut.static("static/favicon.ico")
-        elif path.startswith('acs/site/static'):
-            path = path[4:]
-            return inut.static(path)
-        elif path.startswith("site/static/") or path.startswith('static/'):
-            return inut.static(path)
-        elif path.startswith("export/"):
-            return inut.static(path)
+        _path = self._static(path)
+        if _path:
+            return inut.static(_path)
 
         if path == "" or path == "/":  # list
             return tester.display_test_list()
@@ -216,8 +217,9 @@ if __name__ == '__main__':
         'session.timeout': 900
     }
 
-    LOOKUP = TemplateLookup(directories=['./' + 'templates', './' + 'htdocs'],
-                            module_directory='./' + 'modules',
+    _tr = kwargs['template_root']
+    LOOKUP = TemplateLookup(directories=[_tr + 'templates', _tr + 'htdocs'],
+                            module_directory=_tr + 'modules',
                             input_encoding='utf-8',
                             output_encoding='utf-8')
 
@@ -226,7 +228,7 @@ if __name__ == '__main__':
 
     _app = Application(webenv=kwargs)
 
-    SRV = wsgiserver.CherryPyWSGIServer(('0.0.0.0', _conf.PORT),
+    SRV = wsgiserver.CherryPyWSGIServer(('0.0.0.0', int(_conf.PORT)),
                                         SessionMiddleware(_app.application,
                                                           session_opts))
 
