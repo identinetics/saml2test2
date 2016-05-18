@@ -130,11 +130,16 @@ def setup(use='cl', cargs=None):
               "desc": fdef['Desc'], 'metadata': mds,
               "profile": conf['profile'], "msg_factory": saml_message_factory,
               "check_factory": get_check, "profile_handler": ProfileHandler,
-              "cache": {}, "entity_id": conf['entity_id'],
+              "cache": {},
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
               'com_handler': comhandler, 'conf': CONF, 'response_cls': Response,
               'template_root': conf['template_root'], 'static': conf['static']}
+
+    try:
+        kwargs["entity_id"] = conf['entity_id']
+    except KeyError:
+        kwargs['disco_srv'] = conf['disco_srv']
 
     if cargs.insecure or conf['insecure']:
         kwargs["insecure"] = True

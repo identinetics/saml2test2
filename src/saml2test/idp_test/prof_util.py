@@ -27,6 +27,8 @@ class ProfileHandler(prof_util.ProfileHandler):
                 elif md.entities_descr:
                     # should only be one
                     iss = md.entities_descr[0].entity_id
+                else:
+                    iss = ''
 
             profile = self.to_profile("list")
 
@@ -54,7 +56,7 @@ class ProfileHandler(prof_util.ProfileHandler):
 
         try:
             iss = _conv.entity_id
-        except (TypeError, KeyError):
+        except (TypeError, KeyError, AttributeError):
             return ""
         else:
             qiss = quote_plus(iss)

@@ -84,29 +84,31 @@ class Request(Operation):
         metadata = self.conv.entity.metadata
         try:
             entity = metadata[self.conv.entity_id]
+        except AttributeError:
+            self.req_args['discovery_service_url'] = self.conv.disco_srv
         except KeyError:
             raise MissingMetadata("No metadata available for {}".format(
                 self.conv.entity_id))
+        else:
+            for idp in entity["idpsso_descriptor"]:
+                for nformat in self.name_id_formats:
+                    if self.req_args["nameid_format"]:
+                        break
+                    for nif in idp["name_id_format"]:
+                        if nif["text"] == nformat:
+                            self.req_args["nameid_format"] = nformat
+                            break
+                for bind in self.bindings:
+                    if self.req_args["response_binding"]:
+                        break
+                    for sso in idp["single_sign_on_service"]:
+                        if sso["binding"] == bind:
+                            self.req_args["response_binding"] = bind
+                            break
 
         for arg in ['nameid_format', 'response_binding']:
             if not arg in self.req_args:
                 self.req_args[arg] = ''
-
-        for idp in entity["idpsso_descriptor"]:
-            for nformat in self.name_id_formats:
-                if self.req_args["nameid_format"]:
-                    break
-                for nif in idp["name_id_format"]:
-                    if nif["text"] == nformat:
-                        self.req_args["nameid_format"] = nformat
-                        break
-            for bind in self.bindings:
-                if self.req_args["response_binding"]:
-                    break
-                for sso in idp["single_sign_on_service"]:
-                    if sso["binding"] == bind:
-                        self.req_args["response_binding"] = bind
-                        break
 
 
 class RedirectRequest(Request):

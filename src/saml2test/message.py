@@ -21,7 +21,7 @@ __author__ = 'roland'
 
 
 class ProtocolMessage(object):
-    def __init__(self, conv, req_args, binding, msg_param=None):
+    def __init__(self, conv, req_args, binding, msg_param=None, **kwargs):
         self.conv = conv
         self.entity = conv.entity
         self.req_args = req_args
@@ -29,6 +29,7 @@ class ProtocolMessage(object):
         self.msg_param = msg_param or {}
         self.response_args = {}
         self.op_args = {}
+        self.kwargs = kwargs
 
     def construct_message(self, *args):
         raise NotImplementedError
