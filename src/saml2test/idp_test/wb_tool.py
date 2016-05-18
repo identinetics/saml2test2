@@ -30,7 +30,11 @@ class Tester(tool.Tester):
         _cli = self.make_entity(_flow["sp"], **kw_args)
         self.conv = Conversation(_flow, _cli, kw_args["msg_factory"],
                                  trace_cls=Trace, **kw_args["conv_args"])
-        self.conv.entity_id = kw_args["entity_id"]
+        try:
+            self.conv.entity_id = kw_args["entity_id"]
+        except KeyError:
+            self.conv.disco_srv = kw_args['disco_srv']
+
         self.conv.sequence = self.sh["sequence"]
         self.conv.events.store('test_id', test_id, sub='setup',
                                sender=self.__class__)
@@ -45,6 +49,8 @@ class Tester(tool.Tester):
         _pname = '_'.join(self.profile)
         try:
             return safe_path(self.conv.entity_id, _pname, test_id)
+        except AttributeError:
+            return safe_path('disco', _pname, test_id)
         except KeyError:
             return safe_path('dummy', _pname, test_id)
 

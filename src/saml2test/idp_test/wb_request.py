@@ -23,6 +23,7 @@ from saml2.s_utils import sid
 
 from saml2test.message import ProtocolMessage
 from saml2test.request import RedirectRequest
+from saml2test.request import Request
 from saml2test.request import PostRequest
 from saml2test.request import SoapRequest
 from saml2test.request import map_arguments
@@ -145,7 +146,10 @@ class AuthnRequest(ProtocolMessage):
                                sender=self.__class__)
 
 
-class Discovery(ProtocolMessage):
+class Discovery(Request):
+    def run(self, *args, **kwargs):
+        return self.construct_message()
+
     def construct_message(self):
         session_id = sid()
         sp = self.entity
