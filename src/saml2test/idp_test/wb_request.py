@@ -151,7 +151,7 @@ class Discovery(Request):
         return self.construct_message()
 
     def construct_message(self):
-        session_id = sid()
+        session_id = sid()  # Should be bound to session
         sp = self.entity
         url = sp.config.getattr("endpoints", "sp")["discovery_response"][0][0]
         return_to = "{url}?{query}".format(
@@ -165,15 +165,16 @@ class Discovery(Request):
                                sub='construct_message', sender=self.__class__)
         return SeeOther(redirect_url)
 
-    def handle_response(self, result, response_args, *args):
+    def handle_response(self, result, *args):
         idp_entity_id = result["entityID"]
-        session_id = result["sid"]
-        self.conv.events.store(EV_RESPONSE, response_args,
-                               sub='handle_response', sender=self.__class__)
-        request_origin = response_args["outstanding"][session_id]
-
-        del response_args["outstanding"][session_id]
-        return idp_entity_id, request_origin
+        # session_id = result["sid"]
+        # self.conv.events.store(EV_RESPONSE, response_args,
+        #                        sub='handle_response', sender=self.__class__)
+        # request_origin = response_args["outstanding"][session_id]
+        #
+        # del response_args["outstanding"][session_id]
+        self.conv.entity_id = idp_entity_id
+        return idp_entity_id  # , request_origin
 
 
 class AuthnRedirectRequest(RedirectRequest):

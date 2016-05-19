@@ -92,14 +92,16 @@ class Request(Operation):
         else:
             for idp in entity["idpsso_descriptor"]:
                 for nformat in self.name_id_formats:
-                    if self.req_args["nameid_format"]:
+                    if "nameid_format" in self.req_args and self.req_args[
+                            "nameid_format"]:
                         break
                     for nif in idp["name_id_format"]:
                         if nif["text"] == nformat:
                             self.req_args["nameid_format"] = nformat
                             break
                 for bind in self.bindings:
-                    if self.req_args["response_binding"]:
+                    if "response_binding" in self.req_args and self.req_args[
+                            "response_binding"]:
                         break
                     for sso in idp["single_sign_on_service"]:
                         if sso["binding"] == bind:

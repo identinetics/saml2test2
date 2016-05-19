@@ -34,8 +34,8 @@ def set_message_param(oper, args):
     oper.msg_param.update(args)
 
 
-def add_post_condition(oper, args):
-    pass
+def set_entity_id(oper, args):
+    oper.req_args['entityid'] = oper.conv.entity_id
 
 
 def factory(name):
