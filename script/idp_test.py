@@ -16,6 +16,7 @@ from aatest.session import SessionHandler
 from saml2.httputil import BadRequest
 from saml2.httputil import get_post
 from saml2.httputil import Response
+from saml2.httputil import ServiceError
 from saml2test.idp_test.inut import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
@@ -50,8 +51,10 @@ def do_next(tester, resp, sh, inut, filename, path):
         resp = tester.run_flow(tester.conv.test_id, index=tester.conv.index)
         store_test_state(sh, sh['conv'].events)
         if isinstance(resp, Response):
-            inut.print_info(path, filename)
-            return resp
+            res.store_test_info()
+            return resp(inut.environ, inut.start_response)
+        elif resp is False:
+            break
         if tester.conv.index >= lix:
             break
 
@@ -195,9 +198,27 @@ class Application(object):
         elif path == "ecp":
             pass
         elif path == "disco":
-            pass
+            qs = parse_qs(environ['QUERY_STRING'])
+            resp = dict([(k, v[0]) for k, v in qs.items()])
+            filename = self.webenv['profile_handler'](sh).log_path(
+                sh['conv'].test_id)
+            return do_next(tester, resp, sh, inut, filename, path=path)
         elif path == "slo":
             pass
+        elif path == 'all':
+            for test_id in sh['flow_names']:
+                resp = tester.run(test_id, **self.webenv)
+                store_test_state(sh, sh['conv'].events)
+                if resp is True or resp is False:
+                    continue
+                elif resp:
+                    return resp(environ, start_response)
+                else:
+                    resp = ServiceError('Unkown service error')
+                    return resp(environ, start_response)
+
+            filename = self.webenv['profile_handler'](sh).log_path(path)
+            return inut.flow_list(filename)
         else:
             resp = BadRequest()
             return resp(environ, start_response)
