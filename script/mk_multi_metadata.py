@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import sys
 import argparse
 import importlib
+import sys
 
+from future.backports.urllib.parse import urlparse
 from saml2.config import Config
 from saml2.metadata import entity_descriptor
 from saml2.metadata import entities_descriptor
@@ -13,6 +14,30 @@ from saml2.validate import valid_instance
 from saml2test.util import read_multi_conf
 
 __author__ = 'roland'
+
+
+def load_module_from_path(module_name, path):
+    if sys.version_info.major == 2:
+        import imp
+        return imp.load_source(module_name, path)
+    elif sys.version_info.major == 3 and sys.version_info.minor >= 5:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        foo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        return foo
+    else:
+        from importlib.machinery import SourceFileLoader
+
+        return SourceFileLoader(module_name, path).load_module()
+
+
+def name_format(eid):
+    p = urlparse(eid)
+    part1 = p[1].replace(':', '-')
+    part2 = p[2][1:].replace('/','-')
+    return '{}-{}'.format(part1, part2)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', dest='valid',
@@ -32,12 +57,18 @@ parser.add_argument('-x', dest='xmlsec',
                     help="xmlsec binaries to be used for the signing")
 parser.add_argument('-o', dest='outputfile',
                     help="write into output file instead of stdout")
+parser.add_argument('-S', dest='separate', action='store_true',
+                    help="write into one output file per entity")
 parser.add_argument(dest="config")
 args = parser.parse_args()
 
-sys.path.insert(0, '.')
-
-_cnf = importlib.import_module(args.config)
+if '/' in args.config:
+    if not args.config.endswith('.py'):
+        args.config += '.py'
+    _cnf = load_module_from_path('conf', args.config)
+else:
+    sys.path.insert(0, '.')
+    _cnf = importlib.import_module(args.config)
 
 res = read_multi_conf(_cnf, True)
 eds = []
@@ -61,12 +92,20 @@ secc = security_context(conf)
 desc, xmldoc = entities_descriptor(eds, valid_for, args.name, args.id,
                                    args.sign, secc)
 valid_instance(desc)
-xmldoc = metadata_tostring_fix(desc, nspair, xmldoc)
-output = xmldoc.decode("utf-8")
-
-if args.outputfile:
-    output_file = open(args.outputfile, "w")
-    output_file.write(output)
-    output_file.close()
+if args.separate:
+    for entdesc in desc.entity_descriptor:
+        xmldoc = metadata_tostring_fix(entdesc, nspair)
+        output = xmldoc.decode("utf-8")
+        output_file = open(name_format(entdesc.entity_id), "w+")
+        output_file.write(output)
+        output_file.close()
 else:
-    print(output)
+    xmldoc = metadata_tostring_fix(desc, nspair, xmldoc)
+    output = xmldoc.decode("utf-8")
+
+    if args.outputfile:
+        output_file = open(args.outputfile, "w+")
+        output_file.write(output)
+        output_file.close()
+    else:
+        print(output)
