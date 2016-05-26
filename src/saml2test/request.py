@@ -14,6 +14,7 @@ from saml2 import SAMLError
 from saml2 import BINDING_HTTP_POST
 from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_SOAP
+from saml2 import SamlBase
 from saml2.httputil import Response
 
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
@@ -51,6 +52,7 @@ class Request(Operation):
     name_id_formats = [NAMEID_FORMAT_TRANSIENT, NAMEID_FORMAT_PERSISTENT]
     bindings = [BINDING_HTTP_POST, BINDING_HTTP_REDIRECT]
     message = None
+    message_cls = SamlBase
 
     def __init__(self, conv, inut, sh, **kwargs):
         Operation.__init__(self, conv, inut, sh, **kwargs)
