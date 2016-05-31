@@ -40,17 +40,22 @@ if __name__ == "__main__":
         tester = ClTester(inut, sh, **kwargs)
         tester.run(cargs.testid, **kwargs)
         inut.result()
-        filename = safe_path(kwargs['entity_id'], cargs.testid)
-        inut.print_info(cargs.testid, filename)
+        """
+            inut.print_info does not exist
+        """
+        #filename = safe_path(kwargs['entity_id'], cargs.testid)
+        #inut.print_info(cargs.testid, filename)
     else:
         _sh = SessionHandler(session={}, **kwargs)
         _sh.init_session(profile=kwargs['profile'])
 
         for tid in _sh["flow_names"]:
             inut = ClIO(**kwargs)
-            sh = SessionHandler({}, **kwargs)
+            sh = SessionHandler(session={}, **kwargs)
             sh.init_session(profile=kwargs['profile'])
             tester = ClTester(inut, sh, **kwargs)
 
+            # quickfix: inut needs a session
+            inut.session = sh
             if tester.run(tid, **kwargs):
                 inut.result()

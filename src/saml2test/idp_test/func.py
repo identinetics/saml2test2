@@ -1,10 +1,11 @@
 import inspect
 import sys
+from aatest import OperationError
 from aatest.events import EV_PROTOCOL_RESPONSE
+from aatest.events import NoSuchEvent
 from saml2.samlp import NameIDPolicy
 
 __author__ = 'roland'
-
 
 def set_name_id(oper, args):
     assertion = oper.conv.protocol_response[-1].assertion
@@ -22,7 +23,10 @@ def set_user_credentials(oper, args):
 
 
 def setup_logout(oper, args):
-    resp = oper.conv.events.last_item(EV_PROTOCOL_RESPONSE)
+    try:
+        resp = oper.conv.events.last_item(EV_PROTOCOL_RESPONSE)
+    except NoSuchEvent:
+        raise OperationError("No session to log out from found in previous responses")
     assertion = resp.assertion
     subj = assertion.subject
     oper.req_args["name_id"] = subj.name_id

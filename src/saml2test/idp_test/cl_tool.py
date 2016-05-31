@@ -47,6 +47,9 @@ class ClTester(tool.Tester):
         except Exception as err:
             exception_trace("", err, logger)
             self.inut.print_info(self.sh, test_id)
+            # TODO: self.inut needs to have a session, but never gets one
+            # Quickfix:
+            self.inut.session = self.sh
             return self.inut.err_response("run", err)
 
     def my_endpoints(self):

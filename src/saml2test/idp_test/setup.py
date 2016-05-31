@@ -6,6 +6,7 @@ import argparse
 import requests
 import sys
 import yaml
+import os
 
 from aatest.common import setup_logger
 from aatest.comhandler import ComHandler
@@ -33,10 +34,32 @@ from saml2test import operation
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+TT_CONFIG_FILENAME = 'configuration.yaml'
+TD_SP_DIR = 'td_sp'
+TD_SP_CONFIG_FILENAME = 'configuration_created.py'
+TD_SP_CONFIG_METADATA_FILENAME = 'metadata_created.xml'
+
 __author__ = 'roland'
 
 logger = logging.getLogger("")
 
+class ConfigLoader:
+	# TODO: refactor me into the framework
+	def load_config(self, config_file):
+		self.test_config_file_read(config_file)
+		# works only with python 3.4, see http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path 	
+		from importlib.machinery import SourceFileLoader
+		configuration = SourceFileLoader("configuration", config_file).load_module()
+		configuration._source = config_file 
+		return configuration
+		
+	def test_config_file_read(self,config_file):
+		try:
+			open(config_file)
+		except Exception as e:
+			print ("Error accessing {}".format(config_file))
+			print ("Error {0}: {1}".format(e.errno, e.strerror) )
+			os._exit(-1)
 
 def load_flows(fdef, flow_spec, use):
     cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
@@ -68,6 +91,31 @@ def arg(param, cargs, conf):
         except KeyError:
             return None
 
+def inject_configuration_base_path(CONF,path):
+	"""
+		inject the paths into the config to trick around the
+		limitation that the tools are designed to work from a
+		single working directory. 
+		files in metadata are a list of tuples? Why?
+	"""
+	new_md = []
+	for md in CONF.METADATA:
+		new_files = []
+		for md_file_tuple in md['metadata']:
+			new_file_tuple = ()
+			for md_file in md_file_tuple:
+				new_file = os.path.join(path,TD_SP_DIR,md_file)
+				new_file_tuple = new_file_tuple + (new_file,)
+			new_files.append(new_file_tuple)
+		new_entry = {'metadata':new_files, 'class':md['class']}
+		new_md.append(new_entry)
+	CONF.METADATA = new_md
+	
+	for config in CONF.CONFIG.items():
+		config[1]['key_file'] = os.path.join(path, TD_SP_DIR, config[1]['key_file'])
+		config[1]['cert_file'] = os.path.join(path, TD_SP_DIR, config[1]['cert_file'])
+
+	return CONF	
 
 def setup(use='cl', cargs=None):
     if cargs is None:
@@ -76,15 +124,20 @@ def setup(use='cl', cargs=None):
         parser.add_argument('-x', dest="break", action='store_true')
         parser.add_argument('-t', dest="testid")
         parser.add_argument('-T', dest='toolconf')
-        parser.add_argument(dest="config")
+        parser.add_argument(dest="configdir")
         cargs = parser.parse_args()
 
     fdef = {'Flows': {}, 'Order': [], 'Desc': {}}
 
-    conf = yaml.safe_load(open(cargs.toolconf, 'r'))
+    if cargs.toolconf:
+        conf = yaml.safe_load(open(cargs.toolconf, 'r'))
+    else:
+        config_file = os.path.join(cargs.configdir, TT_CONFIG_FILENAME)
+        conf = yaml.safe_load(open(config_file, 'r'))
     try:
         for yf in conf['flows']:
-            fdef = load_flows(fdef, yf, use)
+            flows_file = os.path.join(cargs.configdir, yf)
+            fdef = load_flows(fdef, flows_file, use)
     except KeyError:
         pass
 
@@ -99,8 +152,11 @@ def setup(use='cl', cargs=None):
         if key not in keep:
             del fdef['Flows'][key]
 
-    sys.path.insert(0, '.')
-    CONF = importlib.import_module(conf['samlconf'])
+    #sys.path.insert(0, '.')
+    #CONF = importlib.import_module(conf['samlconf'])
+    configuration_fp = os.path.join(cargs.configdir,TD_SP_DIR,TD_SP_CONFIG_FILENAME)
+    CONF = ConfigLoader().load_config(configuration_fp)
+    CONF = inject_configuration_base_path(CONF,cargs.configdir)
     spconf = copy.deepcopy(CONF.CONFIG)
     acnf = list(spconf.values())[0]
     mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
@@ -122,7 +178,16 @@ def setup(use='cl', cargs=None):
             for key, kwargs in item.items():  # should only be one
                 if key == 'robobrowser':
                     from aatest.contenthandler import robobrowser
+                    
+                    """
+                    	tricking around aatest just loading from cwd
+                    	TODO: Fixing in aatest
+                    """
+                    my_cwd = os.getcwd()
+                    os.chdir(cargs.configdir)
                     ch.append(robobrowser.factory(**kwargs))
+                    os.chdir(my_cwd)
+                    
         comhandler = ComHandler(ch)
 
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,

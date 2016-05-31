@@ -1,0 +1,89 @@
+= A tourists guide to cl_idp_test.py
+TWA
+:toc:
+:toclevels: 4
+
+cl_idp_test.py takes the configured test flows and configurations and runs
+it against the IDP. This document guids through the major classes involved.
+
+[quote, Spock, Star Trek - The Apple]
+____
+I am not aware of anyone who fits that description, Captain
+____
+
+
+
+== The test tool:
+
+The test tool has two major phases: Setup and iteration over the flows.
+
+=== Setup
+
+==== Setup Class
+
+  from saml2test.idp_test.setup import setup
+  cargs, kwargs = setup()
+
+Loads the configuration and referenced files and registers the content handlers
+in the Comhandler object, which is placed in kwargs.
+
+==== Comhandler Class
+
+  from aatest.comhandler import ComHandler
+
+The Comhandler is set up with the list of content
+handlers defined in the configuration *?* how *?* or robobrowser as default.
+
+=== Iteration over flows
+
+==== ClIO Class
+  inut = ClIO(**kwargs)
+
+ClIO handles the console output
+
+==== SessionHandler Class
+
+  from aatest.session import SessionHandler
+  sh = SessionHandler(session={}, **kwargs
+  sh.init_session(profile=kwargs['profile'])
+
+The SessionHandler generates the environment for the tests of a flow.
+
+==== ClTester Class
+
+  from saml2test.idp_test.cl_tool import ClTester
+  tester = ClTester(inut, sh, **kwargs)
+  tester.run(cargs.testid, **kwargs)
+
+The ClTester is working on a single flow. It is
+* creating a Conversation
+* creating a Sequence in the Conversation
+* ... *?*
+* handling error(s).
+
+Its main working method is
+
+  run_flow(self, test_id, index=0, profiles=None, **kwargs):
+
+which is
+
+* running the tests from the sequence *?*
+* logging into an Event Class object within the conversation
+* printing to the console
+
+===== Conversation Class
+
+  from saml2test.conversation import Conversation
+  from aatest import conversation
+  self.conv = Conversation(_flow, _cli, kw_args["msg_factory"],
+                               trace_cls=Trace, **kw_args["conv_args"])
+
+===== Result Class
+
+  from aatest.result import Result
+  res = Result(self.sh, self.kwargs['profile_handler'])
+
+===== Sequence Class
+
+
+===== Events Class

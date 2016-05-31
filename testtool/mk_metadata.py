@@ -29,6 +29,8 @@ parser.add_argument('-s', dest='sign', action='store_true',
                     help="sign the metadata")
 parser.add_argument('-x', dest='xmlsec',
                     help="xmlsec binaries to be used for the signing")
+parser.add_argument('-o', dest='outputfile',
+                    help="write into output file instead of stdout")
 parser.add_argument(dest="config")
 args = parser.parse_args()
 
@@ -59,4 +61,12 @@ desc, xmldoc = entities_descriptor(eds, valid_for, args.name, args.id,
                                    args.sign, secc)
 valid_instance(desc)
 xmldoc = metadata_tostring_fix(desc, nspair, xmldoc)
-print(xmldoc.decode("utf-8"))
+
+output = xmldoc.decode("utf-8")
+
+if args.outputfile:
+	output_file = open(args.outputfile, "w")
+	output_file.write(output)
+	output_file.close()
+else:		
+	print(output)
