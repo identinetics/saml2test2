@@ -198,8 +198,17 @@ def setup(use='cl', cargs=None):
               "cache": {},
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
-              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response,
-              'template_root': conf['template_root'], 'static': conf['static']}
+              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response}
+
+    try:
+        kwargs["template_root"] = conf['template_root']
+    except KeyError:
+        pass
+
+    try:
+        kwargs["static"] = conf['static']
+    except KeyError:
+        pass
 
     try:
         kwargs["entity_id"] = conf['entity_id']

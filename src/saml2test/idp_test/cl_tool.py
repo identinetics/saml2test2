@@ -46,7 +46,8 @@ class ClTester(tool.Tester):
             return self.run_flow(test_id)
         except Exception as err:
             exception_trace("", err, logger)
-            self.inut.print_info(self.sh, test_id)
+            # TODO: does not exist
+            #self.inut.print_info(self.sh, test_id)
             # TODO: self.inut needs to have a session, but never gets one
             # Quickfix:
             self.inut.session = self.sh
