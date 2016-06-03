@@ -32,6 +32,8 @@ from saml2.saml import factory as saml_message_factory
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from saml2test import operation
 
+from saml2test.contenthandler.embeddedbrowser.handler import ContentHandler as embeddedbrowser
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 TT_CONFIG_FILENAME = 'configuration.yaml'
@@ -187,7 +189,10 @@ def setup(use='cl', cargs=None):
                     os.chdir(cargs.configdir)
                     ch.append(robobrowser.factory(**kwargs))
                     os.chdir(my_cwd)
-                    
+                if key == 'embeddedbrowser':
+                    ch.append(embeddedbrowser())
+
+
         comhandler = ComHandler(ch)
 
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
