@@ -1,0 +1,43 @@
+= Use Cases
+
+The generic use case for SAML tests is the execution of a selected set of tests.
+
+. Select a set of tests based on a profile
+. Optionally copy the profile and change the selection of tests
+. Configure the test target and test tooling
+. Execute tests
+. Analyze test result
+
+A second use case is the improvement of the test repository
+
+. Tester 1: Add a test or extend an existing one
+. Tester 1: Pubish the test on a common repositiry
+. Other testers use the test by virtue of using a new verison of the test repository
+
+This genreric use case has differet flavors depending on the usage szenario:
+
+== Developer of SAML Entities
+Developers of SAML IDPs and SPs (and possibly other pieces such as discovery services or metadata aggregators) 
+need to run integration and conformance tests for their products. Typical requirements are:
+
+- High degree of test automation for frequent application (scripting interactive parts)
+- Available test cases for relevant implementation conformance profile(s)
+- Broad test coverage
+- Ability to add or extend predefined tests
+
+== Deployers of SAML Entities
+IDP-deployers ususally require and have more technical skills wrt SAML than those of SPs, as their goals are
+more focused on applications than on infrasctructure. Typical requirements are:
+
+- One-off or occasional use of testing suite
+- Ease of use, low threshold to deploy tests, easy to understand problem reporting
+
+== Federation Operators/Onboarding
+FOs may help (or require) new participants to proof their interoperability with the deplyoment profile
+before hooking them to a production system. Requirements simiar to Deployers of SAML Entities, although
+scripting may be provided by the FO.
+
+== Federation Operators/Software Support
+FOs may provide federation members with ready-toinstall software for SPs and IDPs. To verfy their fittnes for sue
+the FO is operating a CI-service, which includes tests. Requires similar properties as a developer.
+
