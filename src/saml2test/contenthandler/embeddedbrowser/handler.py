@@ -74,6 +74,7 @@ class ContentHandler(contenthandler.ContentHandler):
         self.verify_ssl = verify_ssl
 
         self.start_http_response = http_response
+        #TODO: If cookiejar => copy into response (Injected Response will loose cookie_jar)
 
         return self._run()
 
@@ -147,11 +148,13 @@ class ContentHandler(contenthandler.ContentHandler):
         self._event_log_responses()
 
     def _update_cookie_jar(self):
-        extract_cookies_to_jar(self.cookie_jar, self.nam.http_response.request, self.nam.http_response)
+        if self.nam.rsp_response:
+            extract_cookies_to_jar(self.cookie_jar, self.nam.rsp_response.request, self.nam.rsp_response)
         return
 
     def _event_log_responses(self):
-        self.conv.events.store(aatest.events.EV_HTTP_RESPONSE, self.nam.http_response)
+        if self.nam.rsp_response:
+            self.conv.events.store(aatest.events.EV_HTTP_RESPONSE, self.nam.rsp_response)
         return
 
     def _write_event_log_cache(self,retval):

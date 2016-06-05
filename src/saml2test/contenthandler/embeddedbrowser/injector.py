@@ -24,6 +24,7 @@ from PyQt4.QtCore import   QTextStream,  QVariant, QTimer, SIGNAL, QByteArray
 from PyQt4 import QtCore
 
 from .mockhttprequest import MockSock
+from .ebnetwork import EbNetworkRequest, EbNetworkReply
 
 from http.cookiejar import CookieJar
 #import mimetools
@@ -59,11 +60,10 @@ import pprint
     Things named with Qt4 are known to break in Qt5.
 """
 
-
-
 """
-    InjectedQNetworkRequest is the Request that will not be sent to the
-    network, but written into the embedded browser.
+    InjectedQNetworkRequest is the request that will NOT be sent to the
+    network, but written into the embedded browser. It is initialized by
+    an already existing response holding the request
 """
 class InjectedQNetworkRequest(QNetworkRequest):
     magic_query_key = QString('magic_injected')
@@ -81,13 +81,12 @@ class InjectedQNetworkRequest(QNetworkRequest):
         return new_url
 
     @classmethod
-    def thatRequestHasMagicQt4(self,request):
-        url = request.url()
+    def thatRequestHasMagicQt4(self,eb_request):
+        url = eb_request.request.url()
         value = url.queryItemValue(self.magic_query_key)
         if value == self.magic_query_val:
             return True
         return False
-
 
 """
     The InjectedNetworkReply will be given to the browser.
@@ -209,21 +208,21 @@ class InjectedQNetworkAccessManager(QNetworkAccessManager):
     def __init__(self, parent = None, ignore_ssl_errors=False):
         super(InjectedQNetworkAccessManager, self).__init__(parent)
         self.ignore_ssl_errors = ignore_ssl_errors
-        self.http_cookie_jar = None
+        self.http_cookie_jar = None     # TODO: remove
+        """
+        self.resp_response holds the response, converted to {Request} when we finished processing
+        # TODO: Can we signal that instead of storing it?
+        """
+        self.rsp_response = None
+        self.initial_rsp_response = None
 
-    def setInjectedResponse(self, http_response, http_cookie_jar):
-        self.http_response = http_response
+    def setInjectedResponse(self, rsp_response, http_cookie_jar):
+        self.initial_rsp_response = rsp_response
         self.http_cookie_jar = http_cookie_jar
 
-    def _cookie_default_domain(self,request):
-        url = request.url()
-        return url.host()
-
-    def _import_cookie_jar(self,http_cookie_jar,default_domain):
-
+    def _qt_cookiejar_from_rsp_cookiejar(self, rsp_cookiejar, default_domain):
         cj = QNetworkCookieJar()
-        #cookie_attrs = http_cookie_jar.http_header_attrs(self.urllib_request)
-        cookie_attrs = requests_utils.dict_from_cookiejar(self.http_response.cookies)
+        cookie_attrs = requests_utils.dict_from_cookiejar(rsp_cookiejar)
         qt_cookies = self._parse_cookie_attribs_into_QtCookies_list(cookie_attrs, default_domain)
         cj.setAllCookies(qt_cookies)
         return cj
@@ -255,20 +254,29 @@ class InjectedQNetworkAccessManager(QNetworkAccessManager):
 
         return cookies
 
+    def _network_reply_from_injected_http_response(self,op,eb_request):
+        url = eb_request.request.url()
+        r = InjectedNetworkReply(self, url, self.initial_rsp_response, op)
+        return r
 
-    def createRequest(self, op, request, device = None):
-        url = request.url()
-        if InjectedQNetworkRequest.thatRequestHasMagicQt4(request):
-            r =  InjectedNetworkReply(self, url, self.http_response, op)
-            default_cookie_domain = self._cookie_default_domain(request)
-            cookiejar = self._import_cookie_jar(self.http_cookie_jar, default_cookie_domain)
+    def _cookiejar_from_injected_http_response(self,eb_request):
+        default_cookie_domain = eb_request.request.url().host()
+        cookiejar = self._qt_cookiejar_from_rsp_cookiejar(self.initial_rsp_response.cookies, default_cookie_domain)
+        return cookiejar
+
+    def createRequest(self, op, qt_request, device = None):
+        eb_request = EbNetworkRequest(qt_request)
+        url = eb_request.request.url()
+        if InjectedQNetworkRequest.thatRequestHasMagicQt4(eb_request):
+            r = self._network_reply_from_injected_http_response(op, eb_request)
+            cookiejar = self._cookiejar_from_injected_http_response(eb_request)
             self.setCookieJar(cookiejar)
         else:
-            self.http_request = None
-            original_r = QNetworkAccessManager.createRequest(self, op, request, device)
+            self.rsp_response = None
+            original_r = QNetworkAccessManager.createRequest(self, op, eb_request.request, device)
             original_r.sslErrors.connect(self.sslErrorHandler)
             #self._set_my_cookies_from_reply(original_r)
-            r = SniffingNetworkReply(self, request, original_r, op)
+            r = SniffingNetworkReply(self, eb_request.request, original_r, op)
 
         r.finished.connect(self.requestFinishedActions)
 
@@ -355,19 +363,15 @@ class InjectedQNetworkAccessManager(QNetworkAccessManager):
         except Exception as err:
             raise
 
-            self.http_response = response
+        self.rsp_response = response
         return
 
     def requestFinishedActions(self):
         qt_network_reply = self.sender()
 
-        try:
-            # injected reply
-            self.http_response = qt_network_reply.http_response
+        if isinstance(qt_network_reply, InjectedNetworkReply):
             self.requestFinishing.emit()
             return
-        except AttributeError:
-            pass
 
         status = qt_network_reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
 
