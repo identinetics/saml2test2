@@ -1,0 +1,57 @@
+= Usage
+
+== Overview
+
+When you want to test a SAML2 entity (called test target) with this test tool you need following things:
+
+[options="compact"]
+. The test tool configuration consisting of:
+.. A SAML entity acting as a test driver (an IDP is testing an SP, and vice versa)
+.. Key material for the test driver
+. The test target configuration file describes how to interact with the entity to be tested.
+. The selection of tests to be executed
+
+=== Create the configuration
+
+The test tools are given a direcory which holds the configuration.
+
+The configuration directory is made up by these files:
+
+Note: Some file names can differ, as the file names are also configured within
+this files.
+[width="100%", cols="5,50"]
+|===
+| configuration.yaml| configuration of the test
+| flows.json| configuration of test flows, referenced in configuration.yaml
+| interaction.py| configuration of the interaction, referenced in configuration.yaml
+| td_sp| directory with test driver (=SP) configuration
+| td_sp/configuration.py| configuration module of the test driver
+| td_sp/td_sp_conf.yaml | configuration of the test driver services, referenced in configuration.py
+| td_sp/metadata.xml| test driver metadata, referenced in configuration.py
+| pki| key material
+| pki/mycert.pem| test driver certificate, referenced in configuration.py
+| pki/mykey.pem| test driver key, referenced in configutation.py
+|===
+=== Generate config files
+The generated part of the config is created by running:
+
+ pyhon saml2test2/testtool/idp_test/make_configuration.py <your_config_dir>
+
+This will generate two additional files in your configuration directory:
+
+- configuration_created.py: Holds the "compiled" version of your configuraiton.
+- metadata_created.xml: Is the metadata file, that has to be installed on the IDP to be tested.
+
+=== Register Test Driver
+Make the EntityDesciptor of the test driver known to the test target, either by adding it to its
+metadata feed, or by configuring it locally.
+
+== Create the configuration
+
+Examples can be found in testtool/idp_test and testtool/sp_test.
+These files should be stored outside the saml2test package to have a clean separation between the package and a particular test configuration. To create a directory for the configuration files copy the saml2test/tests including its contents.
+(1) Test Driver Configuration
+
+This is a normal PySAML2 configuration file. You can have more than one and then chose which one to use at run time by supplying the test script with an argument. If no configuration is explicitly provided than tests/ipd_test/config.py is provided as a default.
+
+This configuration mostly contains the test tool’s metadata structured as a Python dictionary. It doesn't vary a lot between testing different IdPs, except for the value of BASE, and optionally these control options:
