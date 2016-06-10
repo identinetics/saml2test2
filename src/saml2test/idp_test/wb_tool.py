@@ -103,7 +103,7 @@ class Tester(tool.Tester):
                 try:
                     p = self.sh["testid"].split('-')
                 except KeyError:
-                    return self.inut.flow_list(self.sh)
+                    return self.inut.flow_list(self.sh, tt_entityid=self.inut.kwargs['entity_id'])
                 else:
                     resp = Redirect("%sopresult#%s" % (self.inut.conf.BASE,
                                                        p[1]))

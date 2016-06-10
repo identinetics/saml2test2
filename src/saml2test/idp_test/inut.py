@@ -124,7 +124,7 @@ class WebIO(IO):
                 resp = Response("No saved logs")
                 return resp(self.environ, self.start_response)
 
-    def flow_list(self, filename=''):
+    def flow_list(self, filename='', tt_entityid=''):
         resp = Response(mako_template="flowlist.mako",
                         template_lookup=self.lookup,
                         headers=[])
@@ -135,7 +135,8 @@ class WebIO(IO):
             "test_info": list(self.session["test_info"].keys()),
             "base": self.conf.BASE,
             "headlines": self.desc,
-            "testresults": TEST_RESULTS
+            "testresults": TEST_RESULTS,
+            "tt_entityid": tt_entityid,
         }
 
         return resp(self.environ, self.start_response, **argv)

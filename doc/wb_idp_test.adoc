@@ -10,7 +10,7 @@ Following roles is being used here:
 == Test Configuration
 
 Configuration files are arranged in a hierarchy, with some files generated and others referenced. This decomentation
-assigns an ID to each file to be independent of the actual naming.
+assigns an ID to each file to be independent of the actual file name.
 
 .Generic configuration independent of a specific test target
 |=====
@@ -44,11 +44,14 @@ To generate TD-CONFIG-GEN run:
 |TD-CONFIG|wb/conf.py| generated using build_sp_conf.py
 |=====
 
-image::testtool-conf.png[test tool configuration - graphical overview]
-
 == Test Execution
 
     idp_test.py [-k] [-x] [-t test-id] -T <TOOL-CONFIG> TD-CONFIG-GEN
 
 This command starts the web server. Setup should install it in your path.
 Open the test interface on localhost:8087.
+
+== Graphical Overview
+
+image::testtool-conf.png[test tool configuration - graphical overview]
+

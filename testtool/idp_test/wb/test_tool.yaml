@@ -1,5 +1,6 @@
 # Test Target EntityID
-entity_id: https://localhost:8088/idp.xml
+# entity_id: https://localhost:8088/idp.xml   # local test idp
+entity_id: https://idp1.test.wpv.portalverbund.at/idp/shibboleth
 
 # Definition of test flows
 flows:
@@ -8,9 +9,10 @@ flows:
 profile:
     - saml2int
 
+# python module in CWD containing the SP configuration (do not specify the extension .py)
 samlconf: conf
 
-# Do not validate neither signatures nor TLS certificates (TODO: verify this claim)
+# Do not validate TLS certificates (Note: signature validation is configured in pysaml2 config)
 insecure: true
 
 # http resources

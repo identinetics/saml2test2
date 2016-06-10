@@ -5,14 +5,14 @@ def op_choice(base, nodes, test_info, headlines):
     Creates a list of test flows
     """
     _grp = "_"
-    color = ['<img src="site/static/black.png" alt="Black">',
-             '<img src="site/static/green.png" alt="Green">',
-             '<img src="site/static/yellow.png" alt="Yellow">',
-             '<img src="site/static/red.png" alt="Red">',
-             '<img src="site/static/qmark.jpg" alt="QuestionMark">',
-             '<img src="site/static/greybutton" alt="Grey">',
+    color = ['<img src="site/static/black.png" alt="Black" height="50%">',
+             '<img src="site/static/green.png" alt="Green" height="50%">',
+             '<img src="site/static/yellow.png" alt="Yellow" height="50%">',
+             '<img src="site/static/red.png" alt="Red" height="50%">',
+             '<img src="site/static/qmark.jpg" alt="QuestionMark" height="50%">',
+             '<img src="site/static/greybutton" alt="Grey" height="50%">',
              ]
-    element = ["<ul>"]
+    element = ['<ul style="list-style-type: none;">']
 
     for node in nodes:
         p, grp, spec = node.name.split("-", 2)
@@ -33,6 +33,13 @@ def op_choice(base, nodes, test_info, headlines):
         #    element += '<img src="static/must.jpeg">'
 
     return "\n".join(element)
+
+def test_target(tt_entityid):
+    """
+    Display the test target' entityID
+    """
+    return tt_entityid
+
 %>
 
 <%!
@@ -104,7 +111,7 @@ def legends():
             }
         }
         @media (min-width: 1600px){
-            .jumbotron {
+            .jumbotron {s
                 border-radius: 10px;
                 margin-left: 20%;
                 margin-right: 20%;
@@ -114,13 +121,17 @@ def legends():
 </head>
 <body>
     <!-- Main component for a primary marketing message or call to action -->
-    <div class="jumbotron">
-        <h1>SAML2 IdP Tests</h1>
-        <em>Explanations of legends at <a href="#legends">end of page</a></em>
+    <div style="background-color: #4CAF50; color: #eee; width: 100%; height: 6em; vertical-align: middle; padding: .5em 2em .5em 2em">
+        <h1>Federation Lab SAML2 IdP Tests</h1>
+    </div>
+    <div class="jumbotron" style="padding-left: 1em; padding-right: 2em">
+        <h4>Test target: ${test_target(tt_entityid)}</h4>
+        <em>Explanations of symbols at <a href="#legends">end of page</a></em>
 
         <h3>Chose the next test flow you want to run from this list: </h3>
         ${op_choice(base, flows, test_info, headlines)}
-        <h3>Legends</h3>
+        <hr style="heigth: 2px" />
+        <h3>Legend</h3>
         ${legends()}
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

@@ -4,6 +4,7 @@ from saml2 import BINDING_PAOS
 from saml2 import BINDING_SOAP
 from saml2 import BINDING_HTTP_POST
 from saml2.extension.idpdisc import BINDING_DISCO
+from saml2.saml import NAME_FORMAT_URI
 
 try:
     from saml2.sigver import get_xmlsec_binary
@@ -13,7 +14,7 @@ except ImportError:
 if get_xmlsec_binary:
     xmlsec_path = get_xmlsec_binary(["/opt/local/bin", "/usr/local/bin"])
 else:
-    xmlsec_path = '/usr/local/bin/xmlsec1'
+    xmlsec_path = '/usr/bin/xmlsec1'
 
 PORT = 8087
 BASE = "http://localhost:{}/".format(PORT)
@@ -23,7 +24,8 @@ CONFIG = {
     "entityid": "{base}{sp_id}/sp.xml",
     "key_file": "./pki/mykey.pem",
     "cert_file": "./pki/mycert.pem",
-    'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+    'name_form': NAME_FORMAT_URI,
+    'validate_certificate': False,
     'service': {
         'sp': {
             'endpoints': {
