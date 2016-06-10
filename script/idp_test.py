@@ -6,7 +6,7 @@
 
 import os
 import logging
-from aatest.check import State, OK
+from aatest.check import State, OK, ERROR
 from aatest.events import EV_CONDITION
 from aatest.result import Result
 from aatest.verify import Verify
@@ -24,6 +24,7 @@ from saml2.httputil import ServiceError
 from saml2test.idp_test.inut import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
+from saml2test.request import ServiceProviderRequestHandlerError
 
 SERVER_LOG_FOLDER = "server_log"
 if not os.path.isdir(SERVER_LOG_FOLDER):
@@ -43,11 +44,15 @@ def pick_args(args, kwargs):
 
 def do_next(tester, resp, sh, inut, filename, path):
     tester.conv = tester.sh['conv']
-    tester.handle_response(resp, {})
-
-    store_test_state(sh, sh['conv'].events)
     res = Result(tester.sh, tester.kwargs['profile_handler'])
-    res.store_test_info()
+    try:
+        tester.handle_response(resp, {})
+        # store_test_state(sh, sh['conv'].events)  this does actually nothing?
+        res.store_test_info()
+    except ServiceProviderRequestHandlerError as err:
+        msg = str(err)
+        tester.conv.events.store(EV_CONDITION, State('SP Error', ERROR,  message=msg),
+                                 sender='do_next')
 
     tester.conv.index += 1
     lix = len(tester.conv.sequence)
@@ -74,12 +79,20 @@ def do_next(tester, resp, sh, inut, filename, path):
 
         if 'assert' in tester.conv.flow:
             _ver = Verify(tester.chk_factory, tester.conv)
-            _ver.test_sequence(tester.conv.flow["assert"])
+            try:
+                _ver.test_sequence(tester.conv.flow["assert"])
+            except Exception as err:
+                """
+                TODO: we can't have assertions on things that
+                already failed. But elsewhere, this should give an error too, i think?
+                """
+                pass
 
         store_test_state(sh, sh['conv'].events)
         res.store_test_info()
 
-    return inut.flow_list(filename)
+    html_page = inut.flow_list(filename)
+    return html_page
 
 
 class Application(object):
@@ -189,7 +202,8 @@ class Application(object):
             filename = self.webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
 
-            return do_next(tester, resp, sh, inut, filename, path)
+            html_page = do_next(tester, resp, sh, inut, filename, path)
+            return html_page
         elif path == "acs/redirect":
             qs = environ['QUERY_STRING']
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
