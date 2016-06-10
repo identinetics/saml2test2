@@ -13,7 +13,7 @@ except ImportError:
 if get_xmlsec_binary:
     xmlsec_path = get_xmlsec_binary(["/opt/local/bin", "/usr/local/bin"])
 else:
-    xmlsec_path = '/usr/local/bin/xmlsec1'
+    xmlsec_path = '/usr/bin/xmlsec1'
 
 PORT = 8087
 BASE = "http://localhost:{}/".format(PORT)
@@ -49,4 +49,4 @@ CONFIG = {
 
 METADATA = [{
         "class": "saml2.mdstore.MetaDataFile",
-        "metadata": [('./local_idp.xml',)]}],
+        "metadata": [('./tt_mdfeed.xml',)]}],

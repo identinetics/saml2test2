@@ -1,4 +1,5 @@
 ---
+# This defines test flows, their order and their
 Flows:
   IDP-Metadata-verify:
     tc_id: idp-mv
@@ -367,3 +368,9 @@ Desc:
   IDP-AuthnPost: IDP Authentication using HTTP POST
   IDP-EntityCategory: Entity Category Compliance
   IDP-Logout: IDP Logout
+  Metadata: Idp metadata
+  Connection: IdP Connection
+  AuthnRedirect: IDP Authentication HTTP Redirect
+  AuthnPost: IDP Authentication using HTTP POST
+  EntityCategory: Entity Category Compliance
+  Logout: IDP Logout

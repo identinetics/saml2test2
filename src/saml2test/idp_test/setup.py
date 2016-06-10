@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+
 import copy
 import importlib
 import logging
 import argparse
+import os
 import requests
 import sys
 import yaml
@@ -75,18 +77,22 @@ def setup(use='cl', cargs=None):
         parser.add_argument('-k', dest="insecure", action='store_true')
         parser.add_argument('-x', dest="break", action='store_true')
         parser.add_argument('-t', dest="testid")
-        parser.add_argument('-T', dest='toolconf')
+        parser.add_argument('-T', dest='toolconf')   # TODO: is this really optional?
         parser.add_argument(dest="config")
         cargs = parser.parse_args()
 
     fdef = {'Flows': {}, 'Order': [], 'Desc': {}}
 
-    conf = yaml.safe_load(open(cargs.toolconf, 'r'))
+    try:
+        with open(cargs.toolconf, 'r') as fd:
+            conf = yaml.safe_load(fd)
+    except FileNotFoundError as e:
+        raise Exception('unable to open tool configuration file: cwd=' + os.getcwd() + ', ' + str(e))
     try:
         for yf in conf['flows']:
             fdef = load_flows(fdef, yf, use)
     except KeyError:
-        pass
+        pass # TODO: is it really OK not to have any flows?
 
     # Filter flows based on profile
     keep = []

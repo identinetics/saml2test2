@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+#import sys
+#print('\n'.join(sys.path))
+
+
 import os
 import logging
 from aatest.check import State, OK

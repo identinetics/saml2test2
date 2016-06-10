@@ -1,8 +1,20 @@
+# Test Target EntityID
 entity_id: https://localhost:8088/idp.xml
+
+# Definition of test flows
 flows:
-    - ../entity_category.json
+    - /home/r2h2/devl/deploy/identinetics/docker-saml2test2/install/opt/saml2test2/testtool/idp_test/flows.yaml
+# Filter test flows with following profiles
 profile:
-    - entcat
-    - entcat:se
+    - saml2int
+
 samlconf: conf
+
+# Do not validate neither signatures nor TLS certificates (TODO: verify this claim)
 insecure: true
+
+# http resources
+static: /home/r2h2/devl/deploy/identinetics/docker-saml2test2/install/opt/saml2test2/testtool/idp_test/site/static
+
+# mako templates. specify the parent folder of the folder named 'html' or 'templates' container
+template_root: /home/r2h2/devl/deploy/identinetics/docker-saml2test2/install/opt/saml2test2/testtool/idp_test/wb/
