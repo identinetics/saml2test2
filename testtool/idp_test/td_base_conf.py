@@ -1,3 +1,7 @@
+'''
+Base configuration for a specific test target
+'''
+
 from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_HTTP_ARTIFACT
 from saml2 import BINDING_PAOS
