@@ -44,7 +44,7 @@ To generate TD-CONFIG-GEN run:
 |TD-CONFIG|wb/conf.py| generated using build_sp_conf.py
 |=====
 
-link: testtool-conf.svg
+image::testtool-conf.svg[test tool configuration - graphical overview]
 
 == Test Execution
 
