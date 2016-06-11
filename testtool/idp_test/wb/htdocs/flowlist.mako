@@ -1,6 +1,6 @@
 <%!
 
-def op_choice(base, nodes, test_info, headlines, tc_id):
+def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
     """
     Creates a list of test flows
     """
@@ -19,8 +19,8 @@ def op_choice(base, nodes, test_info, headlines, tc_id):
         if not grp == _grp:
             _grp = grp
             element.append("<hr size=2><h3 id='%s'>%s</h3>" % (_grp, headlines[_grp]))
-        element.append("<li><a href='%s%s'>%s</a>%s: %s (%s) " % (base,
-            node.name, color[node.state], tc_id, node.desc, node.name))
+        element.append("<li><a href='%s%s'>%s</a>%s (%s) [<a href='%s%s' target='_blank'>%s<a>] " % (base,
+            node.name, color[node.state], node.desc, node.name, tc_id_infobase, node.tc_id, node.tc_id))
 
         if node.rmc:
             element.append('<img src="site/static/delete-icon.png">')
@@ -129,7 +129,7 @@ def legends():
         <em>Explanations of symbols at <a href="#legends">end of page</a></em>
 
         <h3>Chose the next test flow you want to run from this list: </h3>
-        ${op_choice(base, flows, test_info, headlines, 'tc placeholder')}
+        ${op_choice(base, flows, test_info, headlines, tc_id_infobase)}
         <hr style="heigth: 2px" />
         <h3>Legend</h3>
         ${legends()}

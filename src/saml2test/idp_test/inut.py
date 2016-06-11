@@ -137,6 +137,7 @@ class WebIO(IO):
             "headlines": self.desc,
             "testresults": TEST_RESULTS,
             "tt_entityid": tt_entityid,
+            "tc_id_infobase": "https://identinetics.github.io/SAML-Testcases/index.html#"
         }
 
         return resp(self.environ, self.start_response, **argv)
