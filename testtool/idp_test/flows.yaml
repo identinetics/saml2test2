@@ -120,7 +120,7 @@ Flows:
     sp: basic
 
   IDP-AuthnRedirect-verify:
-    tc_id: idp-con-01
+    tc_id: net-01
     desc: Uses AuthnRequest to check connectivity
     profiles: 
       - saml2int
