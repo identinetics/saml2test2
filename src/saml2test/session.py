@@ -1,4 +1,7 @@
 from aatest.session import SessionHandler as AAtestSessionHandler
+from aatest.parse_cnf import sort
+#from aatest.session import Node
+from saml2test.jatnode import JatNode
 
 class SessionHandler(AAtestSessionHandler):
 
@@ -12,7 +15,8 @@ class SessionHandler(AAtestSessionHandler):
                 kwargs = {"mti": self.test_flows[k]["mti"]}
             except KeyError:
                 kwargs = {}
-            _tests.append(Node(k, self.test_flows[k]["desc"], **kwargs))
+            new_test_node = JatNode(k, self.test_flows[k], **kwargs)
+            _tests.append(new_test_node)
 
         self["tests"] = _tests
         self["test_info"] = {}
