@@ -137,7 +137,7 @@ Flows:
       verify_attributes: null
 
   IDP-Logout-soap:
-    tc_id: net-01   # S2c-03,
+    tc_id: websso-12   # S2c-03,
     desc: An Authnrequest followed by a logout request,
     sequence:
       - AuthnRedirectRequest:
