@@ -20,7 +20,8 @@ else:
     xmlsec_path = '/usr/bin/xmlsec1'
 
 PORT = 8087
-BASE = "http://localhost:{}/".format(PORT)
+#BASE = "http://localhost:{}/".format(PORT)
+BASE = 'http://samltest.fed-lab.org/'
 
 # CoCo gives access to these attributes:
 # "eduPersonPrincipalName", "eduPersonScopedAffiliation", "mail",
@@ -28,7 +29,7 @@ BASE = "http://localhost:{}/".format(PORT)
 
 CONFIG = {
     'description': 'Basic SP',
-    "entityid": "{base}{sp_id}/sp.xml",
+    "entityid": BASE + "{sp_id}/sp.xml",
     "key_file": "./pki/mykey.pem",
     "cert_file": "./pki/mycert.pem",
     'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
@@ -36,15 +37,15 @@ CONFIG = {
         'sp': {
             'endpoints': {
                 "assertion_consumer_service": [
-                    # ("{base}acs/artifact", BINDING_HTTP_ARTIFACT),
-                    # ("{base}ecp", BINDING_PAOS)
-                    ("{base}acs/post", BINDING_HTTP_POST)
+                    # (BASE + "acs/artifact", BINDING_HTTP_ARTIFACT),
+                    # (BASE + "ecp", BINDING_PAOS)
+                    (BASE + "acs/post", BINDING_HTTP_POST)
                 ],
                 # "single_logout_service": [
                 #     ("{base}slo", BINDING_SOAP)
                 # ],
                 'discovery_response': [
-                    ('{base}disco', BINDING_DISCO)]
+                    (BASE + 'disco', BINDING_DISCO)]
             }
         },
     },
