@@ -6,7 +6,7 @@
                         xmlns:ns4="urn:oasis:names:tc:SAML:metadata:attribute"
                         xmlns:ns5="urn:oasis:names:tc:SAML:2.0:assertion"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <ns0:EntityDescriptor entityID="http://localhost:8087/basic/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/basic/sp.xml">
         <ns0:Extensions>
             <ns1:DigestMethod
                     Algorithm="http://www.w3.org/2001/04/xmldsig-more#md5"/>
@@ -45,7 +45,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -73,22 +73,22 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/re_nren_hei/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/re_nren_hei/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -141,7 +141,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -169,22 +169,22 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/required/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/required/sp.xml">
         <ns0:Extensions>
             <ns1:DigestMethod
                     Algorithm="http://www.w3.org/2001/04/xmldsig-more#md5"/>
@@ -223,7 +223,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -251,19 +251,19 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
             <ns0:AttributeConsumingService index="1">
                 <ns0:ServiceName xml:lang="en"/>
                 <ns0:ServiceDescription xml:lang="en">Required Attributes SP
@@ -292,7 +292,7 @@
             </ns0:AttributeConsumingService>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/rs/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/rs/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -339,7 +339,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -367,22 +367,22 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/re_nren/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/re_nren/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -432,7 +432,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -460,22 +460,22 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/re_nren_sfs/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/re_nren_sfs/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -528,7 +528,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -556,22 +556,22 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/re_hei/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/re_hei/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -621,7 +621,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -649,22 +649,22 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/coco/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/coco/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -711,7 +711,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -739,19 +739,19 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
             <ns0:AttributeConsumingService index="1">
                 <ns0:ServiceName xml:lang="en"/>
                 <ns0:ServiceDescription xml:lang="en">CoCo SP
@@ -780,7 +780,7 @@
             </ns0:AttributeConsumingService>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
-    <ns0:EntityDescriptor entityID="http://localhost:8087/re_eu/sp.xml">
+    <ns0:EntityDescriptor entityID="http://samltest.fed-lab.org/re_eu/sp.xml">
         <ns0:Extensions>
             <ns4:EntityAttributes>
                 <ns5:Attribute Name="http://macedir.org/entity-category"
@@ -830,7 +830,7 @@
             <ns0:Extensions>
                 <ns2:DiscoveryResponse
                         Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
-                        Location="http://localhost:8087/disco" index="1"/>
+                        Location="http://samltest.fed-lab.org/disco" index="1"/>
             </ns0:Extensions>
             <ns0:KeyDescriptor use="signing">
                 <ns3:KeyInfo>
@@ -858,19 +858,19 @@
             </ns0:KeyDescriptor>
             <ns0:SingleLogoutService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
-                    Location="http://localhost:8087/slo"/>
+                    Location="http://samltest.fed-lab.org/slo"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-                    Location="http://localhost:8087/acs/redirect" index="1"/>
+                    Location="http://samltest.fed-lab.org/acs/redirect" index="1"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                    Location="http://localhost:8087/acs/post" index="2"/>
+                    Location="http://samltest.fed-lab.org/acs/post" index="2"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
-                    Location="http://localhost:8087/acs/artifact" index="3"/>
+                    Location="http://samltest.fed-lab.org/acs/artifact" index="3"/>
             <ns0:AssertionConsumerService
                     Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS"
-                    Location="http://localhost:8087/ecp" index="4"/>
+                    Location="http://samltest.fed-lab.org/ecp" index="4"/>
         </ns0:SPSSODescriptor>
     </ns0:EntityDescriptor>
 </ns0:EntitiesDescriptor>
