@@ -2,7 +2,7 @@
 # This defines test flows, their order and their
 Flows:
   IDP-Metadata-verify:
-    tc_id: md-02   # idp-mv
+    tc_id: md02   # idp-mv
     desc: Verifies that the IdP metadata adheres to the saml2int spec
     sequence:
       - CheckSaml2IntMetaData
