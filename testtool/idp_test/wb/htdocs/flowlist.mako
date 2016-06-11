@@ -19,8 +19,9 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
         if not grp == _grp:
             _grp = grp
             element.append("<hr size=2><h3 id='%s'>%s</h3>" % (_grp, headlines[_grp]))
+        node_link = "_" + node.tc_id.replace("-","_")
         element.append("<li><a href='%s%s'>%s</a>%s (%s) [<a href='%s%s' target='_blank'>%s<a>] " % (base,
-            node.name, color[node.state], node.desc, node.name, tc_id_infobase, node.tc_id, node.tc_id))
+            node.name, color[node.state], node.desc, node.name, tc_id_infobase, node_link, node.tc_id))
 
         if node.rmc:
             element.append('<img src="site/static/delete-icon.png">')
