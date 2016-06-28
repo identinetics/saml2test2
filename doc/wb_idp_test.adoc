@@ -20,7 +20,7 @@ assigns an ID to each file to be independent of the actual file name.
 |=====
 
 .Base configuration for a specific test target
-[cols="2", options="header"]
+[cols="3", options="header"]
 |=====
 |ID|Name in example|Contents
 |TD-BASE-CONFIG|td_base_conf.py|pysaml2-style entity configuration for the test driver
