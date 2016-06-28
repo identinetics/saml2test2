@@ -2,14 +2,16 @@
 # This defines test flows, their order and their
 Flows:
   IDP-Metadata-verify:
-    tc_id: idp-mv
+    tc_id: md-02   # idp-mv
     desc: Verifies that the IdP metadata adheres to the saml2int spec
     sequence:
       - CheckSaml2IntMetaData
     profiles: 
       - saml2int
     sp: basic
+    
   IDP-AuthnPost-nid_transient:
+    tc_id: websso-03   # idp-auth-post-02
     desc: Basic SAML2 AuthnRequest using HTTP POST and transient NameID format
     profiles: 
       - saml2int
@@ -24,11 +26,12 @@ Flows:
           set_request_args:
             name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
     sp: basic
-    tc_id: idp-auth-post-02
     assert:
       verify_subject:
         name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+        
   IDP-AuthnPost-verify:
+    tc_id: websso-05 # idp-auth-post-01
     desc: Basic SAML2 AuthnRequest using HTTP POST unspecified NameID format
     profiles: 
       - saml2int
@@ -41,8 +44,9 @@ Flows:
                     - 302
                     - 303
     sp: basic
-    tc_id: idp-auth-post-01
+
   IDP-AuthnRedirect-nid_email:
+    tc_id: websso-06  # idp-auth-re-02
     desc: AuthnRequest with email nameID format
     profiles: 
       - saml2int
@@ -57,11 +61,12 @@ Flows:
           set_request_args:
             name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
     sp: basic
-    tc_id: idp-auth-re-02
     assert:
       verify_subject:
         name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+
   IDP-AuthnRedirect-nid_transient:
+    tc_id: websso-03  # idp-auth-re-01
     desc: AuthnRequest with transient nameID format
     profiles: 
       - saml2int
@@ -76,11 +81,12 @@ Flows:
           set_request_args:
             name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
     sp: basic
-    tc_id: idp-auth-re-01
     assert:
       verify_subject:
         name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+
   IDP-AuthnRedirect-nid_unspecified:
+    tc_id: websso-01  # idp-auth-re-04
     desc: AuthnRequest with unspecified nameID format
     profiles: 
       - saml2int
@@ -95,8 +101,9 @@ Flows:
           set_request_args:
             name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified
     sp: basic
-    tc_id: idp-auth-re-04
+    
   IDP-AuthnRedirect-no_nid:
+    tc_id: websso-01  #idp-auth-re-03
     desc: AuthnRequest no specified nameID format
     profiles: 
       - saml2int
@@ -111,8 +118,9 @@ Flows:
           set_request_args:
             name_id.format: ''
     sp: basic
-    tc_id: idp-auth-re-03
+
   IDP-AuthnRedirect-verify:
+    tc_id: net-01
     desc: Uses AuthnRequest to check connectivity
     profiles: 
       - saml2int
@@ -125,11 +133,11 @@ Flows:
                     - 302
                     - 303
     sp: basic
-    tc_id: idp-con-01
     assert:
       verify_attributes: null
+
   IDP-Logout-soap:
-    tc_id: S2c-03,
+    tc_id: websso-12   # S2c-03,
     desc: An Authnrequest followed by a logout request,
     sequence:
       - AuthnRedirectRequest:
@@ -144,6 +152,7 @@ Flows:
     sp: basic
     profiles: 
       - saml2int
+      
   IDP-EntityCategory-coco:
     desc: Uses AuthnRequest to verify CoCo entity category support
     profiles: 
@@ -168,6 +177,7 @@ Flows:
       - displayName
       - schacHomeOrganization
     short_name: CoCo
+    
   IDP-EntityCategory-rs:
     desc: Uses AuthnRequest to verify R&S entity category support
     profiles: 

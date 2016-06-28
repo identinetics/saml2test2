@@ -15,7 +15,7 @@ from future.backports.urllib.parse import parse_qs
 
 from aatest.summation import store_test_state
 from aatest.session import Done
-from aatest.session import SessionHandler
+#from aatest.session import SessionHandler
 
 from saml2.httputil import BadRequest
 from saml2.httputil import get_post
@@ -25,6 +25,7 @@ from saml2test.idp_test.inut import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
 from saml2test.request import ServiceProviderRequestHandlerError
+from saml2test.session import SessionHandler
 
 SERVER_LOG_FOLDER = "server_log"
 if not os.path.isdir(SERVER_LOG_FOLDER):
