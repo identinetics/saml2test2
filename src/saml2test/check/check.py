@@ -25,6 +25,32 @@ from saml2.sigver import verify_redirect_signature
 
 __author__ = 'roland'
 
+#response.status.status_code.value  ''
+class VerifySamlStatus(Check):
+    """Verify that the expected SAML status code was returned """
+
+    cid = 'verify_saml_status'
+
+    def _func(self, conv=None, output=None):
+        response = conv.events.get_message(EV_PROTOCOL_RESPONSE,
+                                           AuthnResponse).response
+
+        if "saml_status" in self._kwargs:
+            status_value = self._kwargs["saml_status"]
+            if response.status.status_code.value == status_value:
+                res = TestResult(self.cid)
+            else:
+                res.message = "The test target returned status = %s, but the "
+                "test configuration expected %s." % \
+                (response.status.status_code.value.status_value)
+                res.status = CRITICAL
+        else:
+                res.message = "Missing  saml_status in assert verify_saml_status"
+                res.status = CRITICAL
+
+        return res
+
+
 
 class VerifySubject(Check):
     """Verify that the correct named.format and sp_name_qualifier

@@ -12,7 +12,7 @@ Flows:
     
   IDP-AuthnPost-nid_transient:
     tc_id: websso-03   # idp-auth-post-02
-    desc: Basic SAML2 AuthnRequest using HTTP POST and transient NameID format
+    desc: Basic SAML2 AuthnRequest using Redirectbinding and transient NameID format; Response binding HTTP-POST
     profiles: 
       - saml2int
     sequence:
@@ -24,12 +24,14 @@ Flows:
                     - 302
                     - 303
           set_request_args:
-            name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+              name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
     sp: basic
     assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Fail
       verify_subject:
         name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
-        
+
   IDP-AuthnPost-verify:
     tc_id: websso-05 # idp-auth-post-01
     desc: Basic SAML2 AuthnRequest using HTTP POST unspecified NameID format
