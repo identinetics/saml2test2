@@ -49,7 +49,7 @@ Flows:
     sp: acs-post
     assert:
       verify_saml_status:
-        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:InvalidNameIDPolicy
 
   IDP-AuthnPost-nid_transient:
     tc_id: websso-03
