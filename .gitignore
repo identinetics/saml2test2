@@ -60,3 +60,5 @@ docs/_build/
 src/saml2test/sp_test/target.py/
 
 .idea/
+
+work/

@@ -2,20 +2,21 @@
 
 ## General flow
 
-[width="100%", cols="5,50a"]
+[width="100%", cols="5a,50a"]
 |===
 |idp_test::
 main()
-|setup()
+|
+setup()
 Application.application()
 
 |idp_test::
 Application.application()
-|SessionHandler.session_init()  # keeping the list of flows +
-inut = WebIO+ # rendering HTML responses for the test shell +
+|
+SessionHandler.session_init()  # keeping the list of flows +
+inut = WebIO+ # rendering HTML responses for the test shell [<br>]
 tester = Tester +
 #URL dispatcher: reset (discard session handler), start test flow, report results
-
 
 ||
 ||
