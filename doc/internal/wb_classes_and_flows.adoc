@@ -2,6 +2,7 @@
 
 ## General flow
 
+[width="100%", cols="5,50a"]
 |===
 |idp_test+
 Application.application()
