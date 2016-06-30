@@ -4,7 +4,7 @@ METADATA = [
 BASE = 'http://localhost:8087/'
 #BASE = 'http://samltest.fed-lab.org/'
 CONFIG = {
-    'basic': {
+    'acs-post': {
         'cert_file': '../../pki/mycert.pem',
         'description': 'Basic SP',
         'entityid': BASE + 'basic/sp.xml',
@@ -14,14 +14,64 @@ CONFIG = {
             'sp': {
                 'endpoints': {
                     'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                        (BASE + 'acs/post', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST')],
+                    'discovery_response': [
+                        (BASE + 'disco',
+                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                         '-protocol')],
+                    'single_logout_service': [
+                        (BASE + 'slo',
+                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+        'xmlsec_binary': '/usr/bin/xmlsec1'},
+    'acs-redirect': {
+        'cert_file': '../../pki/mycert.pem',
+        'description': 'Basic SP',
+        'entityid': BASE + 'basic/sp.xml',
+        'key_file': '../../pki/mykey.pem',
+        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+        'service': {
+            'sp': {
+                'endpoints': {
+                    'assertion_consumer_service': [
+                        (BASE + 'acs/redirect', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect')],
+                    'discovery_response': [
+                        (BASE + 'disco',
+                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                         '-protocol')],
+                    'single_logout_service': [
+                        (BASE + 'slo',
+                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+        'xmlsec_binary': '/usr/bin/xmlsec1'},
+    'acs-artifact': {
+        'cert_file': '../../pki/mycert.pem',
+        'description': 'Basic SP',
+        'entityid': BASE + 'basic/sp.xml',
+        'key_file': '../../pki/mykey.pem',
+        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+        'service': {
+            'sp': {
+                'endpoints': {
+                    'assertion_consumer_service': [
+                        (BASE + 'acs/artifact', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact')],
+                    'discovery_response': [
+                        (BASE + 'disco',
+                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                         '-protocol')],
+                    'single_logout_service': [
+                        (BASE + 'slo',
+                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+        'xmlsec_binary': '/usr/bin/xmlsec1'},
+    'acs-ecp': {
+        'cert_file': '../../pki/mycert.pem',
+        'description': 'Basic SP',
+        'entityid': BASE + 'basic/sp.xml',
+        'key_file': '../../pki/mykey.pem',
+        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+        'service': {
+            'sp': {
+                'endpoints': {
+                    'assertion_consumer_service': [
+                        (BASE + 'ecp', 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
                     'discovery_response': [
                         (BASE + 'disco',
                          'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
