@@ -14,7 +14,7 @@ Application.application()
 Application.application()
 |
 SessionHandler.session_init()  # keeping the list of flows +
-inut = WebIO+ # rendering HTML responses for the test shell [<br>]
+inut = WebIO+ # rendering HTML responses for the test shell +
 tester = Tester +
 #URL dispatcher: reset (discard session handler), start test flow, report results
 
