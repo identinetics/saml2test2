@@ -1,8 +1,8 @@
-# Class, Object and Flow Documentation for idb_test (web)
+# Class, Object and Flow Documentation for idp_test (web)
 
 ## General flow
 
-[width="100%", cols="5a,50a"]
+[width="100%", cols="5a.<,50a.<"]
 |===
 |idp_test::
 main()
