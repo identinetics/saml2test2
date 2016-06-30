@@ -16,7 +16,7 @@ assigns an ID to each file to be independent of the actual file name.
 [cols="2*", options="header"]
 |===
 |ID|Name in example|Contents
-|TOOL-CONFIG|flows.yaml (or .json)|defines test flows and their order of execution
+|TESTFLOWS|flows.yaml (or .json)|defines test flows and their order of execution
 |===
 
 .Base configuration for a specific test target
@@ -45,7 +45,7 @@ To generate TD-CONFIG-GEN run:
 |=====
 |ID|Name in example|Contents
 |TOOL-CONFIG|wb/test_tool.yaml| test target entityID & metadata source, test flows and profile filter, template and static dirs
-|TD-CONFIG|wb/conf.py| generated using build_sp_conf.py
+|TD-CONFIG-GEN|wb/conf.py| generated using build_sp_conf.py
 |=====
 
 == Test Execution
