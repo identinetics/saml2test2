@@ -2,12 +2,12 @@
 
 ## General flow
 
-[width="100%", cols="5a,50a"]
+[width="100%", cols=".<5a,.<50a"]
 |===
 |idp_test::
 main()
 |
-setup()
+setup()  # load
 Application.application()
 
 |idp_test::
