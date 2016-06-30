@@ -1,15 +1,56 @@
 ---
-# This defines test flows, their order and their
+# TESTFLOWS: This defines test flows, their order and their alias names
 Flows:
+
   IDP-Metadata-verify:
     tc_id: md-02   # idp-mv
     desc: Verifies that the IdP metadata adheres to the saml2int spec
     sequence:
       - CheckSaml2IntMetaData
-    profiles: 
+    profiles:
       - saml2int
     sp: basic
-    
+
+  IDP-AuthnRedirect-no_nid:
+    tc_id: websso-01
+    desc: AuthnRequest no specified nameID format
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: ''
+    sp: basic
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+
+  IDP-AuthnRedirect-nid_unspecified:
+    tc_id: websso-02
+    desc: AuthnRequest with nameID format 'unspecified'
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified
+    sp: basic
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+
   IDP-AuthnPost-nid_transient:
     tc_id: websso-03   # idp-auth-post-02
     desc: Basic SAML2 AuthnRequest using Redirectbinding and transient NameID format; Response binding HTTP-POST
@@ -28,7 +69,7 @@ Flows:
     sp: basic
     assert:
       verify_saml_status:
-        saml_status: urn:oasis:names:tc:SAML:2.0:status:Fail
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
       verify_subject:
         name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
 
@@ -66,60 +107,6 @@ Flows:
     assert:
       verify_subject:
         name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
-
-  IDP-AuthnRedirect-nid_transient:
-    tc_id: websso-03  # idp-auth-re-01
-    desc: AuthnRequest with transient nameID format
-    profiles: 
-      - saml2int
-    sequence:
-      - AuthnRedirectRequest:
-          add_post_condition:
-              http_response:
-                  status_code:
-                    - 200
-                    - 302
-                    - 303
-          set_request_args:
-            name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
-    sp: basic
-    assert:
-      verify_subject:
-        name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
-
-  IDP-AuthnRedirect-nid_unspecified:
-    tc_id: websso-01  # idp-auth-re-04
-    desc: AuthnRequest with unspecified nameID format
-    profiles: 
-      - saml2int
-    sequence:
-      - AuthnRedirectRequest:
-          add_post_condition:
-              http_response:
-                  status_code:
-                    - 200
-                    - 302
-                    - 303
-          set_request_args:
-            name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified
-    sp: basic
-    
-  IDP-AuthnRedirect-no_nid:
-    tc_id: websso-01  #idp-auth-re-03
-    desc: AuthnRequest no specified nameID format
-    profiles: 
-      - saml2int
-    sequence:
-      - AuthnRedirectRequest:
-          add_post_condition:
-              http_response:
-                  status_code:
-                    - 200
-                    - 302
-                    - 303
-          set_request_args:
-            name_id.format: ''
-    sp: basic
 
   IDP-AuthnRedirect-verify:
     tc_id: net-01

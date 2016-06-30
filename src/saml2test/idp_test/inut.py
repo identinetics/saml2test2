@@ -24,6 +24,7 @@ def get_test_info(session, test_id):
 
 
 class WebIO(IO):
+    """ Create HTML responses for the web test interface """
     def __init__(self, conf=None, flows=None, profile='',
                  profile_handler=None, desc=None,
                  lookup=None, cache=None, environ=None,
