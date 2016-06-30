@@ -1,7 +1,7 @@
 PORT = 8087
 METADATA = [
     {'metadata': [('../tt_metadata.xml',)], 'class': 'saml2.mdstore.MetaDataFile'}]
-BASE = 'http://localhost:8087'
+BASE = 'http://localhost:8087/'
 #BASE = 'http://samltest.fed-lab.org/'
 CONFIG = {
     'basic': {
