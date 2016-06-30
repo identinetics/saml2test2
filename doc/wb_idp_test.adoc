@@ -24,7 +24,7 @@ assigns an ID to each file to be independent of the actual file name.
 |===
 |ID|Name in example|Contents
 |TD-BASE-CONFIG|td_base_conf.py|pysaml2-style entity configuration for the test driver
-|TD-COMBOS|td_combos.yaml|defines combinations of the testdriver's base entity configuration to support tests depending on different metadata
+|TD-COMBOS|td_combinations.yaml|defines combinations of the testdriver's base entity configuration to support tests depending on different metadata
 |TT-METADATA|tt_metadata.xml|TT_METADATA|Metadata aggregate that needs to contain the test target's entityID (imported)
 |===
 
