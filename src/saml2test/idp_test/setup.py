@@ -33,12 +33,13 @@ from saml2.saml import factory as saml_message_factory
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from saml2test import operation
 
+from saml2test import configloader
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 __author__ = 'roland'
 
 logger = logging.getLogger("")
-
 
 def load_flows(fdef, flow_spec, use):
     cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
@@ -107,6 +108,15 @@ def setup(use='cl', cargs=None):
 
     sys.path.insert(0, '.')
     CONF = importlib.import_module(conf['samlconf'])
+
+
+    loader = configloader.ConfigLoader()
+    try:
+        CONF = loader.conf_CONF()
+    except configloader.ConfigFileNotReadable as e:
+        configloader.exit_on_mandatory_config_file(e)
+
+    #CONF = loader.load_file(conf['samlconf'] + ".py", 'configuration')
     spconf = copy.deepcopy(CONF.CONFIG)
     acnf = list(spconf.values())[0]
     mds = metadata.load(True, acnf, CONF.METADATA, 'sp')

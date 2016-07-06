@@ -1,325 +1,326 @@
-PORT = 8087
-METADATA = [
-    {'metadata': [('../tt_metadata.xml',)], 'class': 'saml2.mdstore.MetaDataFile'}]
-BASE = 'http://localhost:8087/'
-#BASE = 'http://samltest.fed-lab.org/'
-CONFIG = {
-    'acs-post': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'Basic SP',
-        'entityid': BASE + 'basic/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/post', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                         '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    'acs-redirect': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'Basic SP',
-        'entityid': BASE + 'basic/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                         '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    'acs-artifact': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'Basic SP',
-        'entityid': BASE + 'basic/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/artifact', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                         '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    'acs-ecp': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'Basic SP',
-        'entityid': BASE + 'basic/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'ecp', 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                         '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    'coco': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'CoCo SP',
-        'entity_category': [
-            'http://www.geant.net/uri/dataprotection-code-of-conduct/v1'],
-        'entityid': BASE + 'coco/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [(
-                        BASE + 'disco',
-                        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                        '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]},
-                'name': 'Code of Conduct SP',
-                'optional_attributes': ['displayName',
-                                        'schacHomeOrganization'],
-                'required_attributes': [
-                    'eduPersonPrincipalName',
-                    'eduPersonScopedAffiliation',
-                    'mail']}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    're_eu': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'RE & EU',
-        'entity_category': [
-            'http://www.swamid.se/category/research-and-education',
-            'http://www.swamid.se/category/eu-adequate-protection'],
-        'entityid': BASE + 're_eu/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [(
-                        BASE + 'disco',
-                        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                        '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    're_hei': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'RE & HEI',
-        'entity_category': [
-            'http://www.swamid.se/category/research-and-education',
-            'http://www.swamid.se/category/hei-service'],
-        'entityid': BASE + 're_hei/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [(
-                        BASE + 'disco',
-                        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                        '-protocol')],
-                    'single_logout_service': [(
-                        BASE + 'slo',
-                        'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    're_nren': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'RE & NREN',
-        'entity_category': [
-            'http://www.swamid.se/category/research-and-education',
-            'http://www.swamid.se/category/nren-service'],
-        'entityid': BASE + 're_nren/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [(
-                        BASE + 'disco',
-                        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                        '-protocol')],
-                    'single_logout_service': [(
-                        BASE + 'slo',
-                        'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    're_nren_hei': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'RE & NREN & HEI',
-        'entity_category': [
-            'http://www.swamid.se/category/sfs-1993-1153',
-            'http://www.swamid.se/category/research-and-education',
-            'http://www.swamid.se/category/hei-service'],
-        'entityid': BASE + 're_nren_hei/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form':
-            'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                         '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    're_nren_sfs': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'RE & NREN & SFS',
-        'entity_category': [
-            'http://www.swamid.se/category/sfs-1993-1153',
-            'http://www.swamid.se/category/research-and-education',
-            'http://www.swamid.se/category/nren-service'],
-        'entityid': BASE + 're_nren_sfs/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form':
-            'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                                            'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                                               'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    'required': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'Required Attributes SP',
-        'entityid': BASE + 'required/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]},
-                'name': 'SP that requires attributes',
-                'optional_attributes': ['displayName',
-                                        'schacHomeOrganization'],
-                'required_attributes': [
-                    'eduPersonPrincipalName',
-                    'eduPersonScopedAffiliation',
-                    'mail']}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'},
-    'rs': {
-        'cert_file': '../../pki/mycert.pem',
-        'description': 'RS SP',
-        'entity_category': [
-            'http://refeds.org/category/research-and-scholarship'],
-        'entityid': BASE + 'rs/sp.xml',
-        'key_file': '../../pki/mykey.pem',
-        'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-        'service': {
-            'sp': {
-                'endpoints': {
-                    'assertion_consumer_service': [
-                        (BASE + 'acs/redirect',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
-                        (BASE + 'acs/post',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
-                        (BASE + 'acs/artifact',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
-                        (BASE + 'ecp',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
-                    'discovery_response': [
-                        (BASE + 'disco',
-                         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
-                         '-protocol')],
-                    'single_logout_service': [
-                        (BASE + 'slo',
-                         'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
-        'xmlsec_binary': '/usr/bin/xmlsec1'}}
+class Config(object):
+    def __init__(self):
+        self.PORT = 8087
+        self.METADATA = [
+            {'metadata': [('../tt_metadata.xml',)], 'class': 'saml2.mdstore.MetaDataFile'}]
+        self.BASE = 'http://localhost:8087/'
+        self.CONFIG = {
+            'acs-post': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'Basic SP',
+                'entityid': self.BASE + 'basic/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/post', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                 '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            'acs-redirect': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'Basic SP',
+                'entityid': self.BASE + 'basic/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                 '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            'acs-artifact': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'Basic SP',
+                'entityid': self.BASE + 'basic/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/artifact', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                 '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            'acs-ecp': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'Basic SP',
+                'entityid': self.BASE + 'basic/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'ecp', 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                 '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            'coco': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'CoCo SP',
+                'entity_category': [
+                    'http://www.geant.net/uri/dataprotection-code-of-conduct/v1'],
+                'entityid': self.BASE + 'coco/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [(
+                                self.BASE + 'disco',
+                                'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]},
+                        'name': 'Code of Conduct SP',
+                        'optional_attributes': ['displayName',
+                                                'schacHomeOrganization'],
+                        'required_attributes': [
+                            'eduPersonPrincipalName',
+                            'eduPersonScopedAffiliation',
+                            'mail']}},
+                },
+            're_eu': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'RE & EU',
+                'entity_category': [
+                    'http://www.swamid.se/category/research-and-education',
+                    'http://www.swamid.se/category/eu-adequate-protection'],
+                'entityid': self.BASE + 're_eu/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [(
+                                self.BASE + 'disco',
+                                'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            're_hei': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'RE & HEI',
+                'entity_category': [
+                    'http://www.swamid.se/category/research-and-education',
+                    'http://www.swamid.se/category/hei-service'],
+                'entityid': self.BASE + 're_hei/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [(
+                                self.BASE + 'disco',
+                                'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                '-protocol')],
+                            'single_logout_service': [(
+                                self.BASE + 'slo',
+                                'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            're_nren': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'RE & NREN',
+                'entity_category': [
+                    'http://www.swamid.se/category/research-and-education',
+                    'http://www.swamid.se/category/nren-service'],
+                'entityid': self.BASE + 're_nren/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [(
+                                self.BASE + 'disco',
+                                'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                '-protocol')],
+                            'single_logout_service': [(
+                                self.BASE + 'slo',
+                                'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            're_nren_hei': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'RE & NREN & HEI',
+                'entity_category': [
+                    'http://www.swamid.se/category/sfs-1993-1153',
+                    'http://www.swamid.se/category/research-and-education',
+                    'http://www.swamid.se/category/hei-service'],
+                'entityid': self.BASE + 're_nren_hei/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form':
+                    'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                 '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            're_nren_sfs': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'RE & NREN & SFS',
+                'entity_category': [
+                    'http://www.swamid.se/category/sfs-1993-1153',
+                    'http://www.swamid.se/category/research-and-education',
+                    'http://www.swamid.se/category/nren-service'],
+                'entityid': self.BASE + 're_nren_sfs/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form':
+                    'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                                    'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                                       'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                },
+            'required': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'Required Attributes SP',
+                'entityid': self.BASE + 'required/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]},
+                        'name': 'SP that requires attributes',
+                        'optional_attributes': ['displayName',
+                                                'schacHomeOrganization'],
+                        'required_attributes': [
+                            'eduPersonPrincipalName',
+                            'eduPersonScopedAffiliation',
+                            'mail']}},
+                },
+            'rs': {
+                'cert_file': '../../pki/mycert.pem',
+                'description': 'RS SP',
+                'entity_category': [
+                    'http://refeds.org/category/research-and-scholarship'],
+                'entityid': self.BASE + 'rs/sp.xml',
+                'key_file': '../../pki/mykey.pem',
+                'name_form': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                'service': {
+                    'sp': {
+                        'endpoints': {
+                            'assertion_consumer_service': [
+                                (self.BASE + 'acs/redirect',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                                (self.BASE + 'acs/post',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                                (self.BASE + 'acs/artifact',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'),
+                                (self.BASE + 'ecp',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS')],
+                            'discovery_response': [
+                                (self.BASE + 'disco',
+                                 'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery'
+                                 '-protocol')],
+                            'single_logout_service': [
+                                (self.BASE + 'slo',
+                                 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
+                }}
