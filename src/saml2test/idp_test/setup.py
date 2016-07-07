@@ -84,7 +84,7 @@ def setup(use='cl', cargs=None):
         parser.add_argument(dest="config")
         cargs = parser.parse_args()
 
-    fdef = {'Flows': {}, 'Order': [], 'Desc': {}}
+    flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
 
 
     loader = configloader.ConfigLoader()
@@ -93,43 +93,48 @@ def setup(use='cl', cargs=None):
     except configloader.ConfigFileNotReadable as e:
         configloader.exit_on_mandatory_config_file(e)
 
-    try:
-        with open(cargs.toolconf, 'r') as fd:
-            conf = yaml.safe_load(fd)
-    except FileNotFoundError as e:
-        raise Exception('unable to open tool configuration file: cwd=' + os.getcwd() + ', ' + str(e))
-    try:
-        for yf in conf['flows']:
-            fdef = load_flows(fdef, yf, use)
-    except KeyError:
-        pass # TODO: is it really OK not to have any flows?
+    #try:
+    #    with open(cargs.toolconf, 'r') as fd:
+    #        conf = yaml.safe_load(fd)
+    #except FileNotFoundError as e:
+    #    raise Exception('unable to open tool configuration file: cwd=' + os.getcwd() + ', ' + str(e))
+    #try:
+    #    for yf in conf['flows']:
+    #        fdef = load_flows(fdef, yf, use)
+    #except KeyError:
+    #    pass # TODO: is it really OK not to have any flows?
+
+    for flow_file in CONF.FLOWS:
+        flow_definitions = load_flows(flow_definitions, flow_file, use)
 
     # Filter flows based on profile
     keep = []
-    for key, val in fdef['Flows'].items():
-        for p in conf['profile']:
+    for key, val in flow_definitions['Flows'].items():
+        for p in CONF.FLOWS_PROFILES:
             if p in val['profiles']:
                 keep.append(key)
 
-    for key in list(fdef['Flows'].keys()):
+    for key in list(flow_definitions['Flows'].keys()):
         if key not in keep:
-            del fdef['Flows'][key]
+            del flow_definitions['Flows'][key]
 
     spconf = copy.deepcopy(CONF.CONFIG)
     acnf = list(spconf.values())[0]
     mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
 
-    if arg('log_name', cargs, conf):
-        setup_logger(logger, cargs.log_name)
-    elif arg('testid', cargs, conf):
-        setup_logger(logger, "{}.log".format(cargs.testid))
-    else:
-        setup_logger(logger)
+    #if arg('log_name', cargs, conf):
+    #    setup_logger(logger, cargs.log_name)
+    #elif arg('testid', cargs, conf):
+    #    setup_logger(logger, "{}.log".format(cargs.testid))
+    #else:
+    #    setup_logger(logger)
+    setup_logger(logger)
 
     ch = []
     try:
-        c_handler = conf['content_handler']
-    except KeyError:
+        #Todo
+        c_handler = CONF.CONTENT_HANDLER
+    except AttributeError:
         comhandler = None
     else:
         for item in c_handler:
@@ -143,9 +148,9 @@ def setup(use='cl', cargs=None):
     staticfiles_path = staticfiles.__path__[0] + os.sep
 
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
-              "flows": fdef['Flows'], "order": fdef['Order'],
-              "desc": fdef['Desc'], 'metadata': mds,
-              "profile": conf['profile'], "msg_factory": saml_message_factory,
+              "flows": flow_definitions['Flows'], "order": flow_definitions['Order'],
+              "desc": flow_definitions['Desc'], 'metadata': mds,
+              "profile": CONF.FLOWS_PROFILES, "msg_factory": saml_message_factory,
               "check_factory": get_check, "profile_handler": ProfileHandler,
               "cache": {},
               'map_prof': map_prof, 'make_entity': make_entity,
