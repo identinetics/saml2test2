@@ -15,8 +15,8 @@ samlconf: conf
 # Do not validate TLS certificates (Note: signature validation is configured in pysaml2 config)
 insecure: true
 
-# http resources
-static: /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/site/static
+# http resources (gone)
+#static: /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/site/static
 
-# mako templates. specify the parent folder of the folder named 'html' or 'templates' container
-template_root: /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/wb/
+# mako templates. specify the parent folder of the folder named 'html' or 'templates' container (gone)
+# template_root: /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/wb/

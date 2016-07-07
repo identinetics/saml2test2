@@ -50,4 +50,5 @@ setup(
     scripts=["script/build_sp_conf.py", "script/mk_multi_metadata.py",
              "script/idp_test.py"],
     zip_safe=False,
+    include_package_data=True,
 )

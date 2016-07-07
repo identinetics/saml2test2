@@ -34,6 +34,8 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from saml2test import operation
 
 from saml2test import configloader
+from saml2test.webserver import staticfiles, mako
+
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -141,6 +143,9 @@ def setup(use='cl', cargs=None):
                     ch.append(robobrowser.factory(**kwargs))
         comhandler = ComHandler(ch)
 
+    mako_path = mako.__path__[0] + os.sep
+    staticfiles_path = staticfiles.__path__[0] + os.sep
+
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
               "flows": fdef['Flows'], "order": fdef['Order'],
               "desc": fdef['Desc'], 'metadata': mds,
@@ -150,7 +155,7 @@ def setup(use='cl', cargs=None):
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
               'com_handler': comhandler, 'conf': CONF, 'response_cls': Response,
-              'template_root': conf['template_root'], 'static': conf['static']}
+              'template_root': mako_path, 'static': staticfiles_path }
 
     try:
         kwargs["entity_id"] = conf['entity_id']
