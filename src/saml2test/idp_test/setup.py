@@ -86,6 +86,13 @@ def setup(use='cl', cargs=None):
 
     fdef = {'Flows': {}, 'Order': [], 'Desc': {}}
 
+
+    loader = configloader.ConfigLoader()
+    try:
+        CONF = loader.conf_CONF()
+    except configloader.ConfigFileNotReadable as e:
+        configloader.exit_on_mandatory_config_file(e)
+
     try:
         with open(cargs.toolconf, 'r') as fd:
             conf = yaml.safe_load(fd)
@@ -108,15 +115,6 @@ def setup(use='cl', cargs=None):
         if key not in keep:
             del fdef['Flows'][key]
 
-    sys.path.insert(0, '.')
-
-    loader = configloader.ConfigLoader()
-    try:
-        CONF = loader.conf_CONF()
-    except configloader.ConfigFileNotReadable as e:
-        configloader.exit_on_mandatory_config_file(e)
-
-    #CONF = loader.load_file(conf['samlconf'] + ".py", 'configuration')
     spconf = copy.deepcopy(CONF.CONFIG)
     acnf = list(spconf.values())[0]
     mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
