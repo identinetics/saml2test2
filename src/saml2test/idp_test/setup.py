@@ -109,8 +109,6 @@ def setup(use='cl', cargs=None):
             del fdef['Flows'][key]
 
     sys.path.insert(0, '.')
-    CONF = importlib.import_module(conf['samlconf'])
-
 
     loader = configloader.ConfigLoader()
     try:
@@ -158,11 +156,10 @@ def setup(use='cl', cargs=None):
               'template_root': mako_path, 'static': staticfiles_path }
 
     try:
-        kwargs["entity_id"] = conf['entity_id']
+        kwargs["entity_id"] = CONF.ENTITY_ID
     except KeyError:
         kwargs['disco_srv'] = conf['disco_srv']
 
-    if cargs.insecure or conf['insecure']:
-        kwargs["insecure"] = True
+    kwargs["insecure"] = CONF.DO_NOT_VALIDATE_TLS
 
     return cargs, kwargs

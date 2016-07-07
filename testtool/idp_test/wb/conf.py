@@ -1,5 +1,14 @@
 class Config(object):
     def __init__(self):
+        self.ENTITY_ID = "https://idp1.test.wpv.portalverbund.at/idp/shibboleth"
+        self.FLOWS = [
+            "home/war/git/saml2test2_join/saml2test2/testtool/idp_test/flows.yaml",
+            ]
+        self.FLOWS_PROFILES = [
+            "saml2int",
+        ]
+        # Do not validate TLS certificates (Note: signature validation is configured in pysaml2 config)
+        self.DO_NOT_VALIDATE_TLS = True
         self.PORT = 8087
         self.METADATA = [
             {'metadata': [('../tt_metadata.xml',)], 'class': 'saml2.mdstore.MetaDataFile'}]
