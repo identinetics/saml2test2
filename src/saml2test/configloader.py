@@ -4,6 +4,7 @@ creating a new configuration style, and then refactoring the source
 """
 
 import logging
+import os
 from importlib.machinery import SourceFileLoader
 
 from saml2test.cloader import Loader
@@ -11,7 +12,7 @@ from saml2test.cloader import Loader
 # works only with python 3.4 now, rest could be implemented
 # see http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
 
-CONFIG_FILE_NAME = 'conf.py'
+CONFIG_FILE_NAME = 'config.py'
 CONFIG_CLASS_NAME = 'Config'
 
 logger = logging.getLogger("")
@@ -27,9 +28,9 @@ class ConfigFileNotReadable(EnvironmentError):
 
 class ConfigLoader(object):
 
-    def __init__(self):
-        self.test_config_file_read(CONFIG_FILE_NAME)
-        self.config_files = [CONFIG_FILE_NAME]
+    def __init__(self, path):
+        self.test_config_file_read(path + os.path.sep + CONFIG_FILE_NAME)
+        self.config_files = [path + os.path.sep + CONFIG_FILE_NAME]
         self._load()
 
     def _load(self):
