@@ -26,6 +26,7 @@ from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
 from saml2test.request import ServiceProviderRequestHandlerError
 from saml2test.session import SessionHandler
+from saml2test.checkedconfig import ConfigError
 
 SERVER_LOG_FOLDER = "server_log"
 if not os.path.isdir(SERVER_LOG_FOLDER):
@@ -248,7 +249,14 @@ if __name__ == '__main__':
     from cherrypy import wsgiserver
     from mako.lookup import TemplateLookup
 
-    cargs, kwargs = setup('wb')
+    try:
+        cargs, kwargs = setup('wb')
+    except ConfigError as e:
+        str = e.errors_as_string()
+        print ('Error: {}'.format(e))
+        print (str)
+        os.sys.exit(-1)
+
 
     session_opts = {
         'session.type': 'memory',
