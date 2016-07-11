@@ -29,6 +29,7 @@ class ConfigFileNotReadable(EnvironmentError):
 class ConfigLoader(object):
 
     def __init__(self, path):
+        self.config_path = path
         self.test_config_file_read(path + os.path.sep + CONFIG_FILE_NAME)
         self.config_files = [path + os.path.sep + CONFIG_FILE_NAME]
         self._load()
@@ -36,6 +37,7 @@ class ConfigLoader(object):
     def _load(self):
         self.config_class_loader = Loader(CONFIG_CLASS_NAME, CONFIG_CLASS_NAME, self.config_files)
         self.config_class = self.config_class_loader.get_class()
+        setattr(self.config_class,'CONFIG_SRC_DIR', self.config_path)
 
     def conf_CONF(self):
         conf = self.config_class()
