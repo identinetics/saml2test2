@@ -250,12 +250,18 @@ if __name__ == '__main__':
     from mako.lookup import TemplateLookup
 
     try:
-        cargs, kwargs = setup('wb')
+        cargs, kwargs, CONF = setup('wb')
     except ConfigError as e:
-        str = e.errors_as_string()
+        str = e.error_details_as_string()
         print ('Error: {}'.format(e))
-        print (str)
+        if (str):
+            print (str)
         os.sys.exit(-1)
+
+    if CONF.config_infos:
+        print ('Please notice these infos:')
+        for info in CONF.config_infos:
+            print (info)
 
 
     session_opts = {

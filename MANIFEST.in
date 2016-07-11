@@ -1,1 +1,2 @@
 recursive-include  src/saml2test/webserver *.*
+recursive-include  src/saml2test/exampleconfig *.*

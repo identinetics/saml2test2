@@ -165,4 +165,4 @@ def setup(use='cl', cargs=None):
 
     kwargs["insecure"] = CONF.DO_NOT_VALIDATE_TLS
 
-    return cargs, kwargs
+    return cargs, kwargs, CONF
