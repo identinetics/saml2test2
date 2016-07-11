@@ -9,15 +9,22 @@ from saml2test.exampleconfig.config import Config as ExampleConfig
 class Config(ExampleConfig):
 
     """
+    The self.BASE parameter is special, because it is already used in the Superclass config(). To override it, you
+    define a method param_base returning the value for self.BASE
+    """
+    def param_base(self):
+        return 'http://localhost:8087/'
+
+    """
     Parameters are set in the config() method. Make sure you call the Superclass config() first to have the
     defaults initialized.
     """
     def config(self):
         super(Config, self).config()
 
-        self.ENTITY_ID = "https://idp1.test.wpv.portalverbund.at/idp/shibboleth"
         self.PORT = 8087
-        self.BASE = 'http://localhost:8087/'
+        self.ENTITY_ID = "https://idp1.test.wpv.portalverbund.at/idp/shibboleth"
+
 
         self.CONFIG.update(
             {
