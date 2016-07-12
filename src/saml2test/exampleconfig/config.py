@@ -13,7 +13,7 @@ class Config(BaseConfig):
         self.DO_NOT_VALIDATE_TLS = True
         self.PORT = 8087
         self.METADATA = [
-            {'metadata': [('saml2test/exampleconfig/tt_metadata.xml',)], 'class': 'saml2.mdstore.MetaDataFile'}]
+            {'metadata': [('http://mdfeed.test.wpv.portalverbund.at/split/idp1TestWpvPortalverbundAt_idpShibboleth.xml',)], 'class': 'saml2.mdstore.MetaDataExtern'}]
         self.BASE = 'http://localhost:8087/'
         self.CONFIG = {}
         self.CONFIG.update({
