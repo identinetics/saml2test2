@@ -32,6 +32,9 @@ class VerifySamlStatus(Check):
     cid = 'verify_saml_status'
 
     def _func(self, conv=None, output=None):
+
+        res = TestResult(self.cid)
+
         if "saml_status" in self._kwargs:
             status_value = self._kwargs["saml_status"]
         else:
@@ -39,23 +42,46 @@ class VerifySamlStatus(Check):
             res.status = CRITICAL
             return res
 
-        keyword = status_value.split(':')[-1]
+        if status_value == 'urn:oasis:names:tc:SAML:2.0:status:Success':
+            """
+            We can't check for success because saml2 testing doesn't tell. So we assume, that if we don't see any
+            status errors it should have been a success.
+            """
+            we_had_errors = False
+            for test_exception in STATUSCODE2EXCEPTION:
+                try:
+                    exception = conv.events.get_message(EV_PROTOCOL_RESPONSE, test_exception)
+                except Exception as e:
+                    pass
+                else:
+                    we_had_errors = True
 
-        try:
-            status_error_exception = STATUSCODE2EXCEPTION[status_value]
-        except Exception as e:
-            res.message = "Configuration Error: Can not find a definition for {} ".format(status_value)
-            res.status = CRITICAL
+            if we_had_errors:
+                res.message = "ERROR: {}: {}".format(exception.__class__.__name__, str(exception))
+                res.status = CRITICAL
+            else:
+                res.message = "No errors reported, assuming {}".format(status_value)
             return res
 
-        try:
-            exception = conv.events.get_message(EV_PROTOCOL_RESPONSE, status_error_exception)
-        except Exception as e:
-            res.message = "Status error {} was not found ".format(status_value)
-            res.status = CRITICAL
-            return res
+        else:
 
-        res = TestResult(self.cid)
+
+            try:
+                status_error_exception = STATUSCODE2EXCEPTION[status_value]
+            except Exception as e:
+                res.message = "Configuration Error: Can not find a definition for {} ".format(status_value)
+                res.status = CRITICAL
+                return res
+
+            try:
+                exception = conv.events.get_message(EV_PROTOCOL_RESPONSE, status_error_exception)
+            except Exception as e:
+                res.message = "Status error {} was not found ".format(status_value)
+                res.status = CRITICAL
+                return res
+
+            res.message = "{}: {}".format(exception.__class__.__name__, str(exception))
+
 
         return res
 

@@ -53,9 +53,12 @@ def do_next(tester, resp, sh, inut, filename, path):
         tester.handle_response(resp, {})
         # store_test_state(sh, sh['conv'].events)  this does actually nothing?
         res.store_test_info()
+
     except StatusError as err:
-        msg = str(err)
+        # store event to be found in assertion test
         tester.conv.events.store(EV_PROTOCOL_RESPONSE,err)
+        msg = "{}: {}".format(err.__class__.__name__, str(err))
+
     except ServiceProviderRequestHandlerError as err:
         msg = str(err)
         tester.conv.events.store(EV_CONDITION, State('SP Error', ERROR,  message=msg),
