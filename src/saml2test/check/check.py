@@ -19,7 +19,7 @@ from saml2.s_utils import UnsupportedBinding
 from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
 from saml2.samlp import AuthnRequest
 from saml2.samlp import STATUS_SUCCESS
-from saml2.response import AuthnResponse
+from saml2.response import AuthnResponse, STATUSCODE2EXCEPTION
 from saml2.sigver import verify_redirect_signature
 
 
@@ -32,8 +32,32 @@ class VerifySamlStatus(Check):
     cid = 'verify_saml_status'
 
     def _func(self, conv=None, output=None):
-        response = conv.events.get_message(EV_PROTOCOL_RESPONSE,
-                                           AuthnResponse).response
+        if "saml_status" in self._kwargs:
+            status_value = self._kwargs["saml_status"]
+        else:
+            res.message = "Configuration Error: Missing saml_status in assert verify_saml_status"
+            res.status = CRITICAL
+            return res
+
+        keyword = status_value.split(':')[-1]
+
+        try:
+            status_error_exception = STATUSCODE2EXCEPTION[status_value]
+        except Exception as e:
+            res.message = "Configuration Error: Can not find a definition for {} ".format(status_value)
+            res.status = CRITICAL
+            return res
+
+        try:
+            exception = conv.events.get_message(EV_PROTOCOL_RESPONSE, status_error_exception)
+        except Exception as e:
+            res.message = "Status error {} was not found ".format(status_value)
+            res.status = CRITICAL
+            return res
+
+        res = TestResult(self.cid)
+
+        return res
 
         if "saml_status" in self._kwargs:
             status_value = self._kwargs["saml_status"]

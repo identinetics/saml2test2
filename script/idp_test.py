@@ -7,7 +7,7 @@
 import os
 import logging
 from aatest.check import State, OK, ERROR
-from aatest.events import EV_CONDITION
+from aatest.events import EV_CONDITION, EV_PROTOCOL_RESPONSE
 from aatest.result import Result
 from aatest.verify import Verify
 from future.backports.urllib.parse import quote_plus
@@ -21,6 +21,8 @@ from saml2.httputil import BadRequest
 from saml2.httputil import get_post
 from saml2.httputil import Response
 from saml2.httputil import ServiceError
+from saml2.response import StatusError
+
 from saml2test.idp_test.inut import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
@@ -51,6 +53,9 @@ def do_next(tester, resp, sh, inut, filename, path):
         tester.handle_response(resp, {})
         # store_test_state(sh, sh['conv'].events)  this does actually nothing?
         res.store_test_info()
+    except StatusError as err:
+        msg = str(err)
+        tester.conv.events.store(EV_PROTOCOL_RESPONSE,err)
     except ServiceProviderRequestHandlerError as err:
         msg = str(err)
         tester.conv.events.store(EV_CONDITION, State('SP Error', ERROR,  message=msg),
@@ -84,11 +89,8 @@ def do_next(tester, resp, sh, inut, filename, path):
             try:
                 _ver.test_sequence(tester.conv.flow["assert"])
             except Exception as err:
-                """
-                TODO: we can't have assertions on things that
-                already failed. But elsewhere, this should give an error too, i think?
-                """
-                pass
+                msg = "ERROR Assertion verification had gone wrong."
+                raise Exception(msg)
 
         store_test_state(sh, sh['conv'].events)
         res.store_test_info()
