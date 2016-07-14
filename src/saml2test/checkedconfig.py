@@ -61,21 +61,27 @@ class CheckedConfig(object):
         while md_ix < len(self.METADATA):
             md = self.METADATA[md_ix]
             file_list_ix = 0
-            while file_list_ix < len(self.METADATA[md_ix]['metadata']):
-                metadata_file = self.METADATA[md_ix]['metadata'][file_list_ix][0]
-                try:
-                    selected_metadata_file = self.test_file_read(metadata_file)
-                except ConfigFileNotReadable as e:
-                    self.config_errors.append(e)
-                else:
-                    if selected_metadata_file != metadata_file:
-                        self.config_infos.append('{} was found for {}'.format(selected_metadata_file, metadata_file))
-                        tuple_as_list = list(self.METADATA[md_ix]['metadata'][file_list_ix])
-                        tuple_as_list[0] = selected_metadata_file
-                        tuple_as_tuple = tuple(tuple_as_list)
-                        self.METADATA[md_ix]['metadata'][file_list_ix] = tuple_as_tuple
+            klass = self.METADATA[md_ix]['class']
+            if klass == 'saml2.mdstore.MetaDataFile':
+                while file_list_ix < len(self.METADATA[md_ix]['metadata']):
+                    metadata_file = self.METADATA[md_ix]['metadata'][file_list_ix][0]
+                    try:
+                        selected_metadata_file = self.test_file_read(metadata_file)
+                    except ConfigFileNotReadable as e:
+                        self.config_errors.append(e)
+                    else:
+                        if selected_metadata_file != metadata_file:
+                            self.config_infos.append('{} was found for {}'.format(selected_metadata_file, metadata_file))
+                            tuple_as_list = list(self.METADATA[md_ix]['metadata'][file_list_ix])
+                            tuple_as_list[0] = selected_metadata_file
+                            tuple_as_tuple = tuple(tuple_as_list)
+                            self.METADATA[md_ix]['metadata'][file_list_ix] = tuple_as_tuple
 
-                file_list_ix = file_list_ix + 1
+                    file_list_ix = file_list_ix + 1
+            else:
+                # do nothing if klass is not a file
+                pass
+
             md_ix = md_ix + 1
 
         return
@@ -99,11 +105,22 @@ class CheckedConfig(object):
 
     def test_file_read(self, filep):
         try:
+
             open(filep)
             return filep
+
         except FileNotFoundError as e:
+
+            test_filep = os.path.join( self.CONFIG_SRC_DIR, filep )
+            try:
+                open (test_filep)
+            except (FileNotFoundError, NotADirectoryError):
+                pass
+            else:
+                return test_filep
+
             for try_dir in sys.path:
-                test_filep = try_dir + os.path.sep + filep
+                test_filep = os.path.join( try_dir , filep )
                 try:
                     open (test_filep)
                 except ( FileNotFoundError, NotADirectoryError ):
