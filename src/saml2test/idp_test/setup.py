@@ -79,15 +79,13 @@ def setup(use='cl', cargs=None):
         parser = argparse.ArgumentParser()
         parser.add_argument('-k', dest="insecure", action='store_true')
         parser.add_argument('-x', dest="break", action='store_true')
-        parser.add_argument('-t', dest="testid")
-        parser.add_argument('-T', dest='toolconf')   # TODO: is this really optional?
-        parser.add_argument(dest="config")
+        parser.add_argument(dest="configdir")
         cargs = parser.parse_args()
 
     flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
 
 
-    loader = configloader.ConfigLoader()
+    loader = configloader.ConfigLoader(cargs.configdir)
     try:
         CONF = loader.conf_CONF()
     except configloader.ConfigFileNotReadable as e:
@@ -122,12 +120,6 @@ def setup(use='cl', cargs=None):
     acnf = list(spconf.values())[0]
     mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
 
-    #if arg('log_name', cargs, conf):
-    #    setup_logger(logger, cargs.log_name)
-    #elif arg('testid', cargs, conf):
-    #    setup_logger(logger, "{}.log".format(cargs.testid))
-    #else:
-    #    setup_logger(logger)
     setup_logger(logger)
 
     ch = []

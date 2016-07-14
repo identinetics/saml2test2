@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xrd="http://docs.oasis-open.org/ns/xri/xrd-1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" xmlns:pyff="http://pyff.io/NS" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Name="/etc/pyff/md_aggregator" ID="OurFederationSignedMetadata_" validUntil="2016-07-20T13:46:57Z" cacheDuration="PT4H">
+    <md:EntityDescriptor xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport" entityID="https://idp1.test.wpv.portalverbund.at/idp/shibboleth">
+    <md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+         <md:Extensions>
+            <alg:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+            <alg:SigningMethod MinKeySize="256" MaxKeySize="511" Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"/>
+            <alg:SigningMethod MinKeySize="2048" MaxKeySize="4096" Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+            <!-- blacklisted: http://www.w3.org/2000/09/xmldsig#rsa-sha1 -->
+            <mdui:UIInfo>
+                <mdui:DisplayName xml:lang="en">Test IdP 1</mdui:DisplayName>
+                <mdui:Description xml:lang="en">Test IdP 1</mdui:Description>
+            </mdui:UIInfo>
+            <mdui:DiscoHints>
+                <mdui:DomainHint>https://idp1.test.wpv.portalverbund.at/</mdui:DomainHint>
+                <mdui:IPHint>81.217.70.0/8</mdui:IPHint>
+            </mdui:DiscoHints>
+        </md:Extensions>
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+MIIDZjCCAk6gAwIBAgIVAN63M7mMfFBjceFtOvDl6SQ8xfhxMA0GCSqGSIb3DQEB
+CwUAMCkxJzAlBgNVBAMMHmlkcDEudGVzdC53cHYucG9ydGFsdmVyYnVuZC5hdDAe
+Fw0xNjAzMDkwOTI1MTFaFw0zNjAzMDkwOTI1MTFaMCkxJzAlBgNVBAMMHmlkcDEu
+dGVzdC53cHYucG9ydGFsdmVyYnVuZC5hdDCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAJtpaS4L0KA8D3r3PDGSgbBtqu4OxRX1hxU+7jVZLEIISsIpfHuW
+jOhtY2tuHpegiyiUgQrV+mIDooGuxmr3hxFQJgdhvIjFWkHO2SxqUFPpwoHDs1UV
+1O3WUGEWejypcalMRWhbNSwiG54PwXTyHdcgYVjDqirL8dy6iioV0W/G7xI66acz
+yipf8yoiaJINaRiM85PMB98FY+Xtsr+1M5zysWWx0HsC7ruAnwXUS5X3AIhBVu1H
+j8CmhCxCdaJHheSr5gmxa96SrLL2FmNU5fhu2Md09R6k3ccbS05AzdzfrTONkDVo
+5H71DeiA83DiykESucqykm88up2Q8sLPe1UCAwEAAaOBhDCBgTAdBgNVHQ4EFgQU
+KD55ApKpSoKOF8pqqebtGX7gy2UwYAYDVR0RBFkwV4IeaWRwMS50ZXN0Lndwdi5w
+b3J0YWx2ZXJidW5kLmF0hjVodHRwczovL2lkcDEudGVzdC53cHYucG9ydGFsdmVy
+YnVuZC5hdC9pZHAvc2hpYmJvbGV0aDANBgkqhkiG9w0BAQsFAAOCAQEAb8zD0oK8
+/vc6JZuvgXDthq474fLaZELopee5wQXQntXkYAkmrpdVvAiOmBKeAJZpBsIbIR6p
+WKOavaj1yqBM3xXV7CjXFhihmpEaCvHO1aYA6w1Pn7+XtAHn4p5pd7u9JZYyYBpM
+QF9HmEl57tvXdZb0Y7eNYud9KGSuNciUFSOvDN8lKr6EVBP+Ym4NSVbKslHXq4kw
+meYD0No3y96EoNIMHX6ZmgfA5h8d5Uyuf3q6MHQE4XgNrLyJvCObrcSIeVTidvoJ
+/TnbeBVWyB0F8l9ycTfyQyz08XHWAsrgjgQY/wrOC5GXMWDJjfWdBIhga2qChykE
+9cTCyixjghpGSA==
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+MIIDZTCCAk2gAwIBAgIUTMaFU3su5h9xBQJPalVsbOR7DBMwDQYJKoZIhvcNAQEL
+BQAwKTEnMCUGA1UEAwweaWRwMS50ZXN0Lndwdi5wb3J0YWx2ZXJidW5kLmF0MB4X
+DTE2MDMwOTA5MjUwOVoXDTM2MDMwOTA5MjUwOVowKTEnMCUGA1UEAwweaWRwMS50
+ZXN0Lndwdi5wb3J0YWx2ZXJidW5kLmF0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+MIIBCgKCAQEA6PRWhTPw8jDeIs0KNHxFe8vBTKgGJLtTBGz/I2qbHtvzQjDwy7l7
+t3VhC4bvCHU6q6LhprG1yblTs4mZOxNG3FgBSXfnlAz7LYaTksXGHLLrtcrfODJg
+gg+SDac6OaOLlN7HuvVIZMeGenQOL82av5FEB1SWl8YEnWx+jWBf4OiHGtUGqJ9F
+bFfvmMRUtBEil0xT53gBkNWcZ3T0IvRioVcCrr+mcoxHNH3JHuGmQ8xqZWZ27Iod
+dTILEl5MXH9Kc5M3Pc/75lXCDahQsqG1d40gzE3mEG2OmtlTb+FfJB4sXsH3y3pf
+O9hTNo/B7PfCv9wNdFk1moa8J2SLX/xCwwIDAQABo4GEMIGBMB0GA1UdDgQWBBQj
+GS9lXXW7CryQS/nTjb9mywvR8zBgBgNVHREEWTBXgh5pZHAxLnRlc3Qud3B2LnBv
+cnRhbHZlcmJ1bmQuYXSGNWh0dHBzOi8vaWRwMS50ZXN0Lndwdi5wb3J0YWx2ZXJi
+dW5kLmF0L2lkcC9zaGliYm9sZXRoMA0GCSqGSIb3DQEBCwUAA4IBAQDI0+RooeNe
+Mr5lYOTE55kRFy8iWyx3szlsUw5qm27w8Mmu+lRBMPpwkDnDQ+TyUApOiU41i4EZ
+XNwywEnwQGCFp8R42Is2ECYqM6OIpW+Cf5HwsjwkeEj+Vr5o29mEAzzQFBVINF0F
+NPEV4xBdyRWI06E4B1FXW5zdn9sB8qIWwO3TpxvMQbQhvgQXva0OryhhmJ8qIaHq
+aR3owMZvu6lD7R7ei5z6NEgOlKcbp6K+B79nv8yz8DNvV303f9fn3V29TDVm8O5b
+vAFOND6uWGNOG1xQJMeyV8hZMDFWfjp4Q5y/P1JIa7WVwv8dSTuwHbehCp85eKIv
+xkaknQcJ1Ksh
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:KeyDescriptor use="encryption">
+            <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+MIIDZjCCAk6gAwIBAgIVALbYcCosw/d/7xolDLM6db8FUQ/AMA0GCSqGSIb3DQEB
+CwUAMCkxJzAlBgNVBAMMHmlkcDEudGVzdC53cHYucG9ydGFsdmVyYnVuZC5hdDAe
+Fw0xNjAzMDkwOTI1MTBaFw0zNjAzMDkwOTI1MTBaMCkxJzAlBgNVBAMMHmlkcDEu
+dGVzdC53cHYucG9ydGFsdmVyYnVuZC5hdDCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAMa4SR/cBRG8S8c/BndYvzcP6ArKj0hZ7TIbRFQ7z3blfJY8boAy
+sPEcxKfB6NJp1lza3090L9rcKoEhM2lBeuUWjpL0pzcP9kNPU2T9s4ubgz/oXg6h
+K+XHI6z/Lt7RuV1gsJ+3OSxbt1kkWKsEl6/bd9qu+GHeXwaZjcrwZCJ5MgeypVuw
+fUw1HSCVtYGkkDl/VY91iH3z2QyN7cxGQ3lSghy6/A1HXoAK5If4hsgJL+fuaGWm
+k6M/tt7G1SSreIaLB6fflCL8uc2y6/SyN1KKyTwo1lkeWKRpzcQr9lHXeX8U8S4/
+G7xtg3oNZP0d+SJNzPTbuEVr9ZONzZRKhAsCAwEAAaOBhDCBgTAdBgNVHQ4EFgQU
+FoOzwiTGMmsqLd64Y8CUaywWuR0wYAYDVR0RBFkwV4IeaWRwMS50ZXN0Lndwdi5w
+b3J0YWx2ZXJidW5kLmF0hjVodHRwczovL2lkcDEudGVzdC53cHYucG9ydGFsdmVy
+YnVuZC5hdC9pZHAvc2hpYmJvbGV0aDANBgkqhkiG9w0BAQsFAAOCAQEAguamnFjA
+fbIGFU6QNl3ZTBW0OakGfdbLEhYQ2xefFBEUf1LFtWua1qL6gzxI4PkPAY9NT+17
+ABN0TY+87MrAzTNHvI/V51W4hCI+0Z7H6zGS/zaJzRsxtL2E8Yi+vue3dkz/o9g8
+Jq01XbTMcSukcmNcPkzEH+65apAwyNP3nv09G7cmBUrgEi0gb3dQ1IvZFQVua4H6
+h0vYbUtWi7r/Epb+6AeCreEF8lW2qxjIEkYocxVt7AoEHLCbUmswBADrYhN+WrNE
+WcCNbuQhJZTQZMk2CtUtu7SAEkxTT9jkRq6PVF0jfaGVuN7vErE4zsFyT6FKIHYd
+GD7P2VPtNN4/2w==
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/Redirect/SLO"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/POST/SLO"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/POST-SimpleSign/SLO"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://idp1.test.wpv.portalverbund.at:9443/idp/profile/SAML2/SOAP/SLO"/>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+        <md:SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/Shibboleth/SSO"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/POST/SSO"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/POST-SimpleSign/SSO"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/Redirect/SSO"/>
+    </md:IDPSSODescriptor>
+    <md:Organization>
+        <md:OrganizationName xml:lang="en">Austria Pro / AK WPV</md:OrganizationName>
+        <md:OrganizationDisplayName xml:lang="en">Austria Pro / AK WPV</md:OrganizationDisplayName>
+        <md:OrganizationURL xml:lang="en">https://www.wirtschaftsportalverbund.at/</md:OrganizationURL>
+    </md:Organization>
+    <md:ContactPerson contactType="technical">
+        <md:GivenName>Rainer</md:GivenName>
+        <md:SurName>Hörbe</md:SurName>
+    </md:ContactPerson>
+</md:EntityDescriptor>
+
+</md:EntitiesDescriptor>
