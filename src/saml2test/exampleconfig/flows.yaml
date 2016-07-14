@@ -110,10 +110,30 @@ Flows:
                     - 303
     sp: acs-post
 
-  IDP-AuthnRedirect-nid_email:
-    tc_id: websso-06
-    desc: AuthnRequest/redirect, email nameID format
+  IDP-AuthnRedirect-cause_InvalidNameidformat:
+    tc_id: websso-00
+    desc:  Test the Test Tool to report an error
     profiles: 
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:incorrectFormat
+    sp: acs-post
+    assert:
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:v
+
+  IDP-AuthnRedirect-nid_email:
+    tc_id: websso-06b
+    desc: AuthnRequest/redirect, email nameID format
+    profiles:
       - saml2int
     sequence:
       - AuthnRedirectRequest:
@@ -127,8 +147,8 @@ Flows:
             name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
     sp: acs-post
     assert:
-      verify_subject:
-        name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:InvalidNameIDPolicy
 
   IDP-AuthnPost-nid_email:
     tc_id: websso-07
