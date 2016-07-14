@@ -7,7 +7,7 @@
 import os
 import logging
 from aatest.check import State, OK, ERROR
-from aatest.events import EV_CONDITION, EV_PROTOCOL_RESPONSE
+from aatest.events import EV_CONDITION, EV_PROTOCOL_RESPONSE, NoSuchEvent
 from aatest.result import Result
 from aatest.verify import Verify
 from future.backports.urllib.parse import quote_plus
@@ -91,6 +91,9 @@ def do_next(tester, resp, sh, inut, filename, path):
             _ver = Verify(tester.chk_factory, tester.conv)
             try:
                 _ver.test_sequence(tester.conv.flow["assert"])
+            except NoSuchEvent as err:
+                tester.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
+                                         sender='idp_test')
             except Exception as err:
                 msg = "ERROR Assertion verification had gone wrong."
                 raise Exception(msg)
