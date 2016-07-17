@@ -21,9 +21,9 @@ In the second case, there is following process involved:
 
 . The test tool is started, e.g. listening on https://testserv.fed-lab.org
 . the test runner is started. It will in turn
-.. establish a test session calling https://testserv.fed-lab.org/init-session
+.. establish a control session calling https://testserv.fed-lab.org/control-session/init
 .. fork a subprocess, starting "firefox -url https://testserv.fed-lab.org/<flowname>?testsession=1234568"
-.. wait for the test session to complete: GET https://testserv.fed-lab.org/wait?testsession=1234568"
+.. wait for the test session to complete: GET https://testserv.fed-lab.org/control-session/wait?sessionid=1234568"
 . The test tool will execute the test flow, talking to either the firefox or handling
   http-exchanges with the internal robobrowser.
 . once the flow is complete, it will return the result as application/json to the test runner (as reponse
