@@ -12,6 +12,7 @@ class Config(BaseConfig):
         # Do not validate TLS certificates (Note: signature validation is configured in pysaml2 config)
         self.DO_NOT_VALIDATE_TLS = True
         self.PORT = 8087
+        self.CONTENT_HANDLER = [{'robobrowser':{'interactions':'interaction.py'}}]
         self.METADATA = [
             {'metadata': [('http://mdfeed.test.wpv.portalverbund.at/split/idp1TestWpvPortalverbundAt_idpShibboleth.xml',)], 'class': 'saml2.mdstore.MetaDataExtern'}]
         self.BASE = 'http://localhost:8087/'
@@ -337,3 +338,64 @@ class Config(BaseConfig):
                                  'urn:oasis:names:tc:SAML:2.0:bindings:SOAP')]}}},
                 }}
         )
+        self.IDP_BASE = "https://idp1.test.wpv.portalverbund.at:8443"
+        self.CONTENT_HANDLER_TRIGGER = [
+            "%s/foo/bar"  % self.IDP_BASE
+        ]
+        self.CONTENT_HANDLER_INTERACTION = [
+            {
+                "matches": {
+                    "url": "%s/sso/redirect" % self.IDP_BASE,
+                    "title": 'IDP test login'
+                },
+                "page-type": "login",
+                "control": {
+                    "type": "form",
+                    "set": {"login": "roland", "password": "dianakra"}
+                }
+            }, {
+                "matches": {
+                    "url": "%s/sso/post" % self.IDP_BASE,
+                    "title": 'IDP test login'
+                },
+                "page-type": "login",
+                "control": {
+                    "type": "form",
+                    "set": {"login": "roland", "password": "dianakra"}
+                }
+            },
+            {
+                "matches": {
+                    "url": "%s/sso/redirect" % self.IDP_BASE,
+                    "title": "SAML 2.0 POST"
+                },
+                "page-type": "other",
+                "control": {
+                    "index": 0,
+                    "type": "form",
+                }
+            },
+            {
+                "matches": {
+                    "url": "%s/sso/post" % self.IDP_BASE,
+                    "title": "SAML 2.0 POST"
+                },
+                "page-type": "other",
+                "control": {
+                    "index": 0,
+                    "type": "form",
+                    "set": {}
+                }
+            },
+            {
+                "matches": {
+                    "url": "%s/slo/soap" % self.IDP_BASE,
+                    #"title": "SAML 2.0 POST"
+                },
+                "page-type": "other",
+                "control": {
+                    "type": "response",
+                    "pick": {"form": {"action": "%s/sls" % self.IDP_BASE}}
+                }
+            },
+]

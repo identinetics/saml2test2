@@ -10,7 +10,7 @@ import sys
 import yaml
 
 from aatest.common import setup_logger
-from aatest.comhandler import ComHandler
+from saml2test.comhandler import ComHandler
 from saml2.httputil import Response
 
 from saml2test import metadata
@@ -35,7 +35,7 @@ from saml2test import operation
 
 from saml2test import configloader
 from saml2test.webserver import staticfiles, mako
-
+from saml2test.robobrowser import robobrowser
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -132,9 +132,12 @@ def setup(use='cl', cargs=None):
         for item in c_handler:
             for key, kwargs in item.items():  # should only be one
                 if key == 'robobrowser':
-                    from aatest.contenthandler import robobrowser
-                    ch.append(robobrowser.factory(**kwargs))
+                    rb = robobrowser.factory(CONF.CONTENT_HANDLER_INTERACTION)
+                    ch.append(rb)
         comhandler = ComHandler(ch)
+        if not CONF.DO_NOT_VALIDATE_TLS:
+            comhandler.verify_ssl = False
+        comhandler.set_triggers( CONF.CONTENT_HANDLER_TRIGGER )
 
     mako_path = mako.__path__[0] + os.sep
     staticfiles_path = staticfiles.__path__[0] + os.sep
