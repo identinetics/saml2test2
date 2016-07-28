@@ -136,8 +136,17 @@ class Tester(tool.Tester):
 
                         com_handler_response = self.com_handler(oper_response)
 
-                        if com_handler_response.status == HandlerResponse.STATUS_NOT_HANDLED:
+                        if com_handler_response.status == HandlerResponse.STATUS_NOT_TRIGGERED:
                             return oper_response
+
+                        if com_handler_response.status == HandlerResponse.STATUS_ERROR:
+                            msg = 'Com handler failed to process interaction'
+                            self.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
+                                                    sender='wb_tool')
+                            store_test_state(self.sh, self.conv.events)
+                            res.store_test_info()
+                            res.print_info(test_id, self.fname(test_id))
+                            return False
 
                         if com_handler_response.content_processed:
                             oper_response = _oper.handle_response(self.get_response(oper_response))

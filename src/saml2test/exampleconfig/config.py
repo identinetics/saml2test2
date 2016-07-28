@@ -339,19 +339,20 @@ class Config(BaseConfig):
                 }}
         )
         self.IDP_BASE = "https://idp1.test.wpv.portalverbund.at:8443"
-        self.CONTENT_HANDLER_TRIGGER = [
-            "%s/foo/bar"  % self.IDP_BASE
-        ]
+        self.CONTENT_HANDLER_TRIGGER = {
+            'IDP-AuthnRedirect-nid_unspecified': "%s/idp/profile/SAML2/Redirect/SSO"  % self.IDP_BASE,
+        }
         self.CONTENT_HANDLER_INTERACTION = [
             {
                 "matches": {
-                    "url": "%s/sso/redirect" % self.IDP_BASE,
-                    "title": 'IDP test login'
+                    #'https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/Redirect/SSO;jsessionid=13vsywxlwklk31c5yoe9ejgo6j'
+                    "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
+                    "title": 'Web Login Service (Test)'
                 },
                 "page-type": "login",
                 "control": {
                     "type": "form",
-                    "set": {"login": "roland", "password": "dianakra"}
+                    "set": {"j_username": "tester@testinetics.at", "j_password": "test", "_eventId_proceed":''}
                 }
             }, {
                 "matches": {
