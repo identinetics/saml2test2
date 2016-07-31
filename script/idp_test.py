@@ -30,6 +30,11 @@ from saml2test.request import ServiceProviderRequestHandlerError
 from saml2test.session import SessionHandler
 from saml2test.checkedconfig import ConfigError
 
+from saml2.entity import Entity
+from saml2 import BINDING_HTTP_POST
+from saml2 import samlp
+
+import threading
 SERVER_LOG_FOLDER = "server_log"
 if not os.path.isdir(SERVER_LOG_FOLDER):
     os.makedirs(SERVER_LOG_FOLDER)
@@ -105,9 +110,35 @@ def do_next(tester, resp, sh, inut, filename, path):
     return html_page
 
 
+class SessionStore(list):
+    def append(self, element):
+        key = hex(id(element['session_info']))
+        for e in self:
+            e_key = hex(id(e['session_info']))
+            if e_key == key:
+                return
+        list.append(self,element)
+
+    def get_session_by_conv_id(self,conv_id):
+        for e in self:
+            try:
+                session_info = e['session_info']
+                conv = session_info['conv']
+                id = conv.id
+                if id == conv_id:
+                    return session_info
+            except KeyError as e:
+                # entries without these infos are broken (unfinished). Ignoring.
+                pass
+        return None
+
+
 class Application(object):
     def __init__(self, webenv):
+        from saml2test.threadsafe import Counter as ThreadSafeCounter
         self.webenv = webenv
+        self.id_counter = ThreadSafeCounter()
+        self.session_store = SessionStore()
 
     def _static(self, path):
         if path in ["robots.txt", 'favicon.ico']:
@@ -125,12 +156,17 @@ class Application(object):
         path = environ.get('PATH_INFO', '').lstrip('/')
         LOGGER.info("path: %s" % path)
 
+
+
         try:
             sh = session['session_info']
         except KeyError:
             sh = SessionHandler(**self.webenv)
+            session_id = self.id_counter.next()
             sh.session_init()
             session['session_info'] = sh
+
+        self.session_store.append(session)
 
         inut = WebIO(session=sh, **self.webenv)
         inut.environ = environ
@@ -209,8 +245,48 @@ class Application(object):
         elif path == "acs/post":
             qs = get_post(environ).decode('utf8')
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
-            filename = self.webenv['profile_handler'](sh).log_path(
-                sh['conv'].test_id)
+
+            try:
+                test_id = sh['conv'].test_id
+            except KeyError as err:
+                test_id = None
+
+            if not test_id:
+                """
+                In other words: we've been contacted by robobrowser and are in a different environment now, than the
+                code expects us to be. .... Hopefully, trickery and recreating of the environment will lead mostly
+                to more intended effects than unintended ones.
+
+                This is unfinished business: You can add other bindings here, to expand what RB can be used to test.
+                """
+                try:
+                    txt = resp['SAMLResponse']
+                    xmlstr = Entity.unravel(txt, BINDING_HTTP_POST)
+                except Exception as e:
+                    msg = 'Decoding not supported in the SP'
+                    raise Exception(msg)
+
+                rsp = samlp.any_response_from_string(xmlstr)
+                original_request_id = rsp.in_response_to
+                requester_session = self.session_store.get_session_by_conv_id(original_request_id)
+
+                # recreating the environment. lets hope it is somewhat reentrant resistant
+                sh = requester_session
+                inut = WebIO(session=sh, **self.webenv)
+                inut.environ = environ
+                inut.start_response = start_response
+
+                tester = Tester(inut, sh, **self.webenv)
+
+
+
+
+
+            profile_handler = self.webenv['profile_handler']
+            _sh = profile_handler(sh)
+            #filename = self.webenv['profile_handler'](sh).log_path(test_id)
+            #_sh.session.update({'conv': 'foozbar'})
+            filename = _sh.log_path(test_id)
 
             html_page = do_next(tester, resp, sh, inut, filename, path)
             return html_page

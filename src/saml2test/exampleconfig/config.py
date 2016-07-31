@@ -340,7 +340,7 @@ class Config(BaseConfig):
         )
         self.IDP_BASE = "https://idp1.test.wpv.portalverbund.at:8443"
         self.CONTENT_HANDLER_TRIGGER = {
-            'IDP-AuthnRedirect-nid_unspecified': "%s/idp/profile/SAML2/Redirect/SSO"  % self.IDP_BASE,
+            'IDP-AuthnRedirect-nid_unspecified': [ "%s/idp/profile/SAML2/Redirect/SSO"  % self.IDP_BASE ],
         }
         self.CONTENT_HANDLER_INTERACTION = [
             {
@@ -354,7 +354,21 @@ class Config(BaseConfig):
                     "type": "form",
                     "set": {"j_username": "tester@testinetics.at", "j_password": "test", "_eventId_proceed":''}
                 }
-            }, {
+            },
+            {
+                "matches": {
+                    "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
+                    "content": "you must press the Continue button"
+                },
+                "page-type": "other",
+                "control": {
+                    "index": 0,
+                    "type": "form",
+                    "set": {}
+                }
+
+            },
+            {
                 "matches": {
                     "url": "%s/sso/post" % self.IDP_BASE,
                     "title": 'IDP test login'

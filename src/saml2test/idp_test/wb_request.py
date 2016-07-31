@@ -86,6 +86,7 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
+        self.conv.identify_with(request_id)
         self.conv.events.store(EV_PROTOCOL_REQUEST, request,
                                sender=self.__class__)
         self.conv.events.store(EV_REQUEST_ARGS, self.req_args,

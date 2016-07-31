@@ -148,14 +148,20 @@ class Tester(tool.Tester):
                             res.print_info(test_id, self.fname(test_id))
                             return False
 
-                        if com_handler_response.content_processed:
-                            oper_response = _oper.handle_response(self.get_response(oper_response))
 
-                            if oper_response:
-                                return self.inut.respond(oper_response)
+                        if False:
+                            """
+                            Basically, now idea what this code whas expected to do ?
+                            """
 
-                        else:
-                            return oper_response
+                            if com_handler_response.content_processed:
+                                oper_response = _oper.handle_response(self.get_response(oper_response))
+
+                                if oper_response:
+                                    return self.inut.respond(oper_response)
+
+                            else:
+                                return oper_response
 
 
 
