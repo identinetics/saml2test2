@@ -135,9 +135,7 @@ class SessionStore(list):
 
 class Application(object):
     def __init__(self, webenv):
-        from saml2test.threadsafe import Counter as ThreadSafeCounter
         self.webenv = webenv
-        self.id_counter = ThreadSafeCounter()
         self.session_store = SessionStore()
 
     def _static(self, path):
