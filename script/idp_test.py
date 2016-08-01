@@ -160,7 +160,6 @@ class Application(object):
             sh = session['session_info']
         except KeyError:
             sh = SessionHandler(**self.webenv)
-            session_id = self.id_counter.next()
             sh.session_init()
             session['session_info'] = sh
 
