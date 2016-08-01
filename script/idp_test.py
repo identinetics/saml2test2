@@ -35,7 +35,7 @@ from saml2 import BINDING_HTTP_POST
 from saml2 import samlp
 
 import threading
-SERVER_LOG_FOLDER = "server_log"
+SERVER_LOG_FOLDER = os.path.abspath("server_log")
 if not os.path.isdir(SERVER_LOG_FOLDER):
     os.makedirs(SERVER_LOG_FOLDER)
 
