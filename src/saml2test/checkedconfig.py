@@ -22,15 +22,21 @@ class ConfigError(Exception):
         return r
 
 class CheckedConfig(object):
-
     def __init__(self):
         self.config_errors = []
         self.config_infos = []
+        self.set_initial_parameters()
         self.config()
         self.run_checks()
         if self.config_errors:
             raise ConfigError(self.config_errors)
         return
+
+    def param_base(self):
+        return 'http://localhost:8087/'
+
+    def set_initial_parameters(self):
+        self.BASE = self.param_base()
 
     def run_checks(self):
         self.check_flows()

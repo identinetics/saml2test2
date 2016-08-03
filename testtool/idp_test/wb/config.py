@@ -20,7 +20,7 @@ class Config(ExampleConfig):
     defaults initialized.
     """
     def config(self):
-        super(Config, self).config()
+        super(Config,self).config()
 
         self.PORT = 8087
         self.ENTITY_ID = "https://idp1.test.wpv.portalverbund.at/idp/shibboleth"
