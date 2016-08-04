@@ -1,6 +1,9 @@
 from saml2test.baseconfig import BaseConfig
 
 class Config(BaseConfig):
+    def param_base(self):
+        return 'http://an.ivalid.host:8087/'
+
     def config(self):
         self.ENTITY_ID = "https://idp1.test.wpv.portalverbund.at/idp/shibboleth"
         self.FLOWS = [
@@ -15,7 +18,6 @@ class Config(BaseConfig):
         self.CONTENT_HANDLER = [{'robobrowser':{'interactions':'interaction.py'}}]
         self.METADATA = [
             {'metadata': [('http://mdfeed.test.wpv.portalverbund.at/split/idp1TestWpvPortalverbundAt_idpShibboleth.xml',)], 'class': 'saml2.mdstore.MetaDataExtern'}]
-        self.BASE = 'http://localhost:8087/'
         self.CONFIG = {}
         self.CONFIG.update({
             'acs-post': {
