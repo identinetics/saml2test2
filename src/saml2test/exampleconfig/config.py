@@ -15,7 +15,6 @@ class Config(BaseConfig):
         # Do not validate TLS certificates (Note: signature validation is configured in pysaml2 config)
         self.DO_NOT_VALIDATE_TLS = True
         self.PORT = 8087
-        self.CONTENT_HANDLER = [{'robobrowser':{'interactions':'interaction.py'}}]
         self.METADATA = [
             {'metadata': [('http://mdfeed.test.wpv.portalverbund.at/split/idp1TestWpvPortalverbundAt_idpShibboleth.xml',)], 'class': 'saml2.mdstore.MetaDataExtern'}]
         self.CONFIG = {}
@@ -342,6 +341,7 @@ class Config(BaseConfig):
         )
         self.IDP_BASE = "https://idp1.test.wpv.portalverbund.at:8443"
         self.CONTENT_HANDLER_TRIGGER = {
+            #Trigger the robobrowser content handler on these combinations of test-id and url(s)
             'IDP-AuthnRedirect-nid_unspecified': [ "%s/idp/profile/SAML2/Redirect/SSO"  % self.IDP_BASE ],
         }
         self.CONTENT_HANDLER_INTERACTION = [
@@ -351,9 +351,11 @@ class Config(BaseConfig):
                     "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
                     "title": 'Web Login Service (Test)'
                 },
+                # TODO: Documentation about parameter page-type
                 "page-type": "login",
                 "control": {
                     "type": "form",
+                    # Parameters to be set on submitting the form
                     "set": {"j_username": "tester@testinetics.at", "j_password": "test", "_eventId_proceed":''}
                 }
             },
@@ -366,6 +368,7 @@ class Config(BaseConfig):
                 "control": {
                     "index": 0,
                     "type": "form",
+                    # Empty set: No parameters, just press the submit button
                     "set": {}
                 }
 
