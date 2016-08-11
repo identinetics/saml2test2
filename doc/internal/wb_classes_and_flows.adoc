@@ -1,0 +1,29 @@
+# Class, Object and Flow Documentation for idp_test (web)
+
+## General flow
+
+[width="100%", cols=".<5a,.<50a"]
+|===
+|idp_test::
+main()
+|
+setup()  # load
+Application.application()
+
+|idp_test::
+Application.application()
+|
+SessionHandler.session_init()  # keeping the list of flows +
+inut = WebIO+ # rendering HTML responses for the test shell +
+tester = Tester +
+#URL dispatcher: reset (discard session handler), start test flow, report results
+
+||
+||
+||
+||
+||
+||
+||
+||
+|===

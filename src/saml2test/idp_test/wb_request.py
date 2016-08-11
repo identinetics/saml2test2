@@ -20,6 +20,7 @@ from saml2.httputil import Response
 from saml2.httputil import SeeOther
 from saml2.httputil import ServiceError
 from saml2.s_utils import sid
+from saml2.response import StatusError
 
 from saml2test.message import ProtocolMessage
 from saml2test.request import RedirectRequest
@@ -28,6 +29,7 @@ from saml2test.request import PostRequest
 from saml2test.request import SoapRequest
 from saml2test.request import map_arguments
 from saml2test.request import ServiceProviderRequestHandlerError
+
 
 from saml2test.check.check import VerifyFunctionality
 from saml2test.message import LogOutRequest
@@ -84,6 +86,7 @@ class AuthnRequest(ProtocolMessage):
         request_id, request = self.entity.create_authn_request(
             destination=destination, **self.req_args)
 
+        self.conv.identify_with(request_id)
         self.conv.events.store(EV_PROTOCOL_REQUEST, request,
                                sender=self.__class__)
         self.conv.events.store(EV_REQUEST_ARGS, self.req_args,
@@ -119,6 +122,8 @@ class AuthnRequest(ProtocolMessage):
             resp = _cli.parse_authn_request_response(
                 result['SAMLResponse'], self.req_args['response_binding'],
                 response_args["outstanding"])
+        except StatusError as e:
+            raise
         except Exception as e:
             message = "{}: {}".format(type(e).__name__, str(e))
             logger.error(message)

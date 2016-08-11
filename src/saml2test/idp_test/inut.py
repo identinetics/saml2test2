@@ -24,6 +24,7 @@ def get_test_info(session, test_id):
 
 
 class WebIO(IO):
+    """ Create HTML responses for the web test interface """
     def __init__(self, conf=None, flows=None, profile='',
                  profile_handler=None, desc=None,
                  lookup=None, cache=None, environ=None,
@@ -124,7 +125,7 @@ class WebIO(IO):
                 resp = Response("No saved logs")
                 return resp(self.environ, self.start_response)
 
-    def flow_list(self, filename=''):
+    def flow_list(self, filename='', tt_entityid=''):
         resp = Response(mako_template="flowlist.mako",
                         template_lookup=self.lookup,
                         headers=[])
@@ -135,7 +136,9 @@ class WebIO(IO):
             "test_info": list(self.session["test_info"].keys()),
             "base": self.conf.BASE,
             "headlines": self.desc,
-            "testresults": TEST_RESULTS
+            "testresults": TEST_RESULTS,
+            "tt_entityid": tt_entityid,
+            "tc_id_infobase": "https://identinetics.github.io/SAML-Testcases/index.html#"
         }
 
         return resp(self.environ, self.start_response, **argv)

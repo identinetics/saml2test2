@@ -2,16 +2,18 @@ import logging
 from aatest import tool, ConfigurationError
 from aatest import END_TAG
 from aatest import Trace
+from aatest import ConditionError
 from aatest import exception_trace
+from aatest.summation import store_test_state
 
 from aatest.check import State
 from aatest.check import OK
 from aatest.conversation import Conversation
-from aatest.events import EV_CONDITION
-from aatest.events import EV_RESPONSE
+from aatest.events import EV_CONDITION, EV_FAULT, EV_RESPONSE
 from aatest.result import safe_path, Result
 from aatest.session import Done
 from aatest.verify import Verify
+from aatest.comhandler import HandlerResponse
 
 from future.backports.urllib.parse import parse_qs
 
@@ -67,6 +69,138 @@ class Tester(tool.Tester):
             res.print_info(self.sh, test_id)
             return self.inut.err_response("run", err)
 
+    def run_flow(self, test_id, index=0, profiles=None, **kwargs):
+        logger.info("<=<=<=<=< %s >=>=>=>=>" % test_id)
+        _ss = self.sh
+        try:
+            _ss["node"].complete = False
+        except KeyError:
+            pass
+
+        self.conv.test_id = test_id
+        res = Result(self.sh, self.kwargs['profile_handler'])
+
+        if index >= len(self.conv.sequence):
+            return None
+
+        _oper = None
+        for item in self.conv.sequence[index:]:
+            if isinstance(item, tuple):
+                cls, funcs = item
+            else:
+                cls = item
+                funcs = {}
+
+            logger.info("<--<-- {} --- {} -->-->".format(index, cls))
+            self.conv.events.store('operation', cls, sender='run_flow')
+            try:
+                _oper = cls(conv=self.conv, inut=self.inut, sh=self.sh,
+                            profile=self.profile, test_id=test_id,
+                            funcs=funcs, check_factory=self.chk_factory,
+                            cache=self.cache)
+                # self.conv.operation = _oper
+                if profiles:
+                    profile_map = profiles.PROFILEMAP
+                else:
+                    profile_map = None
+                _oper.setup(profile_map)
+                oper_response = _oper()
+            except ConditionError:
+                store_test_state(self.sh, self.conv.events)
+                res.store_test_info()
+                res.print_info(test_id, self.fname(test_id))
+                return False
+            except Exception as err:
+                exception_trace('run_flow', err)
+                self.conv.events.store(EV_FAULT, err)
+                # self.sh["index"] = index
+                store_test_state(self.sh, self.conv.events)
+                res.store_test_info()
+                res.print_info(test_id, self.fname(test_id))
+                return False
+            else:
+                # *?*
+                #if isinstance(oper_response, self.response_cls):
+                #    return oper_response
+
+                if oper_response:
+                    if False:
+                        return oper_response
+
+                    if self.com_handler:
+
+                        self.com_handler.conv = self.conv
+                        #self.com_handler.auto_close_urls = self.my_endpoints()
+                        #if 'insecure' in kw_args:
+                        self.com_handler.verify_ssl = False
+
+                        com_handler_response = self.com_handler(oper_response)
+
+                        if com_handler_response.status == HandlerResponse.STATUS_NOT_TRIGGERED:
+                            return oper_response
+
+                        if com_handler_response.status == HandlerResponse.STATUS_ERROR:
+                            msg = 'Com handler failed to process interaction'
+                            self.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
+                                                    sender='wb_tool')
+                            store_test_state(self.sh, self.conv.events)
+                            res.store_test_info()
+                            res.print_info(test_id, self.fname(test_id))
+                            return False
+
+
+                        if False:
+                            """
+                            Basically, now idea what this code whas expected to do ?
+                            """
+
+                            if com_handler_response.content_processed:
+                                oper_response = _oper.handle_response(self.get_response(oper_response))
+
+                                if oper_response:
+                                    return self.inut.respond(oper_response)
+
+                            else:
+                                return oper_response
+
+
+
+            # should be done as late as possible, so all processing has been
+            # done
+            try:
+                _oper.post_tests()
+            except ConditionError:
+                store_test_state(self.sh, self.conv.events)
+                res.store_test_info()
+                res.print_info(test_id, self.fname(test_id))
+                return False
+
+            index += 1
+
+        _ss['index'] = self.conv.index = index
+
+        try:
+            if self.conv.flow["assert"]:
+                _ver = Verify(self.chk_factory, self.conv)
+                _ver.test_sequence(self.conv.flow["assert"])
+        except KeyError:
+            pass
+        except Exception as err:
+            logger.error(err)
+            raise
+
+        if isinstance(_oper, Done):
+            self.conv.events.store(EV_CONDITION, State('Done', OK),
+                                   sender='run_flow')
+            store_test_state(self.sh, self.conv.events)
+            res.store_test_info()
+            res.print_info(test_id, self.fname(test_id))
+        else:
+            store_test_state(self.sh, self.conv.events)
+            res.store_test_info()
+
+        return True
+
     def test_result(self):
         try:
             if self.conv.flow["tests"]:
@@ -103,7 +237,7 @@ class Tester(tool.Tester):
                 try:
                     p = self.sh["testid"].split('-')
                 except KeyError:
-                    return self.inut.flow_list(self.sh)
+                    return self.inut.flow_list(self.sh, tt_entityid=self.inut.kwargs['entity_id'])
                 else:
                     resp = Redirect("%sopresult#%s" % (self.inut.conf.BASE,
                                                        p[1]))

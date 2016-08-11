@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
+
 import copy
 import importlib
 import logging
 import argparse
+import os
 import requests
 import sys
 import yaml
 import os
 
 from aatest.common import setup_logger
-from aatest.comhandler import ComHandler
+from saml2test.comhandler import ComHandler
 from saml2.httputil import Response
 
 from saml2test import metadata
@@ -32,6 +34,10 @@ from saml2.saml import factory as saml_message_factory
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from saml2test import operation
 
+from saml2test import configloader
+from saml2test.webserver import staticfiles, mako
+from saml2test.robobrowser import robobrowser
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 TT_CONFIG_FILENAME = 'configuration.yaml'
@@ -42,24 +48,6 @@ TD_SP_CONFIG_METADATA_FILENAME = 'metadata_created.xml'
 __author__ = 'roland'
 
 logger = logging.getLogger("")
-
-class ConfigLoader:
-	# TODO: refactor me into the framework
-	def load_config(self, config_file):
-		self.test_config_file_read(config_file)
-		# works only with python 3.4, see http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path 	
-		from importlib.machinery import SourceFileLoader
-		configuration = SourceFileLoader("configuration", config_file).load_module()
-		configuration._source = config_file 
-		return configuration
-		
-	def test_config_file_read(self,config_file):
-		try:
-			open(config_file)
-		except Exception as e:
-			print ("Error accessing {}".format(config_file))
-			print ("Error {0}: {1}".format(e.errno, e.strerror) )
-			os._exit(-1)
 
 def load_flows(fdef, flow_spec, use):
     cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
@@ -95,7 +83,7 @@ def inject_configuration_base_path(CONF,path):
 	"""
 		inject the paths into the config to trick around the
 		limitation that the tools are designed to work from a
-		single working directory. 
+		single working directory.
 		files in metadata are a list of tuples? Why?
 	"""
 	new_md = []
@@ -110,112 +98,97 @@ def inject_configuration_base_path(CONF,path):
 		new_entry = {'metadata':new_files, 'class':md['class']}
 		new_md.append(new_entry)
 	CONF.METADATA = new_md
-	
+
 	for config in CONF.CONFIG.items():
 		config[1]['key_file'] = os.path.join(path, TD_SP_DIR, config[1]['key_file'])
 		config[1]['cert_file'] = os.path.join(path, TD_SP_DIR, config[1]['cert_file'])
 
-	return CONF	
+	return CONF
 
 def setup(use='cl', cargs=None):
     if cargs is None:
         parser = argparse.ArgumentParser()
         parser.add_argument('-k', dest="insecure", action='store_true')
         parser.add_argument('-x', dest="break", action='store_true')
-        parser.add_argument('-t', dest="testid")
-        parser.add_argument('-T', dest='toolconf')
         parser.add_argument(dest="configdir")
         cargs = parser.parse_args()
 
-    fdef = {'Flows': {}, 'Order': [], 'Desc': {}}
+    flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
 
-    if cargs.toolconf:
-        conf = yaml.safe_load(open(cargs.toolconf, 'r'))
-    else:
-        config_file = os.path.join(cargs.configdir, TT_CONFIG_FILENAME)
-        conf = yaml.safe_load(open(config_file, 'r'))
+    loader = configloader.ConfigLoader(cargs.configdir)
     try:
-        for yf in conf['flows']:
-            flows_file = os.path.join(cargs.configdir, yf)
-            fdef = load_flows(fdef, flows_file, use)
-    except KeyError:
-        pass
+        CONF = loader.conf_CONF()
+    except configloader.ConfigFileNotReadable as e:
+        configloader.exit_on_mandatory_config_file(e)
+
+    #try:
+    #    with open(cargs.toolconf, 'r') as fd:
+    #        conf = yaml.safe_load(fd)
+    #except FileNotFoundError as e:
+    #    raise Exception('unable to open tool configuration file: cwd=' + os.getcwd() + ', ' + str(e))
+    #try:
+    #    for yf in conf['flows']:
+    #        fdef = load_flows(fdef, yf, use)
+    #except KeyError:
+    #    pass # TODO: is it really OK not to have any flows?
+
+    for flow_file in CONF.FLOWS:
+        flow_definitions = load_flows(flow_definitions, flow_file, use)
 
     # Filter flows based on profile
     keep = []
-    for key, val in fdef['Flows'].items():
-        for p in conf['profile']:
+    for key, val in flow_definitions['Flows'].items():
+        for p in CONF.FLOWS_PROFILES:
             if p in val['profiles']:
                 keep.append(key)
 
-    for key in list(fdef['Flows'].keys()):
+    for key in list(flow_definitions['Flows'].keys()):
         if key not in keep:
-            del fdef['Flows'][key]
+            del flow_definitions['Flows'][key]
 
-    #sys.path.insert(0, '.')
-    #CONF = importlib.import_module(conf['samlconf'])
-    configuration_fp = os.path.join(cargs.configdir,TD_SP_DIR,TD_SP_CONFIG_FILENAME)
-    CONF = ConfigLoader().load_config(configuration_fp)
-    CONF = inject_configuration_base_path(CONF,cargs.configdir)
     spconf = copy.deepcopy(CONF.CONFIG)
     acnf = list(spconf.values())[0]
     mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
 
-    if arg('log_name', cargs, conf):
-        setup_logger(logger, cargs.log_name)
-    elif arg('testid', cargs, conf):
-        setup_logger(logger, "{}.log".format(cargs.testid))
-    else:
-        setup_logger(logger)
+    setup_logger(logger)
 
     ch = []
     try:
-        c_handler = conf['content_handler']
-    except KeyError:
+        #Todo
+        c_handler = CONF.CONTENT_HANDLER
+    except AttributeError:
         comhandler = None
     else:
         for item in c_handler:
             for key, kwargs in item.items():  # should only be one
                 if key == 'robobrowser':
-                    from aatest.contenthandler import robobrowser
-                    
-                    """
-                    	tricking around aatest just loading from cwd
-                    	TODO: Fixing in aatest
-                    """
-                    my_cwd = os.getcwd()
-                    os.chdir(cargs.configdir)
-                    ch.append(robobrowser.factory(**kwargs))
-                    os.chdir(my_cwd)
-                    
+                    rb = robobrowser.factory(CONF.CONTENT_HANDLER_INTERACTION)
+                    ch.append(rb)
+
         comhandler = ComHandler(ch)
+        if not CONF.DO_NOT_VALIDATE_TLS:
+            comhandler.verify_ssl = False
+        comhandler.set_triggers( CONF.CONTENT_HANDLER_TRIGGER )
+
+    mako_path = mako.__path__[0] + os.sep
+    staticfiles_path = staticfiles.__path__[0] + os.sep
 
     kwargs = {"base_url": copy.copy(CONF.BASE), 'spconf': spconf,
-              "flows": fdef['Flows'], "order": fdef['Order'],
-              "desc": fdef['Desc'], 'metadata': mds,
-              "profile": conf['profile'], "msg_factory": saml_message_factory,
+              "flows": flow_definitions['Flows'], "order": flow_definitions['Order'],
+              "desc": flow_definitions['Desc'], 'metadata': mds,
+              "profile": CONF.FLOWS_PROFILES, "msg_factory": saml_message_factory,
               "check_factory": get_check, "profile_handler": ProfileHandler,
               "cache": {},
               'map_prof': map_prof, 'make_entity': make_entity,
               'trace_cls': Trace, 'conv_args': {'entcat': collect_ec()},
-              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response}
+              'com_handler': comhandler, 'conf': CONF, 'response_cls': Response,
+              'template_root': mako_path, 'static': staticfiles_path }
 
     try:
-        kwargs["template_root"] = conf['template_root']
-    except KeyError:
-        pass
-
-    try:
-        kwargs["static"] = conf['static']
-    except KeyError:
-        pass
-
-    try:
-        kwargs["entity_id"] = conf['entity_id']
+        kwargs["entity_id"] = CONF.ENTITY_ID
     except KeyError:
         kwargs['disco_srv'] = conf['disco_srv']
 
-    if cargs.insecure or conf['insecure']:
-        kwargs["insecure"] = True
+    kwargs["insecure"] = CONF.DO_NOT_VALIDATE_TLS
 
-    return cargs, kwargs
+    return cargs, kwargs, CONF

@@ -10,7 +10,7 @@ import yaml
 
 __author__ = 'rolandh'
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser() # TODO: -i. -o and -b are not optional!
 parser.add_argument('-i', dest="input", default='conf.yaml')
 parser.add_argument('-o', dest="output", default='conf.py')
 parser.add_argument('-b', dest='base', default='base_conf')

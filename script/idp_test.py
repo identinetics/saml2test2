@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+#import sys
+#print('\n'.join(sys.path))
+
+
 import os
 import logging
-from aatest.check import State, OK
-from aatest.events import EV_CONDITION
+from aatest.check import State, OK, ERROR
+from aatest.events import EV_CONDITION, EV_PROTOCOL_RESPONSE, NoSuchEvent
 from aatest.result import Result
 from aatest.verify import Verify
 from future.backports.urllib.parse import quote_plus
@@ -11,17 +15,27 @@ from future.backports.urllib.parse import parse_qs
 
 from aatest.summation import store_test_state
 from aatest.session import Done
-from aatest.session import SessionHandler
+#from aatest.session import SessionHandler
 
 from saml2.httputil import BadRequest
 from saml2.httputil import get_post
 from saml2.httputil import Response
 from saml2.httputil import ServiceError
+from saml2.response import StatusError
+
 from saml2test.idp_test.inut import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
+from saml2test.request import ServiceProviderRequestHandlerError
+from saml2test.session import SessionHandler
+from saml2test.checkedconfig import ConfigError
 
-SERVER_LOG_FOLDER = "server_log"
+from saml2.entity import Entity
+from saml2 import BINDING_HTTP_POST
+from saml2 import samlp
+
+import threading
+SERVER_LOG_FOLDER = os.path.abspath("server_log")
 if not os.path.isdir(SERVER_LOG_FOLDER):
     os.makedirs(SERVER_LOG_FOLDER)
 
@@ -39,11 +53,21 @@ def pick_args(args, kwargs):
 
 def do_next(tester, resp, sh, inut, filename, path):
     tester.conv = tester.sh['conv']
-    tester.handle_response(resp, {})
-
-    store_test_state(sh, sh['conv'].events)
     res = Result(tester.sh, tester.kwargs['profile_handler'])
-    res.store_test_info()
+    try:
+        tester.handle_response(resp, {})
+        # store_test_state(sh, sh['conv'].events)  this does actually nothing?
+        res.store_test_info()
+
+    except StatusError as err:
+        # store event to be found in assertion test
+        tester.conv.events.store(EV_PROTOCOL_RESPONSE,err)
+        msg = "{}: {}".format(err.__class__.__name__, str(err))
+
+    except ServiceProviderRequestHandlerError as err:
+        msg = str(err)
+        tester.conv.events.store(EV_CONDITION, State('SP Error', ERROR,  message=msg),
+                                 sender='do_next')
 
     tester.conv.index += 1
     lix = len(tester.conv.sequence)
@@ -70,17 +94,49 @@ def do_next(tester, resp, sh, inut, filename, path):
 
         if 'assert' in tester.conv.flow:
             _ver = Verify(tester.chk_factory, tester.conv)
-            _ver.test_sequence(tester.conv.flow["assert"])
+            try:
+                _ver.test_sequence(tester.conv.flow["assert"])
+            except NoSuchEvent as err:
+                tester.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
+                                         sender='idp_test')
+            except Exception as err:
+                msg = "ERROR Assertion verification had gone wrong."
+                raise Exception(msg)
 
         store_test_state(sh, sh['conv'].events)
         res.store_test_info()
 
-    return inut.flow_list(filename)
+    html_page = inut.flow_list(filename)
+    return html_page
+
+
+class SessionStore(list):
+    def append(self, element):
+        key = hex(id(element['session_info']))
+        for e in self:
+            e_key = hex(id(e['session_info']))
+            if e_key == key:
+                return
+        list.append(self,element)
+
+    def get_session_by_conv_id(self,conv_id):
+        for e in self:
+            try:
+                session_info = e['session_info']
+                conv = session_info['conv']
+                id = conv.id
+                if id == conv_id:
+                    return session_info
+            except KeyError as e:
+                # entries without these infos are broken (unfinished). Ignoring.
+                pass
+        return None
 
 
 class Application(object):
     def __init__(self, webenv):
         self.webenv = webenv
+        self.session_store = SessionStore()
 
     def _static(self, path):
         if path in ["robots.txt", 'favicon.ico']:
@@ -98,12 +154,16 @@ class Application(object):
         path = environ.get('PATH_INFO', '').lstrip('/')
         LOGGER.info("path: %s" % path)
 
+
+
         try:
             sh = session['session_info']
         except KeyError:
             sh = SessionHandler(**self.webenv)
             sh.session_init()
             session['session_info'] = sh
+
+        self.session_store.append(session)
 
         inut = WebIO(session=sh, **self.webenv)
         inut.environ = environ
@@ -182,10 +242,51 @@ class Application(object):
         elif path == "acs/post":
             qs = get_post(environ).decode('utf8')
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
-            filename = self.webenv['profile_handler'](sh).log_path(
-                sh['conv'].test_id)
 
-            return do_next(tester, resp, sh, inut, filename, path)
+            try:
+                test_id = sh['conv'].test_id
+            except KeyError as err:
+                test_id = None
+
+            if not test_id:
+                """
+                In other words: we've been contacted by robobrowser and are in a different environment now, than the
+                code expects us to be. .... Hopefully, trickery and recreating of the environment will lead mostly
+                to more intended effects than unintended ones.
+
+                This is unfinished business: You can add other bindings here, to expand what RB can be used to test.
+                """
+                try:
+                    txt = resp['SAMLResponse']
+                    xmlstr = Entity.unravel(txt, BINDING_HTTP_POST)
+                except Exception as e:
+                    msg = 'Decoding not supported in the SP'
+                    raise Exception(msg)
+
+                rsp = samlp.any_response_from_string(xmlstr)
+                original_request_id = rsp.in_response_to
+                requester_session = self.session_store.get_session_by_conv_id(original_request_id)
+
+                # recreating the environment. lets hope it is somewhat reentrant resistant
+                sh = requester_session
+                inut = WebIO(session=sh, **self.webenv)
+                inut.environ = environ
+                inut.start_response = start_response
+
+                tester = Tester(inut, sh, **self.webenv)
+
+
+
+
+
+            profile_handler = self.webenv['profile_handler']
+            _sh = profile_handler(sh)
+            #filename = self.webenv['profile_handler'](sh).log_path(test_id)
+            #_sh.session.update({'conv': 'foozbar'})
+            filename = _sh.log_path(test_id)
+
+            html_page = do_next(tester, resp, sh, inut, filename, path)
+            return html_page
         elif path == "acs/redirect":
             qs = environ['QUERY_STRING']
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
@@ -229,7 +330,20 @@ if __name__ == '__main__':
     from cherrypy import wsgiserver
     from mako.lookup import TemplateLookup
 
-    cargs, kwargs = setup('wb')
+    try:
+        cargs, kwargs, CONF = setup('wb')
+    except ConfigError as e:
+        str = e.error_details_as_string()
+        print ('Error: {}'.format(e))
+        if (str):
+            print (str)
+        os.sys.exit(-1)
+
+    if CONF.config_infos:
+        print ('Please notice these infos:')
+        for info in CONF.config_infos:
+            print (info)
+
 
     session_opts = {
         'session.type': 'memory',

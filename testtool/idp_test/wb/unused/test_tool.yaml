@@ -1,0 +1,23 @@
+# This file is no longer in use, and will be deleted soon
+# Test Target EntityID
+# entity_id: https://localhost:8088/idp.xml   # local test idp
+#entity_id: https://idp1.test.wpv.portalverbund.at/idp/shibboleth
+
+# Definition of test flows
+#flows:
+#    - /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/flows.yaml
+# Filter test flows with following profiles
+#profile:
+#    - saml2int
+
+# python module in CWD containing the SP configuration (do not specify the extension .py)
+#samlconf: conf
+
+# Do not validate TLS certificates (Note: signature validation is configured in pysaml2 config)
+#insecure: true
+
+# http resources (gone)
+#static: /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/site/static
+
+# mako templates. specify the parent folder of the folder named 'html' or 'templates' container (gone)
+# template_root: /home/war/git/saml2test2_join/saml2test2/testtool/idp_test/wb/

@@ -1,8 +1,0 @@
-entity_id: https://localhost:8088/idp.xml
-flows:
-    - ../entity_category.json
-profile:
-    - entcat
-    - entcat:se
-samlconf: conf
-insecure: true

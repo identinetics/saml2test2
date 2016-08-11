@@ -19,11 +19,87 @@ from saml2.s_utils import UnsupportedBinding
 from saml2.saml import NAMEID_FORMAT_UNSPECIFIED
 from saml2.samlp import AuthnRequest
 from saml2.samlp import STATUS_SUCCESS
-from saml2.response import AuthnResponse
+from saml2.response import AuthnResponse, STATUSCODE2EXCEPTION
 from saml2.sigver import verify_redirect_signature
 
 
 __author__ = 'roland'
+
+#response.status.status_code.value  ''
+class VerifySamlStatus(Check):
+    """Verify that the expected SAML status code was returned """
+
+    cid = 'verify_saml_status'
+
+    def _func(self, conv=None, output=None):
+
+        res = TestResult(self.cid)
+
+        if "saml_status" in self._kwargs:
+            status_value = self._kwargs["saml_status"]
+        else:
+            res.message = "Configuration Error: Missing saml_status in assert verify_saml_status"
+            res.status = CRITICAL
+            return res
+
+        if status_value == 'urn:oasis:names:tc:SAML:2.0:status:Success':
+            """
+            We can't check for success because saml2 testing doesn't tell. So we assume, that if we don't see any
+            status errors it should have been a success.
+            """
+            we_had_errors = False
+            for test_exception in STATUSCODE2EXCEPTION:
+                try:
+                    exception = conv.events.get_message(EV_PROTOCOL_RESPONSE, test_exception)
+                except Exception as e:
+                    pass
+                else:
+                    we_had_errors = True
+
+            if we_had_errors:
+                res.message = "ERROR: {}: {}".format(exception.__class__.__name__, str(exception))
+                res.status = CRITICAL
+            else:
+                res.message = "No errors reported, assuming {}".format(status_value)
+            return res
+
+        else:
+
+
+            try:
+                status_error_exception = STATUSCODE2EXCEPTION[status_value]
+            except Exception as e:
+                res.message = "Configuration Error: Can not find a definition for {} ".format(status_value)
+                res.status = CRITICAL
+                return res
+
+            try:
+                exception = conv.events.get_message(EV_PROTOCOL_RESPONSE, status_error_exception)
+            except Exception as e:
+                res.message = "Status error {} was not found ".format(status_value)
+                res.status = CRITICAL
+                return res
+
+            res.message = "{}: {}".format(exception.__class__.__name__, str(exception))
+
+
+        return res
+
+        if "saml_status" in self._kwargs:
+            status_value = self._kwargs["saml_status"]
+            if response.status.status_code.value == status_value:
+                res = TestResult(self.cid)
+            else:
+                res.message = "The test target returned status = %s, but the "
+                "test configuration expected %s." % \
+                (response.status.status_code.value.status_value)
+                res.status = CRITICAL
+        else:
+                res.message = "Missing  saml_status in assert verify_saml_status"
+                res.status = CRITICAL
+
+        return res
+
 
 
 class VerifySubject(Check):
