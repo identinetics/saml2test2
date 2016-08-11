@@ -34,7 +34,9 @@ class Config(ExampleConfig):
         self.PORT = 8087
         self.METADATA = [
             {'metadata': [
-                ('http://mdfeed.samltest.fed-lab.org/split/testidp01SamltestFed-labOrg_idpShibboleth.xml',)],
+                # need to use internal container address for mdfeed.samltest.fed-lab.org due
+                # to a limitation in docker routing:
+                ('http://10.1.1.2:8080/split/testidp01SamltestFed-labOrg_idpShibboleth.xml',)],
              'class': 'saml2.mdstore.MetaDataExtern'}]
 
         # Each key in CONFIG represents an entity to be configured with pysaml2:
