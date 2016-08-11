@@ -2,7 +2,7 @@ from saml2test.baseconfig import BaseConfig
 
 class Config(BaseConfig):
     def param_base(self):
-        return 'http://an.ivalid.host:8087/'
+        return 'http://webiu.samltest.fed-lab.org:8087/'
 
     def config(self):
         self.ENTITY_ID = "https://idp1.test.wpv.portalverbund.at/idp/shibboleth"
