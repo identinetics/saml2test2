@@ -345,9 +345,9 @@ class Config(BaseConfig):
             'IDP-AuthnRedirect-nid_unspecified': [ "%s/idp/profile/SAML2/Redirect/SSO"  % self.IDP_BASE ],
         }
         self.CONTENT_HANDLER_INTERACTION = [
-            {
+            {   # This interaction fills out the login form
                 "matches": {
-                    #'https://idp1.test.wpv.portalverbund.at:8443/idp/profile/SAML2/Redirect/SSO;jsessionid=13vsywxlwklk31c5yoe9ejgo6j'
+                    #'Trigger this interaction on the URL and title
                     "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
                     "title": 'Web Login Service (Test)'
                 },
@@ -359,7 +359,8 @@ class Config(BaseConfig):
                     "set": {"j_username": "tester@testinetics.at", "j_password": "test", "_eventId_proceed":''}
                 }
             },
-            {
+            {   # After the login, the IDP shows a result page, which needs a button clicked for getting the redirect
+                # back to the SP: This interaction is just pressing the button.
                 "matches": {
                     "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
                     "content": "you must press the Continue button"
@@ -373,6 +374,7 @@ class Config(BaseConfig):
                 }
 
             },
+            # Interactions below are older examples, not used for the idp1.test.wpv.portalverbund.at
             {
                 "matches": {
                     "url": "%s/sso/post" % self.IDP_BASE,
@@ -381,7 +383,7 @@ class Config(BaseConfig):
                 "page-type": "login",
                 "control": {
                     "type": "form",
-                    "set": {"login": "roland", "password": "dianakra"}
+                    "set": {"login": "admin", "password": "admin"}
                 }
             },
             {
