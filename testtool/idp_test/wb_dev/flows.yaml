@@ -1,0 +1,442 @@
+---
+# TESTFLOWS: This defines test flows, their order and their alias names
+Flows:
+
+  IDP-Metadata-verify:
+    tc_id: md-02   # idp-mv
+    desc: Verifies that the IdP metadata adheres to the saml2int spec
+    sequence:
+      - CheckSaml2IntMetaData
+    profiles:
+      - saml2int
+    sp: acs-post
+
+  IDP-AuthnRedirect-no_nid:
+    tc_id: websso-01
+    desc: AuthnRequest/redirect, no requested nameID format
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: ''
+    sp: acs-post
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+
+  IDP-AuthnRedirect-nid_unspecified:
+    tc_id: websso-02
+    desc: AuthnRequest/redirect with nameID format 'unspecified'
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified
+    sp: acs-post
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:InvalidNameIDPolicy
+
+  IDP-AuthnPost-nid_transient:
+    tc_id: websso-03
+    desc: AuthnRequest/redirect, transient NameID format
+    profiles: 
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+              name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+    sp: acs-post
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+
+  IDP-AuthnPost-nid_persistent:
+    tc_id: websso-04
+    desc: AuthnRequest/redirect, persistent NameID format
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+              name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:persistent
+    sp: acs-post
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+
+  IDP-AuthnPost-verify:
+    tc_id: websso-05
+    desc: AuthnRequest/POST, no requested nameID format
+    profiles: 
+      - saml2int
+    sequence:
+      - AuthnPostRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+    sp: acs-post
+
+  IDP-AuthnRedirect-cause_InvalidNameidformat:
+    tc_id: websso-00
+    desc:  Test the Test Tool to report an error
+    profiles: 
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:incorrectFormat
+    sp: acs-post
+    assert:
+      verify_subject:
+        name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:v
+
+  IDP-AuthnRedirect-nid_email:
+    tc_id: websso-06b
+    desc: AuthnRequest/redirect, email nameID format
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+    sp: acs-post
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:InvalidNameIDPolicy
+
+  IDP-AuthnPost-nid_email:
+    tc_id: websso-07
+    desc: AuthnRequest/redirect, Response/Artifact, no requested nameID format
+    profiles:
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+          set_request_args:
+            name_id.format: ''
+    sp: acs-redirect
+    assert:
+      verify_saml_status:
+        saml_status: urn:oasis:names:tc:SAML:2.0:status:Success
+
+  IDP-AuthnRedirect-verify:
+    tc_id: net-01
+    desc: Uses AuthnRequest to check connectivity
+    profiles: 
+      - saml2int
+    sequence:
+      - AuthnRedirectRequest:
+          add_post_condition:
+              http_response:
+                  status_code:
+                    - 200
+                    - 302
+                    - 303
+    sp: acs-post
+    assert:
+      verify_attributes: null
+
+  IDP-Logout-soap:
+    tc_id: websso-12   # S2c-03,
+    desc: An Authnrequest followed by a logout request,
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+      - LogOutRequestSoap:
+          setup_logout: {}
+    assert:
+      verify_logout: null
+    sp: acs-post
+    profiles: 
+      - saml2int
+      
+  IDP-EntityCategory-coco:
+    tc_id: idp-ec-coco
+    desc: Uses AuthnRequest to verify CoCo entity category support
+    profiles: 
+      - entcat
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: coco
+    assert:
+      verify_entity_category: null
+    entity_category:
+      - http://www.geant.net/uri/dataprotection-code-of-conduct/v1
+    attribute_bundle:
+      - eduPersonTargetedID
+      - eduPersonPrincipalName
+      - eduPersonScopedAffiliation
+      - mail
+      - displayName
+      - schacHomeOrganization
+    short_name: CoCo
+    
+  IDP-EntityCategory-rs:
+    tc_id: idp-ec-rs
+    desc: Uses AuthnRequest to verify R&S entity category support
+    profiles: 
+      - entcat
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: rs
+    assert:
+      verify_entity_category: {}
+    entity_category:
+      - http://refeds.org/category/research-and-scholarship
+    attribute_bundle:
+      - edupersontargetedid
+      - edupersonprincipalname
+      - edupersonscopedaffiliation
+      - mail
+      - givenname
+      - sn
+      - displayname
+    short_name: R&S
+
+  IDP-EntityCategory-re_eu:
+    tc_id: idp-ec-re_eu
+    desc: Uses AuthnRequest to verify R&E+EU entity category support
+    profiles:
+      - entcat:se
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: re_eu
+    assert:
+      verify_entity_category: {}
+    entity_category:
+      - http://www.swamid.se/category/research-and-education
+      - http://www.swamid.se/category/eu-adequate-protection
+    attribute_bundle:
+      - edupersontargetedid
+      - givenName
+      - displayName
+      - sn
+      - c
+      - o
+      - co
+      - norEduOrgAcronym
+      - schacHomeOrganization
+      - eduPersonPrincipalName,
+      - eduPersonScopedAffiliation
+      - mail
+    short_name: RE & EU
+
+  IDP-EntityCategory-re_hei:
+    tc_id: idp-ec-re_hei
+    desc: Uses AuthnRequest to verify R&E+HEI entity category support
+    profiles: 
+      - entcat:se
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: re_hei
+    assert:
+      verify_entity_category: {}
+    entity_category:
+      - http://www.swamid.se/category/research-and-education
+      - http://www.swamid.se/category/hei-service
+    attribute_bundle:
+      - edupersontargetedid
+      - givenName
+      - displayName
+      - sn
+      - c
+      - o
+      - co
+      - norEduOrgAcronym
+      - schacHomeOrganization
+      - eduPersonPrincipalName,
+      - eduPersonScopedAffiliation
+      - mail
+    short_name: RE & HEI
+
+  IDP-EntityCategory-re_nren:
+    tc_id: idp-ec-re_nren
+    desc: Uses AuthnRequest to verify R&E+NREN entity category support
+    profiles: 
+      - entcat:se
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: re_nren
+    assert:
+      verify_entity_category: {}
+    entity_category:
+      - http://www.swamid.se/category/research-and-education
+      - http://www.swamid.se/category/nren-service
+    attribute_bundle:
+      - edupersontargetedid
+      - givenName
+      - displayName
+      - sn
+      - c
+      - o
+      - co
+      - norEduOrgAcronym
+      - schacHomeOrganization
+      - eduPersonPrincipalName,
+      - eduPersonScopedAffiliation
+      - mail
+    short_name: RE & NREN
+
+  IDP-EntityCategory-re_nren_sfs:
+    tc_id: idp-ec-re_nre_sfs
+    desc: Uses AuthnRequest to verify R&E+NREN+SFS entity category support
+    profiles: 
+      - entcat:se
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: re_nren_sfs
+    assert:
+      verify_entity_category: {}
+    entity_category:
+      - http://www.swamid.se/category/research-and-education
+      - http://www.swamid.se/category/nren-service
+      - http://www.swamid.se/category/sfs-1993-1153
+    attribute_bundle:
+      - norEduPersonNIN
+      - edupersontargetedid
+      - givenName
+      - displayName
+      - sn
+      - c
+      - o
+      - co
+      - norEduOrgAcronym
+      - schacHomeOrganization
+      - eduPersonPrincipalName,
+      - eduPersonScopedAffiliation
+      - mail
+    short_name: RE & HEI & SFS
+
+  IDP-EntityCategory-re_hei_sfs:
+    tc_id: idp-ec-re_hei_sfs
+    desc: Uses AuthnRequest to verify R&E+HEI+SFS entity category support
+    profiles: 
+      - entcat:se
+    sequence:
+      - AuthnRedirectRequest:
+          set_allowed_status_codes:
+            - 200
+            - 302
+            - 303
+    sp: re_nren_hei
+    assert:
+      verify_entity_category: {}
+    entity_category:
+      - http://www.swamid.se/category/research-and-education
+      - http://www.swamid.se/category/hei-service
+      - http://www.swamid.se/category/sfs-1993-1153
+    attribute_bundle:
+      - norEduPersonNIN
+      - edupersontargetedid
+      - givenName
+      - displayName
+      - sn
+      - c
+      - o
+      - co
+      - norEduOrgAcronym
+      - schacHomeOrganization
+      - eduPersonPrincipalName,
+      - eduPersonScopedAffiliation
+      - mail
+    short_name: RE & HEI & SFS
+
+Order:
+  - IDP-Metadata
+  - IDP-Connection
+  - IDP-AuthnRedirect
+  - IDP-AuthnPost
+  - IDP-EntityCategory
+  - IDP-Logout
+
+Desc:
+  IDP-Metadata: Idp metadata
+  IDP-Connection: IdP Connection
+  IDP-AuthnRedirect: IDP Authentication HTTP Redirect
+  IDP-AuthnPost: IDP Authentication using HTTP POST
+  IDP-EntityCategory: Entity Category Compliance
+  IDP-Logout: IDP Logout
+  Metadata: Idp metadata
+  Connection: IdP Connection
+  AuthnRedirect: IDP Authentication HTTP Redirect
+  AuthnPost: IDP Authentication using HTTP POST
+  EntityCategory: Entity Category Compliance
+  Logout: IDP Logout
