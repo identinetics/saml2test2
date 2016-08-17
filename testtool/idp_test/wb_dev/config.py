@@ -14,7 +14,7 @@ class Config(ExampleConfig):
     """
     # TODO: move to abstract or higher
     def param_base(self):
-        return 'http://webiu.samltest.fed-lab.org:8087/'
+        return 'http://localhost:8087/'
 
     """
     Parameters are set in the config() method. Make sure you call the Superclass config() first to have the
@@ -36,7 +36,7 @@ class Config(ExampleConfig):
             {'metadata': [
                 # need to use internal container address for mdfeed.samltest.fed-lab.org due
                 # to a limitation in docker routing:
-                ('http://10.1.1.2:8080/split/testidp01SamltestFed-labOrg_idpShibboleth.xml',)],
+                ('http://samltest.fed-lab.org/split/testidp01SamltestFed-labOrg_idpShibboleth.xml',)],
              'class': 'saml2.mdstore.MetaDataExtern'}]
 
         # Each key in CONFIG represents an entity to be configured with pysaml2:
@@ -223,8 +223,8 @@ class Config(ExampleConfig):
         )
 
         # === Test Target configuration
-        self.ENTITY_ID = "https://idp1.samltest.fed-lab.org/idp/shibboleth"
-        self.IDP_BASE = "https://samltest.fed-lab.org"
+        self.ENTITY_ID = "https://testidp01.samltest.fed-lab.org/idp/shibboleth"
+        self.IDP_BASE = "https://testidp01.samltest.fed-lab.org"
         self.CONTENT_HANDLER_TRIGGER = {
             # To trigger the robobrowser content handler add combinations of test-id and url(s):
             'IDP-AuthnRedirect-nid_unspecified': ["%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE],
@@ -234,7 +234,7 @@ class Config(ExampleConfig):
                 "matches": {
                     # 'Trigger this interaction on the URL and title
                     "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
-                    "title": 'Web Login Service (Test)'
+                    "title": 'Web Login Service'
                 },
                 # TODO: Documentation about parameter page-type
                 "page-type": "login",
@@ -259,6 +259,23 @@ class Config(ExampleConfig):
                 }
 
             },
+            {  # After the login, the IDP also shows a result page, for some options
+                "matches": {
+                    "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
+                    "content": "You are about to access the service"
+                },
+                "page-type": "other",
+                "control": {
+                    "index": 0,
+                    "type": "form",
+                    # Empty set: No parameters, just press the submit button
+                    "set": {},
+                    # multiple submits on that page ... choose which one to send
+                    "submit": "_eventId_proceed"
+                }
+
+            },
+            #--
             # Interactions below are older examples, not used for the idp1.test.wpv.portalverbund.at
             {
                 "matches": {

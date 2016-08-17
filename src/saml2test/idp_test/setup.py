@@ -153,22 +153,23 @@ def setup(use='cl', cargs=None):
     setup_logger(logger)
 
     ch = []
-    try:
-        #Todo
-        c_handler = CONF.CONTENT_HANDLER
-    except AttributeError:
-        comhandler = None
-    else:
-        for item in c_handler:
-            for key, kwargs in item.items():  # should only be one
-                if key == 'robobrowser':
-                    rb = robobrowser.factory(CONF.CONTENT_HANDLER_INTERACTION)
-                    ch.append(rb)
 
-        comhandler = ComHandler(ch)
-        if not CONF.DO_NOT_VALIDATE_TLS:
-            comhandler.verify_ssl = False
-        comhandler.set_triggers( CONF.CONTENT_HANDLER_TRIGGER )
+    """
+    TODO: This code still bows to the idea of having multiple comhandlers.
+    Needs cleanup.
+    """
+
+    try:
+        if CONF.CONTENT_HANDLER_INTERACTION:
+            rb = robobrowser.factory(CONF.CONTENT_HANDLER_INTERACTION)
+            ch.append(rb)
+
+            comhandler = ComHandler(ch)
+            if not CONF.DO_NOT_VALIDATE_TLS:
+                comhandler.verify_ssl = False
+            comhandler.set_triggers( CONF.CONTENT_HANDLER_TRIGGER )
+    except KeyError:
+        comhandler = None
 
     mako_path = mako.__path__[0] + os.sep
     staticfiles_path = staticfiles.__path__[0] + os.sep

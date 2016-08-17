@@ -139,6 +139,10 @@ class Tester(tool.Tester):
                         if com_handler_response.status == HandlerResponse.STATUS_NOT_TRIGGERED:
                             return oper_response
 
+                        if com_handler_response.status == HandlerResponse.STATUS_NO_INTERACTION_FOUND:
+                            response = self.inut.respond(com_handler_response)
+                            return response
+
                         if com_handler_response.status == HandlerResponse.STATUS_ERROR:
                             msg = 'Com handler failed to process interaction'
                             self.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
@@ -149,19 +153,34 @@ class Tester(tool.Tester):
                             return False
 
 
-                        if False:
-                            """
-                            Basically, now idea what this code whas expected to do ?
-                            """
+                    """
+                    Guesswork about what was intended to happen here.
+                    Cases:
+                    1. If it is an saml2.httputil.Redirect, it should be handle by the browser.
+                    Are there other cases?
+                    """
 
-                            if com_handler_response.content_processed:
-                                oper_response = _oper.handle_response(self.get_response(oper_response))
+                    if isinstance(oper_response, Redirect):
+                        # saml2.httputil.Redirect
+                        return oper_response
 
-                                if oper_response:
-                                    return self.inut.respond(oper_response)
 
-                            else:
-                                return oper_response
+
+
+                    if False:
+                        """
+                        Basically, now clear idea what this code whas expected to do ?
+                        Was this just a draft? Really working with all test flavours?
+                        """
+
+                        if com_handler_response.content_processed:
+                            oper_response = _oper.handle_response(self.get_response(oper_response))
+
+                            if oper_response:
+                                return self.inut.respond(oper_response)
+
+                        else:
+                            return oper_response
 
 
 
