@@ -12,6 +12,7 @@ class FakeRedirectResponse(object):
         if saml_response.status == '302 Found':
             redirect_url = saml_response.message
             self.status_code = 302
+            self.url = 'https://samlresponse.generated.by.local.test.driver'
         else:
             raise RuntimeError("SamlRedirect has an unknown status")
 
