@@ -233,7 +233,7 @@ class Config(ExampleConfig):
             {  # This interaction fills out the login form
                 "matches": {
                     # 'Trigger this interaction on the URL and title
-                    "url": "%s/idp/profile/SAML2/Redirect/SSOzi" % self.IDP_BASE,
+                    "url": "%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE,
                     "title": 'Web Login Service'
                 },
                 # TODO: Documentation about parameter page-type
