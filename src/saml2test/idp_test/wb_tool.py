@@ -7,7 +7,7 @@ from aatest import exception_trace
 from aatest.summation import store_test_state
 
 from aatest.check import State
-from aatest.check import OK
+from aatest.check import OK, ERROR
 from aatest.conversation import Conversation
 from aatest.events import EV_CONDITION, EV_FAULT, EV_RESPONSE
 from aatest.result import safe_path, Result
