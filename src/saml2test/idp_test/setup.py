@@ -110,6 +110,8 @@ def setup(use='cl', cargs=None):
         parser = argparse.ArgumentParser()
         parser.add_argument('-k', dest="insecure", action='store_true')
         parser.add_argument('-x', dest="break", action='store_true')
+        parser.add_argument('-m', dest="metadata", action='store_true')
+        parser.add_argument('-o', dest='outputfile')
         parser.add_argument(dest="configdir")
         cargs = parser.parse_args()
 

@@ -34,6 +34,8 @@ from saml2.entity import Entity
 from saml2 import BINDING_HTTP_POST
 from saml2 import samlp
 
+from saml2test.idp_test.metadata import MyMetadata
+
 import threading
 SERVER_LOG_FOLDER = os.path.abspath("server_log")
 if not os.path.isdir(SERVER_LOG_FOLDER):
@@ -344,6 +346,16 @@ if __name__ == '__main__':
         for info in CONF.config_infos:
             print (info)
 
+    if cargs.metadata:
+        md = MyMetadata( cargs, kwargs)
+        xml = md.get_xml_output()
+        if cargs.outputfile:
+            output_file = open(cargs.outputfile, "w+")
+            output_file.write(xml)
+            output_file.close()
+        else:
+            print(xml)
+        exit(0)
 
     session_opts = {
         'session.type': 'memory',
