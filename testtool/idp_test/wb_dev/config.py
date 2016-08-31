@@ -223,8 +223,8 @@ class Config(ExampleConfig):
         )
 
         # === Test Target configuration
-        self.ENTITY_ID = "https://testidp01.samltest.fed-lab.org/idp/shibboleth"
         self.IDP_BASE = "https://testidp01.samltest.fed-lab.org"
+        self.ENTITY_ID = "%s/idp/shibboleth" % self.IDP_BASE
         self.CONTENT_HANDLER_TRIGGER = {
             # To trigger the robobrowser content handler add combinations of test-id and url(s):
             'IDP-AuthnRedirect-nid_unspecified': ["%s/idp/profile/SAML2/Redirect/SSO" % self.IDP_BASE],

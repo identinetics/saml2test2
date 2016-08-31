@@ -26,6 +26,7 @@ def exit_on_mandatory_config_file(e):
 class ConfigFileNotReadable(EnvironmentError):
     pass
 
+
 class ConfigLoader(object):
 
     def __init__(self, path):

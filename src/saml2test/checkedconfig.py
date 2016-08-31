@@ -1,9 +1,20 @@
-import sys, os
+import sys, os, urllib, logging
+from socket import timeout
 
 class ConfigFileNotReadable(EnvironmentError):
     pass
 
+class ConfigUrlNotReadable(Exception):
+    pass
+
+logger = logging.getLogger(__name__)
+
+"""
+Config Error exception.
+Takes the error exceptions and a message.
+"""
 class ConfigError(Exception):
+
     def __init__(self, errors, message=None):
         if not message:
             message = 'Configuration Error'
@@ -20,6 +31,9 @@ class ConfigError(Exception):
 
         r = "\n".join(errstr)
         return r
+
+
+
 
 class CheckedConfig(object):
     def __init__(self):
@@ -84,8 +98,27 @@ class CheckedConfig(object):
                             self.METADATA[md_ix]['metadata'][file_list_ix] = tuple_as_tuple
 
                     file_list_ix = file_list_ix + 1
+            elif klass == 'saml2.mdstore.MetaDataExtern':
+                urls_list = self.METADATA[md_ix]['metadata']
+                for url_md in urls_list:
+                    for url in url_md:
+                        try:
+                            url = str(url)
+                            resp = urllib.request.urlopen(url, timeout=5).read()
+                        except( urllib.error.HTTPError, urllib.error.URLError) as err:
+                            msg = 'Error with URL {}: {}'.format(url,err)
+                            e = ConfigUrlNotReadable(msg)
+                            self.config_errors.append(e)
+                            #logging.error(msg)
+                        except( timeout ):
+                            msg = 'Timeout with URL {}'.format(url)
+                            e = ConfigUrlNotReadable(msg)
+                            self.config_errors.append(e)
+                            #logging.error(msg)
+
+
             else:
-                # do nothing if klass is not a file
+                # do nothing if klass is not a known klass
                 pass
 
             md_ix = md_ix + 1
