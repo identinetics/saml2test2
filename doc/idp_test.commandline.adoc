@@ -1,0 +1,32 @@
+= Commandline usage of idp_test.py
+
+== Running the server
+idp_test.py <config dir>
+
+== Metadata generation
+.to stdout
+idp_test.py -m <config dir>
+
+.into a file
+idp_test.py -o <output file> -m <config dir>
+
+== Json generation
+JSON data will be generated in a sub directory of the config as config.json. The metadata file is also
+generated. Once generated, the config directory can be pushed to github.
+
+idp_test.py -j
+
+NOTE: The json data are just a replacement for the python files, but all other files
+ are still needed.
+
+== Run a config from github
+Cloning a github repository as a config directory.
+
+idp_test.py -g <github uri>
+
+NOTE: by now, the server is not able to upload metadata into the IDP.
+
+== Reading JSON
+JSON data is expected to be in <config dir>/generated/config.json
+
+idp_test.py -r
