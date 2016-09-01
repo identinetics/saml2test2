@@ -35,7 +35,7 @@ from saml2 import BINDING_HTTP_POST
 from saml2 import samlp
 
 from saml2test.idp_test.metadata import MyMetadata
-
+import json
 import threading
 SERVER_LOG_FOLDER = os.path.abspath("server_log")
 if not os.path.isdir(SERVER_LOG_FOLDER):
@@ -347,7 +347,7 @@ if __name__ == '__main__':
             print (info)
 
     if cargs.metadata:
-        md = MyMetadata( cargs, kwargs)
+        md = MyMetadata(cargs, kwargs)
         xml = md.get_xml_output()
         if cargs.outputfile:
             output_file = open(cargs.outputfile, "w+")
@@ -355,6 +355,26 @@ if __name__ == '__main__':
             output_file.close()
         else:
             print(xml)
+        exit(0)
+
+    if cargs.json:
+        cdict = CONF.__dict__
+        json_dump = json.dumps(cdict, indent=1)
+        configdir = cargs.configdir
+        json_ready = json_dump.replace(configdir, '.')
+
+        md = MyMetadata(cargs, kwargs)
+        xml = md.get_xml_output()
+
+        generated_dir = os.path.join(configdir, 'generated')
+        if not os.path.exists(generated_dir):
+            os.makedirs(generated_dir)
+        output_file = open(os.path.join(generated_dir,'config.json'), "w")
+        output_file.write(json_ready)
+        output_file.close()
+        output_file = open(os.path.join(generated_dir,'metadata.xml'), "w")
+        output_file.write(xml)
+        output_file.close()
         exit(0)
 
     session_opts = {
