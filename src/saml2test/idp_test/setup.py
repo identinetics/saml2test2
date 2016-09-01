@@ -39,7 +39,7 @@ from saml2test.webserver import staticfiles, mako
 from saml2test.robobrowser import robobrowser
 
 from saml2test.jsonconfig import JsonConfig
-import json
+import json, tempfile, subprocess, re
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -115,11 +115,31 @@ def setup(use='cl', cargs=None):
         parser.add_argument('-r', dest="readjson", action='store_true')
         parser.add_argument('-m', dest="metadata", action='store_true')
         parser.add_argument('-j', dest="json", action='store_true')
+        parser.add_argument('-g', dest="github", action='store_true')
         parser.add_argument('-o', dest='outputfile')
         parser.add_argument(dest="configdir")
         cargs = parser.parse_args()
 
     flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
+
+    if cargs.github:
+        # make sure we ask github and that our repo-string is clean
+        github_repo = cargs.configdir
+        github_repo = github_repo.replace("git@github.com:","")
+        github_repo = github_repo.replace("https://github.com/","")
+        if not re.match("^[a-z0-9\-\.\/]*$", github_repo):
+            raise Exception("suspicious characters in github repository string")
+
+        tmpdir = tempfile.mkdtemp()
+        cargs.configdir = os.path.join(tmpdir,'config')
+        clone_cmd = ['git','clone', 'git@github.com:{}'.format(github_repo), 'config']
+        subprocess.Popen(clone_cmd, cwd=tmpdir)
+
+        if not os.path.exists(cargs.configdir):
+            raise Exception("could not create config dir from girhub repo {}".format(github_repo))
+
+        cargs.readjson = True
+
 
     if cargs.readjson:
         json_file = os.path.join(cargs.configdir,'generated','config.json')
