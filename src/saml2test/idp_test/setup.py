@@ -133,10 +133,20 @@ def setup(use='cl', cargs=None):
         tmpdir = tempfile.mkdtemp()
         cargs.configdir = os.path.join(tmpdir,'config')
         clone_cmd = ['git','clone', 'git@github.com:{}'.format(github_repo), 'config']
-        subprocess.Popen(clone_cmd, cwd=tmpdir)
+        import io
+
+        proc = subprocess.Popen(clone_cmd, cwd=tmpdir,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             )
+
+        stderr_value, stderr_value = proc.communicate()
+        print(repr(stderr_value))
+
+
 
         if not os.path.exists(cargs.configdir):
-            raise Exception("could not create config dir from girhub repo {}".format(github_repo))
+            raise Exception("could not create config dir from github repo {}".format(github_repo))
 
         cargs.readjson = True
 
