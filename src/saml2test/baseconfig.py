@@ -2,7 +2,7 @@ from saml2test.checkedconfig import CheckedConfig
 
 class BaseConfig(CheckedConfig):
     def config(self):
-        pass
+        self.CONFIG = {}
 
     def set_base(self,value):
         self._BASE = value
