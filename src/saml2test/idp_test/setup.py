@@ -38,6 +38,9 @@ from saml2test import configloader
 from saml2test.webserver import staticfiles, mako
 from saml2test.robobrowser import robobrowser
 
+from saml2test.jsonconfig import JsonConfig
+import json
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 TT_CONFIG_FILENAME = 'configuration.yaml'
@@ -109,7 +112,7 @@ def setup(use='cl', cargs=None):
     if cargs is None:
         parser = argparse.ArgumentParser()
         parser.add_argument('-k', dest="insecure", action='store_true')
-        parser.add_argument('-x', dest="break", action='store_true')
+        parser.add_argument('-r', dest="readjson", action='store_true')
         parser.add_argument('-m', dest="metadata", action='store_true')
         parser.add_argument('-j', dest="json", action='store_true')
         parser.add_argument('-o', dest='outputfile')
@@ -118,11 +121,24 @@ def setup(use='cl', cargs=None):
 
     flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
 
-    loader = configloader.ConfigLoader(cargs.configdir)
-    try:
-        CONF = loader.conf_CONF()
-    except configloader.ConfigFileNotReadable as e:
-        configloader.exit_on_mandatory_config_file(e)
+    if cargs.readjson:
+        json_file = os.path.join(cargs.configdir,'generated','config.json')
+        try:
+            with open(json_file) as fp:
+                data = json.load(fp)
+        except Exception as e:
+            e =  configloader.ConfigFileNotReadable(e.errno, e.strerror, e.filename)
+            configloader.exit_on_mandatory_config_file(e)
+
+        CONF = JsonConfig(data,cargs.configdir)
+
+
+    else:
+        loader = configloader.ConfigLoader(cargs.configdir)
+        try:
+            CONF = loader.conf_CONF()
+        except configloader.ConfigFileNotReadable as e:
+            configloader.exit_on_mandatory_config_file(e)
 
     #try:
     #    with open(cargs.toolconf, 'r') as fd:
