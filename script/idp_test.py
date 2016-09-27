@@ -349,9 +349,18 @@ class Application(object):
                 print('Error: {}'.format(e))
 
             """
-                picking the things, the user is allowed to override
+                picking the config stuff, the user is allowed to override
             """
 
+            local_webenv['conf'].CONTENT_HANDLER_TRIGGER = user_CONF.CONTENT_HANDLER_TRIGGER
+            local_webenv['conf'].CONTENT_HANDLER_INTERACTION = user_CONF.CONTENT_HANDLER_INTERACTION
+            local_webenv['flows'] = user_kwargs['flows']
+
+            session['webenv'] = local_webenv
+
+            sh = SessionHandler(**local_webenv)
+            sh.session_init()
+            session['session_info'] = sh
 
 
             return tester.display_test_list()
