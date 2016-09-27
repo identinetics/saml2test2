@@ -160,18 +160,21 @@ class Application(object):
 
         try:
             sh = session['session_info']
+            local_webenv = session['webenv']
         except KeyError:
             sh = SessionHandler(**self.webenv)
             sh.session_init()
+            local_webenv = self.webenv
             session['session_info'] = sh
+            session['webenv']=local_webenv
 
         self.session_store.append(session)
 
-        inut = WebIO(session=sh, **self.webenv)
+        inut = WebIO(session=sh, **local_webenv)
         inut.environ = environ
         inut.start_response = start_response
 
-        tester = Tester(inut, sh, **self.webenv)
+        tester = Tester(inut, sh, **local_webenv)
 
         _path = self._static(path)
         if _path:
@@ -214,7 +217,7 @@ class Application(object):
             except KeyError:
                 return inut.not_found()
         elif path == "continue":
-            return tester.cont(environ, self.webenv)
+            return tester.cont(environ, local_webenv)
         elif path == 'reset':
             for param in ['flow', 'flow_names', 'index', 'node', 'profile',
                           'sequence', 'test_info', 'testid', 'tests']:
@@ -225,17 +228,17 @@ class Application(object):
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:
-                return inut.sorry_response(self.webenv['base_url'],
+                return inut.sorry_response(local_webenv['base_url'],
                                            "No result to report")
 
             return inut.opresult(tester.conv, sh)
         # expected path format: /<testid>[/<endpoint>]
         elif path in sh["flow_names"]:
-            resp = tester.run(path, **self.webenv)
+            resp = tester.run(path, **local_webenv)
             store_test_state(sh, sh['conv'].events)
-            filename = self.webenv['profile_handler'](sh).log_path(path)
+            filename = local_webenv['profile_handler'](sh).log_path(path)
             if isinstance(resp, Response):
-                res = Result(sh, self.webenv['profile_handler'])
+                res = Result(sh, local_webenv['profile_handler'])
                 res.store_test_info()
                 res.print_info(path, tester.fname(path))
                 return inut.respond(resp)
@@ -251,6 +254,11 @@ class Application(object):
                 test_id = None
 
             if not test_id:
+                """
+                    Do we have been initialized already, or is the user just on the wrong page ?
+                """
+                if not resp:
+                    return tester.display_test_list()
                 """
                 In other words: we've been contacted by robobrowser and are in a different environment now, than the
                 code expects us to be. .... Hopefully, trickery and recreating of the environment will lead mostly
@@ -271,17 +279,17 @@ class Application(object):
 
                 # recreating the environment. lets hope it is somewhat reentrant resistant
                 sh = requester_session
-                inut = WebIO(session=sh, **self.webenv)
+                inut = WebIO(session=sh, **local_webenv)
                 inut.environ = environ
                 inut.start_response = start_response
 
-                tester = Tester(inut, sh, **self.webenv)
+                tester = Tester(inut, sh, **local_webenv)
 
 
 
 
 
-            profile_handler = self.webenv['profile_handler']
+            profile_handler = local_webenv['profile_handler']
             _sh = profile_handler(sh)
             #filename = self.webenv['profile_handler'](sh).log_path(test_id)
             #_sh.session.update({'conv': 'foozbar'})
@@ -292,7 +300,7 @@ class Application(object):
         elif path == "acs/redirect":
             qs = environ['QUERY_STRING']
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
-            filename = self.webenv['profile_handler'](sh).log_path(
+            filename = local_webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
 
             return do_next(tester, resp, sh, inut, filename, path)
@@ -303,14 +311,14 @@ class Application(object):
         elif path == "disco":
             qs = parse_qs(environ['QUERY_STRING'])
             resp = dict([(k, v[0]) for k, v in qs.items()])
-            filename = self.webenv['profile_handler'](sh).log_path(
+            filename = local_webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
             return do_next(tester, resp, sh, inut, filename, path=path)
         elif path == "slo":
             pass
         elif path == 'all':
             for test_id in sh['flow_names']:
-                resp = tester.run(test_id, **self.webenv)
+                resp = tester.run(test_id, **local_webenv)
                 store_test_state(sh, sh['conv'].events)
                 if resp is True or resp is False:
                     continue
@@ -320,8 +328,33 @@ class Application(object):
                     resp = ServiceError('Unkown service error')
                     return resp(environ, start_response)
 
-            filename = self.webenv['profile_handler'](sh).log_path(path)
+            filename = local_webenv['profile_handler'](sh).log_path(path)
             return inut.flow_list(filename)
+        elif path == 'swconf':
+            """
+                switch config by user request
+                parameters: ?github=<name of the github repo>&email=<user email>
+            """
+            qs = parse_qs(environ['QUERY_STRING'])
+            resp = dict([(k, v[0]) for k, v in qs.items()])
+
+            # reading from github should set readjson, but to be sure ...
+            setup_cargs=type('setupcarg', (object,), {'github': True, 'configdir': resp['github'], 'readjson': True })()
+
+            try:
+                user_cargs, user_kwargs, user_CONF = setup('wb', setup_cargs)
+            except ConfigError as e:
+                #TODO: error info page
+                str = e.error_details_as_string()
+                print('Error: {}'.format(e))
+
+            """
+                picking the things, the user is allowed to override
+            """
+
+
+
+            return tester.display_test_list()
         else:
             resp = BadRequest()
             return resp(environ, start_response)
