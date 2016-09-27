@@ -48,12 +48,35 @@ To generate TD-CONFIG-GEN run:
 |TD-CONFIG-GEN|wb/conf.py| generated using build_sp_conf.py
 |=====
 
-== Test Execution
+== Command Line Usage
 
-    idp_test.py [-k] [-x] [-t test-id] -T <TOOL-CONFIG> TD-CONFIG-GEN
+    idp_test.py [-r <JSON-FILE>] [-m] [-j] [-g <GITHUB-REPO>] -o <OUTPUTFILE> <CONFIG-DIR>
 
-This command starts the web server. Setup should install it in your path.
-Open the test interface on localhost:8087.
+=== Examples
+
+==== Server startup
+
+    idp_test.py -g <GITHUB-REPO>
+    idp_test.py -r <JSON-CONFIG-FILE>
+    idp_test.py <CONFIG-DIR>
+
+This commands starts the web server. Open the test interface on localhost:8087.
+
+==== Generators
+
+    Writing metadata: idp_test.py -m -o <OUTPUTFILE>
+    Write config in json format: idp_test.py -j -o <OUTPUTFILE>
+
+== Switching config / Userdefined configs
+
+Users have only access to the web-interface and are able to override the config (partly, of course) with
+their own configuration stored on github. Loading and switching to such a config is done by a GET request:
+
+    <URL>/swconf?github=<GITHUB-REPO-NAME>&email=<USER-EMAIL>
+
+Example:
+
+    http://localhost:8087/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
 
 == Graphical Overview
 
