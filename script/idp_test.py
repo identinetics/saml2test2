@@ -381,7 +381,11 @@ class Application(object):
             sh.session_init()
             session['session_info'] = sh
 
+            inut = WebIO(session=sh, **local_webenv)
+            inut.environ = environ
+            inut.start_response = start_response
 
+            tester = Tester(inut, sh, **local_webenv)
             return tester.display_test_list()
         else:
             resp = BadRequest()
