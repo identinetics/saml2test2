@@ -29,6 +29,7 @@ from saml2test.idp_test.wb_tool import Tester
 from saml2test.request import ServiceProviderRequestHandlerError
 from saml2test.session import SessionHandler
 from saml2test.checkedconfig import ConfigError
+from saml2test.acfile import WebUserAccessControlFile
 
 from saml2.entity import Entity
 from saml2 import BINDING_HTTP_POST
@@ -338,6 +339,21 @@ class Application(object):
             qs = parse_qs(environ['QUERY_STRING'])
             resp = dict([(k, v[0]) for k, v in qs.items()])
 
+            try:
+                ac_file_name = local_webenv['conf'].ACCESS_CONTROL_FILE
+            except Exception as e:
+                ac_file_name = None
+
+            if ac_file_name:
+                try:
+                    ac_file = WebUserAccessControlFile(local_webenv['conf'].ACCESS_CONTROL_FILE)
+                except Exception as e:
+                    return inut.sorry_response(local_webenv['base_url'],e)
+
+                has_access = ac_file.test(resp['github'], resp['email'])
+                if not has_access:
+                    return inut.sorry_response(local_webenv['base_url'],'permission denied')
+
             # reading from github should set readjson, but to be sure ...
             setup_cargs=type('setupcarg', (object,), {'github': True, 'configdir': resp['github'], 'readjson': True })()
 
@@ -347,12 +363,9 @@ class Application(object):
                 errstr = e.error_details_as_string()
                 print('Error: {}'.format(e))
 
-                return inut.sorry_response(local_webenv['base_url'],
-                                           errstr)
+                return inut.sorry_response(local_webenv['base_url'],errstr)
             except Exception as e:
-                errstr = str(e)
-                return inut.sorry_response(local_webenv['base_url'],
-                                    errstr)
+                return inut.sorry_response(local_webenv['base_url'],e)
 
             """
                 picking the config stuff, the user is allowed to override

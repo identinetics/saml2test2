@@ -67,7 +67,9 @@ This commands starts the web server. Open the test interface on localhost:8087.
     Writing metadata: idp_test.py -m -o <OUTPUTFILE>
     Write config in json format: idp_test.py -j -o <OUTPUTFILE>
 
-== Switching config / Userdefined configs
+== Switching config
+
+=== Userdefined configs
 
 Users have only access to the web-interface and are able to override the config (partly, of course) with
 their own configuration stored on github. Loading and switching to such a config is done by a GET request:
@@ -77,6 +79,18 @@ their own configuration stored on github. Loading and switching to such a config
 Example:
 
     http://localhost:8087/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
+
+=== Restricting Users
+
+Users ability to switch to another config by creating a yaml file, holding lines of the form
+
+   <GITHUB-USERNAME>: <USER-EMAIL>
+
+and defining the file in the config using:
+
+   def config(self):
+      ...
+      self.ACCESS_CONTROL_FILE = '<FILENAME>'
 
 == Graphical Overview
 
