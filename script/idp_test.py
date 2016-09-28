@@ -103,6 +103,8 @@ def do_next(tester, resp, sh, inut, filename, path):
                 tester.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
                                          sender='idp_test')
             except Exception as err:
+                tester.conv.events.store(EV_CONDITION, State('Assertion Test Program Error', ERROR, message=msg),
+                                         sender='idp_test')
                 msg = "ERROR Assertion verification had gone wrong."
                 raise Exception(msg)
 
