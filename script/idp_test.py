@@ -344,9 +344,15 @@ class Application(object):
             try:
                 user_cargs, user_kwargs, user_CONF = setup('wb', setup_cargs)
             except ConfigError as e:
-                #TODO: error info page
-                str = e.error_details_as_string()
+                errstr = e.error_details_as_string()
                 print('Error: {}'.format(e))
+
+                return inut.sorry_response(local_webenv['base_url'],
+                                           errstr)
+            except Exception as e:
+                errstr = str(e)
+                return inut.sorry_response(local_webenv['base_url'],
+                                    errstr)
 
             """
                 picking the config stuff, the user is allowed to override
