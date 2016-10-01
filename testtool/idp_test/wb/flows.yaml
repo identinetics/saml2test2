@@ -2,14 +2,15 @@
 # TESTFLOWS: This defines test flows, their order and their alias names
 Flows:
 
-  IDP-Metadata-verify:
-    tc_id: md-02   # idp-mv
-    desc: Verifies that the IdP metadata adheres to the saml2int spec
-    sequence:
-      - CheckSaml2IntMetaData
-    profiles:
-      - saml2int
-    sp: acs-post
+  # with the availability of saml_schematron there is a better test than this
+  #IDP-Metadata-verify:
+  #  tc_id: md-02   # idp-mv
+  #  desc: Verifies that the IdP metadata adheres to the saml2int spec
+  #  sequence:
+  #    - CheckSaml2IntMetaData
+  #  profiles:
+  #    - saml2int
+  #  sp: acs-post
 
   IDP-AuthnRedirect-no_nid:
     tc_id: websso-01
