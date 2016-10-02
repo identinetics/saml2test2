@@ -14,7 +14,7 @@ idp_test.py -o <output file> -m <config dir>
 JSON data will be generated in a sub directory of the config as config.json. The metadata file is also
 generated. Once generated, the config directory can be pushed to github.
 
-idp_test.py -j
+idp_test.py -j <config dir>
 
 NOTE: The json data are just a replacement for the python files, but all other files
  are still needed.
