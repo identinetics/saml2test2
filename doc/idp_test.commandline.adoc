@@ -19,6 +19,10 @@ idp_test.py -j <config dir>
 NOTE: The json data are just a replacement for the python files, but all other files
  are still needed.
 
+https://github.com/identinetics/docker-saml2test2/blob/master/doc/deploy.adoc[Alternative using docker]
+
+
+
 == Run a config from github
 Cloning a github repository as a config directory.
 
