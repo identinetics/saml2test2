@@ -132,7 +132,7 @@ def setup(use='cl', cargs=None):
 
         tmpdir = tempfile.mkdtemp()
         cargs.configdir = os.path.join(tmpdir,'config')
-        clone_cmd = ['git','clone', 'git@github.com:{}'.format(github_repo), 'config']
+        clone_cmd = ['git','clone', 'https://github.com/{}'.format(github_repo), 'config']
         import io
 
         proc = subprocess.Popen(clone_cmd, cwd=tmpdir,
