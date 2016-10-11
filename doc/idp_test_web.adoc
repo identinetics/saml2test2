@@ -1,0 +1,53 @@
+# How to run an IDP test using the web server
+
+## Prepare the test configuration
+You need to prepare the test target configuration and add the test driver's
+metadata (comprising multiple entities) to the test target's entity feed.
+
+- fork and clone the template configuration project:
+  https://github.com/identinetics/saml2test2.conf
+
+    git clone <my-config-repo-url>
+    cd <my-config-repo-dir>
+
+- adapt the test configuration, usually in config.py
+- generate the json-formatted configuration:
+
+    gen_json_config.sh  # you need to have docker for linux/osx/windows installed
+    git add --all
+    git commit -m 'my modification'
+    git push
+
+Your repo will now contain 2 files:
+
+    generated/config.json  # your consolidated test target configuration
+    generated/metdata.xml  # your test drivers metadata to be used by the test target
+
+## Executing tests with a custome configuration
+
+Users have only access to the web-interface and are able to override the config (partly,
+of course) with their own configuration stored on github. Loading and switching to such
+a config is done by a GET request:
+
+    <URL>/swconf?github=<GITHUB-REPO-NAME>&email=<USER-EMAIL>
+
+Example:
+
+    http://localhost:8087/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
+
+=== Restricting Users
+
+Users ability to switch to another config by creating a yaml file, holding lines of the form
+
+   <GITHUB-USERNAME>: <USER-EMAIL>
+
+and defining the file in the config using:
+
+   def config(self):
+      ...
+      self.ACCESS_CONTROL_FILE = '<FILENAME>'
+
+== Graphical Overview
+
+image::testtool-conf.png[test tool configuration - graphical overview]
+
