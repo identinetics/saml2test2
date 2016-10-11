@@ -10,13 +10,18 @@ metadata (comprising multiple entities) to the test target's entity feed.
     git clone <my-config-repo-url>
     cd <my-config-repo-dir>
 
-- adapt the test configuration, usually in config.py
+- adapt the test configuration:
+
+    There are, by default, 4 config files arranged in following hierarchy:
+     1. config_abstr.py   (importing default config from source code repo)
+     2. config_driver.py  (test driver - no need to change unless extending test cases)
+     3. config_profile.py (test flows and saml profile)
+     4. config.py         (test target config & interaction)
+
 - generate the json-formatted configuration:
 
     gen_json_config.sh  # you need to have docker for linux/osx/windows installed
-    git add --all
-    git commit -m 'my modification'
-    git push
+    git add --all && git commit -m 'my modification' && git push
 
 Your repo will now contain 2 files:
 

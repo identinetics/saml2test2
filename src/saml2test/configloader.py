@@ -12,7 +12,7 @@ from saml2test.cloader import Loader
 # works only with python 3.4 now, rest could be implemented
 # see http://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path
 
-CONFIG_FILE_NAMES = ('config_common.py','config_testdriver.py','config_abstract.py','config.py')
+CONFIG_FILE_NAMES = ('config_abstr.py','config_driver.py','config_profile.py','config.py')
 CONFIG_CLASS_NAME = 'Config'
 
 logger = logging.getLogger("")

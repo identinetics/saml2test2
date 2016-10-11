@@ -370,11 +370,9 @@ class Application(object):
                 return inut.sorry_response(local_webenv['base_url'],e)
 
             """
-                picking the config stuff, the user is allowed to override
+                picking the config stuff that the user is allowed to override
             """
-
-            local_webenv['conf'].CONTENT_HANDLER_TRIGGER = user_CONF.CONTENT_HANDLER_TRIGGER
-            local_webenv['conf'].CONTENT_HANDLER_INTERACTION = user_CONF.CONTENT_HANDLER_INTERACTION
+            local_webenv['conf'] = user_CONF
             local_webenv['flows'] = user_kwargs['flows']
 
             session['webenv'] = local_webenv
