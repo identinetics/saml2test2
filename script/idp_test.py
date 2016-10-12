@@ -375,9 +375,23 @@ class Application(object):
             local_webenv['conf'] = user_CONF
             local_webenv['flows'] = user_kwargs['flows']
 
-            #Todo: Having this just once would be nicer
+            """
+                Todo: having this not cluttered would be nicer
+                In other words: refactoring of setup.py
+            """
             local_webenv['entity_id'] = local_webenv['conf'].ENTITY_ID
+            local_webenv["insecure"] = local_webenv['conf'].DO_NOT_VALIDATE_TLS
+            local_webenv["profile"] = local_webenv['conf'].FLOWS_PROFILES
 
+            import copy
+            from saml2test import metadata
+            spconf = copy.deepcopy(user_CONF.CONFIG)
+            acnf = list(spconf.values())[0]
+            mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
+            local_webenv["metadata"] = mds
+
+
+            # new webenv into session
             session['webenv'] = local_webenv
 
             sh = SessionHandler(**local_webenv)
