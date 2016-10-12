@@ -375,6 +375,9 @@ class Application(object):
             local_webenv['conf'] = user_CONF
             local_webenv['flows'] = user_kwargs['flows']
 
+            #Todo: Having this just once would be nicer
+            local_webenv['entity_id'] = local_webenv['conf'].ENTITY_ID
+
             session['webenv'] = local_webenv
 
             sh = SessionHandler(**local_webenv)
