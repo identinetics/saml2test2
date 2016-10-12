@@ -387,7 +387,7 @@ class Application(object):
             from saml2test import metadata
             spconf = copy.deepcopy(user_CONF.CONFIG)
             acnf = list(spconf.values())[0]
-            mds = metadata.load(True, acnf, CONF.METADATA, 'sp')
+            mds = metadata.load(True, acnf, user_CONF.METADATA, 'sp')
             local_webenv["metadata"] = mds
 
 
