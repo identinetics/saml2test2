@@ -1,15 +1,28 @@
-= How to run an IDP test with the web interface
+= Configuration and Usage
 
-Following roles is being used here:
 
+Following roles are being used here:
+
+- Test tool: Agent to parse the test configuration and execute a set of test flows.
 - Test driver (TD): An embedded entity of the test tool. In the case of IDP-tests
   the TD is the SAML requester.
 - Test target (TT): The entity that shall be tested. In the case of IDP-tests
   the TT is the SAML responder.
 
+== How to run an IDP test with the web interface
+
 == Test Configuration
 
-Configuration files are arranged in a hierarchy, with some files generated and others referenced. This documentation
+The test target needs to see the test driver's metadata. It can be exported using the
+mk_multi_metadata.py script.
+
+The test driver has a layered configuration, allowing a configuration to reuse existing configurations.
+
+
+Configuration files are arranged
+
+
+in a hierarchy, with some files generated and others referenced. This documentation
 assigns an ID to each file to be independent of the actual file name.
 
 .Generic configuration independent of a specific test target

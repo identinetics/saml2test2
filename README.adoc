@@ -1,0 +1,17 @@
+# SAML2test - A tool for testing SAML2 and profile compliance
+
+:Author: Roland Hedberg
+:Maintainers: Rainer Hörbe, Thomas Warwaris
+:Version: 0.3.0
+
+SAML2test is a tests tool that will allow an independent validation
+of a specific instance of a SAML2 entity. It will test not only if the
+instance works according to the SAML2 standard but also if it complies
+with a specific profile of SAML2.
+
+The focus ot the test suite is around federation profiles, such as the
+Kantara federation interop and saml2int profiles. Entities need to support
+the SAML Metadata Interoperability profile.
+
+link:INSTALL.adoc[Installation]
+link:USAGE.adoc[Usage]
