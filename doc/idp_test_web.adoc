@@ -12,7 +12,7 @@ metadata (comprising multiple entities) to the test target's entity feed.
 
 - adapt the test configuration:
 
-    There are, by default, 4 config files arranged in following hierarchy:
+    There are, by default, 4 config files arranged in following (class) hierarchy:
      1. config_abstr.py   (importing default config from source code repo)
      2. config_driver.py  (test driver - no need to change unless extending test cases)
      3. config_profile.py (test flows and saml profile)
@@ -21,7 +21,7 @@ metadata (comprising multiple entities) to the test target's entity feed.
 - generate the json-formatted configuration:
 
     gen_json_config.sh  # you need to have docker for linux/osx/windows installed
-    git add --all && git commit -m 'my modification' && git push
+    git add --all && git commit -m 'my modification' && git push   # publish back to github
 
 Your repo will now contain 2 files:
 
@@ -34,11 +34,11 @@ Users have only access to the web-interface and are able to override the config 
 of course) with their own configuration stored on github. Loading and switching to such
 a config is done by a GET request:
 
-    <URL>/swconf?github=<GITHUB-REPO-NAME>&email=<USER-EMAIL>
+    http://webui.samltest.fed-lab.org:8087/swconf?github=<GITHUB-REPO-NAME>&email=<USER-EMAIL>
 
 Example:
 
-    http://localhost:8087/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
+    http://webui.samltest.fed-lab.org:8087/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
 
 === Restricting Users
 
