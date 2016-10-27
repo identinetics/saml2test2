@@ -13,8 +13,8 @@ saml2test2 on GitHub: https://github.com/thomaswar/config_saml2test2
 
 == Usage
 
-You may run test using the Test Service at fed-lab.org, or [start run your own
- instance of the test server](doc/idp_test_server_setup.adoc).
+You may run test using the Test Service at fed-lab.org, or link:doc/idp_test_server_setup.adoc[start run your own
+ instance of the test server].
 
-[Prepare your test configuration and execute tests](doc/idp_test_howto.adoc)
+link:doc/idp_test_howto.adoc[Prepare your test configuration and execute tests]
 

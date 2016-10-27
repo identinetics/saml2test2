@@ -21,7 +21,7 @@ overridden with an URL-parameter. Usage:
         -r  file with the generated config in JSON format
         CONFIG-DIR  Source configuration to be consumed directly by the test tool. The configuration must be trustworthy.
 
-For the contents of the configuration see [Prepare your test configuration](idp_test_howto.adoc)
+For the contents of the configuration see link:idp_test_howto.adoc[Prepare your test configuration and execute tests]
 
 == Examples
 
