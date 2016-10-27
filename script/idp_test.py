@@ -370,13 +370,28 @@ class Application(object):
                 return inut.sorry_response(local_webenv['base_url'],e)
 
             """
-                picking the config stuff, the user is allowed to override
+                picking the config stuff that the user is allowed to override
             """
-
-            local_webenv['conf'].CONTENT_HANDLER_TRIGGER = user_CONF.CONTENT_HANDLER_TRIGGER
-            local_webenv['conf'].CONTENT_HANDLER_INTERACTION = user_CONF.CONTENT_HANDLER_INTERACTION
+            local_webenv['conf'] = user_CONF
             local_webenv['flows'] = user_kwargs['flows']
 
+            """
+                Todo: having this not cluttered would be nicer
+                In other words: refactoring of setup.py
+            """
+            local_webenv['entity_id'] = local_webenv['conf'].ENTITY_ID
+            local_webenv["insecure"] = local_webenv['conf'].DO_NOT_VALIDATE_TLS
+            local_webenv["profile"] = local_webenv['conf'].FLOWS_PROFILES
+
+            import copy
+            from saml2test import metadata
+            spconf = copy.deepcopy(user_CONF.CONFIG)
+            acnf = list(spconf.values())[0]
+            mds = metadata.load(True, acnf, user_CONF.METADATA, 'sp')
+            local_webenv["metadata"] = mds
+
+
+            # new webenv into session
             session['webenv'] = local_webenv
 
             sh = SessionHandler(**local_webenv)
