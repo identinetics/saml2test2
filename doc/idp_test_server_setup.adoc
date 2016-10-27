@@ -1,20 +1,25 @@
 = How to run your own instance of the test server
 
 == Overview
-
 In this setup the Test Target (TT) is an IDP, and the Test Driver (TD) is an embedded entity
 of the test tool.
 
 idp_test.py is a web server. It provides a startpage listing the testcases and their results,
 and links each test case.
 
-== Starting the web server
+== Installation with Docker
+Use the github project https://github.com/identinetics/docker-saml2test2[identinetics/docker-saml2test2]
 
+== Installation on CentOS7
+saml2test2 on GitHub: https://github.com/thomaswar/config_saml2test2
+
+== Starting the web server
 The web server is always started with a specific configuration, which can be
 overridden with an URL-parameter. Usage:
 
-    idp_test.py [-k] [-o <OUTPUTFILE>] -g <GITHUB-REPO URL>|-r <JSON-FILE>|<CONFIG-DIR>
+    idp_test.py [-j] [-k] [-o <OUTPUTFILE>] -g <GITHUB-REPO URL>|-r <JSON-FILE>|<CONFIG-DIR>
 
+        -j  Generate JSON config format from config dir (not used to start server)
         -k  Turn of TLS certificate validation
         -o
         -g  URL of a github repo containing the test configuration in generated/config.json
@@ -25,12 +30,11 @@ For the contents of the configuration see link:idp_test_howto.adoc[Prepare your 
 
 == Examples
 
-
-    idp_test.py -g https://github.com/identinetics/saml2test2.conf
-    idp_test.py -r /opt/saml2test2.conf/generated/config.json
-    idp_test.py /opt/saml2test2.conf
+    idp_test.py -g https://github.com/identinetics/s2t2.conf
+    idp_test.py -r /opt/s2t2.conf/generated/config.json
+    idp_test.py /opt/s2t2.conf
 
 This commands starts the web server. Open the test interface on the port specified in
-the config (by default in config_driver.py/self.PORT = <port>.
+the config (by default in config_driver.py/self.PORT = 8087.
 
 

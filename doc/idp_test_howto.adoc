@@ -1,16 +1,22 @@
-= HowTO: Test an IDP
+= HowTo: Test an IDP
 
 == Prepare the test configuration
 You need to prepare the test target configuration and add the test driver's
-metadata (comprising multiple entities) to the test target's entity feed.
+metadata (usually comprising multiple entities) to the test target's entity feed.
+Lets get started with configuring a series of tests for a single IDP:
 
-- fork and clone the template configuration project:
-  https://github.com/identinetics/saml2test2.conf
+=== Modify the default configuration:
 
-    git clone <my-config-repo-url>
-    cd <my-config-repo-dir>
+- Copy the template configuration project:
+  https://github.com/identinetics/s2t2.conf
 
-- adapt the test configuration:
+    # assume your repo is named samltest_idpExampleOrg, your git id is jo123
+    CONF_REPO='samltest_idpExampleOrg'
+    mkdir $CONF_REPO && cd $CONF_REPO
+    git clone https://github.com/identinetics/s2t2.conf .
+    rm -rf .git && git init  # replace the original repo with a new one
+
+- Adapt the test configuration:
 
     There are, by default, 4 config files arranged in following (class) hierarchy:
      1. config_abstr.py   (importing default config from source code repo)
@@ -18,23 +24,32 @@ metadata (comprising multiple entities) to the test target's entity feed.
      3. config_profile.py (test flows and saml profile)
      4. config.py         (test target config & interaction)
 
-- generate the json-formatted configuration:
+- Generate the json-formatted configuration:
 
-    gen_json_config.sh  # you need to have docker for linux/osx/windows installed
-    git add --all && git commit -m 'my modification' && git push   # publish back to github
+    ./make_json.sh.sh  # you need to have docker for linux/osx/windows installed
+    git add --all && git commit -m 'my modification'
 
-Your repo will now contain 2 files:
+- Your repo will now contain 2 files:
 
     generated/config.json  # your consolidated test target configuration
     generated/metdata.xml  # your test drivers metadata to be used by the test target
 
-== Executing tests with a custome configuration
+- Save your configuration on github
+
+    git remote add origin https://github.com/jo123/$CONF_REPO
+    git push origin master
+
+- Note: You may use the fork and clone workflow, but you are limited to one fork
+   per project. If you will be testing multiple test targets you will need more
+   than one repo.
+
+== Executing tests with a custom configuration
 
 Users have only access to the web-interface and are able to override the config (partly,
 of course) with their own configuration stored on github. Loading and switching to such
 a config is done by a GET request:
 
-    http://webui.samltest.fed-lab.org:8087/swconf?github=<GITHUB-REPO-NAME>&email=<USER-EMAIL>
+    http://webui.samltest.fed-lab.org:8087/swconf?github=<GITHUB-USER/GITHUB-REPO-NAME>&email=<USER-EMAIL>
 
 Example:
 
