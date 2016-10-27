@@ -1,5 +1,8 @@
 = Commandline usage of idp_test.py
 
+This script shall be replaced by the web interface with json output.
+
+
 Following roles is being used here:
 
 - Test driver (TD): An embedded entity of the test tool. In the case of IDP-tests
