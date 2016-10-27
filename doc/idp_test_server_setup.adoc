@@ -1,0 +1,36 @@
+= How to run your own instance of the test server
+
+== Overview
+
+In this setup the Test Target (TT) is an IDP, and the Test Driver (TD) is an embedded entity
+of the test tool.
+
+idp_test.py is a web server. It provides a startpage listing the testcases and their results,
+and links each test case.
+
+== Starting the web server
+
+The web server is always started with a specific configuration, which can be
+overridden with an URL-parameter. Usage:
+
+    idp_test.py [-k] [-o <OUTPUTFILE>] -g <GITHUB-REPO URL>|-r <JSON-FILE>|<CONFIG-DIR>
+
+        -k  Turn of TLS certificate validation
+        -o
+        -g  URL of a github repo containing the test configuration in generated/config.json
+        -r  file with the generated config in JSON format
+        CONFIG-DIR  Source configuration to be consumed directly by the test tool. The configuration must be trustworthy.
+
+For the contents of the configuration see [Prepare your test configuration](idp_test_howto.adoc)
+
+== Examples
+
+
+    idp_test.py -g https://github.com/identinetics/saml2test2.conf
+    idp_test.py -r /opt/saml2test2.conf/generated/config.json
+    idp_test.py /opt/saml2test2.conf
+
+This commands starts the web server. Open the test interface on the port specified in
+the config (by default in config_driver.py/self.PORT = <port>.
+
+

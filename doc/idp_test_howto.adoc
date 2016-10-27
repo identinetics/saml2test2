@@ -1,6 +1,6 @@
-# How to run an IDP test using the web server
+= HowTO: Test an IDP
 
-## Prepare the test configuration
+== Prepare the test configuration
 You need to prepare the test target configuration and add the test driver's
 metadata (comprising multiple entities) to the test target's entity feed.
 
@@ -28,7 +28,7 @@ Your repo will now contain 2 files:
     generated/config.json  # your consolidated test target configuration
     generated/metdata.xml  # your test drivers metadata to be used by the test target
 
-## Executing tests with a custome configuration
+== Executing tests with a custome configuration
 
 Users have only access to the web-interface and are able to override the config (partly,
 of course) with their own configuration stored on github. Loading and switching to such

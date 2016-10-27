@@ -1,11 +1,11 @@
-= How to run an IDP test with the web interface
+= How to run IDP tests with the web interface
 
-Following roles is being used here:
+== Overview
 
-- Test driver (TD): An embedded entity of the test tool. In the case of IDP-tests
-  the TD is the SAML requester.
-- Test target (TT): The entity that shall be tested. In the case of IDP-tests
-  the TT is the SAML responder.
+In this setup the Test Target (TT) is an IDP, and the Test Driver (TD) is an embedded entity
+of the test tool.
+
+idp_test.py is a web server. It provides a
 
 == Command Line Usage
 
