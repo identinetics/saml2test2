@@ -481,7 +481,7 @@ if __name__ == '__main__':
                                         SessionMiddleware(_app.application,
                                                           session_opts))
 
-    if _conf.BASE.startswith("https"):
+    if _conf.BASE.startswith("https") and _conf.SERVER_TLS:
         from cherrypy.wsgiserver.ssl_builtin import BuiltinSSLAdapter
 
         SRV.ssl_adapter = BuiltinSSLAdapter(_conf.SERVER_CERT, _conf.SERVER_KEY,

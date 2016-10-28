@@ -9,22 +9,19 @@ idp_test.py is a web server. It provides a
 
 == Command Line Usage
 
-    idp_test.py [-r <JSON-FILE>] [-m] [-j] [-g <GITHUB-REPO>] -o <OUTPUTFILE> <CONFIG-DIR>
+    idp_test.py [-j] [-m] -o <OUTPUTFILE>
+        -j  Generate JSON config format from config dir
+        -m  Write metadata
+        -o  Output file
+
 
 === Examples
-
-==== Server startup
-
-    idp_test.py -g <GITHUB-REPO>
-    idp_test.py -r <JSON-CONFIG-FILE>
-    idp_test.py <CONFIG-DIR>
-
-This commands starts the web server. Open the test interface on localhost:8087.
 
 ==== Generators
 
     Writing metadata: idp_test.py -m -o <OUTPUTFILE>
     Write config in json format: idp_test.py -j -o <OUTPUTFILE>
+
 
 == Switching config
 

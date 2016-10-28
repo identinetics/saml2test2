@@ -17,11 +17,8 @@ saml2test2 on GitHub: https://github.com/thomaswar/config_saml2test2
 The web server is always started with a specific configuration, which can be
 overridden with an URL-parameter. Usage:
 
-    idp_test.py [-j] [-k] [-o <OUTPUTFILE>] -g <GITHUB-REPO URL>|-r <JSON-FILE>|<CONFIG-DIR>
+    idp_test.py -g <GITHUB-REPO URL>|-r <JSON-FILE>|<CONFIG-DIR>
 
-        -j  Generate JSON config format from config dir (not used to start server)
-        -k  Turn of TLS certificate validation
-        -o
         -g  URL of a github repo containing the test configuration in generated/config.json
         -r  file with the generated config in JSON format
         CONFIG-DIR  Source configuration to be consumed directly by the test tool. The configuration must be trustworthy.

@@ -1,11 +1,11 @@
 = HowTo: Test an IDP
 
-== Prepare the test configuration
+== Prepare a custom test configuration
 You need to prepare the test target configuration and add the test driver's
 metadata (usually comprising multiple entities) to the test target's entity feed.
 Lets get started with configuring a series of tests for a single IDP:
 
-=== Modify the default configuration:
+=== Copy and modify the template configuration:
 
 - Copy the template configuration project:
   https://github.com/identinetics/s2t2.conf
@@ -40,8 +40,12 @@ Lets get started with configuring a series of tests for a single IDP:
     git push origin master
 
 - Note: You may use the fork and clone workflow, but you are limited to one fork
-   per project. If you will be testing multiple test targets you will need more
+   per github repo. If you will be testing multiple test targets you will need more
    than one repo.
+
+== Upload the test driver's metadata to the test target
+
+This may be done either directly at the test target, or by adding it to a metadata feed.
 
 == Executing tests with a custom configuration
 
