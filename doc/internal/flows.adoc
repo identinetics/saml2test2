@@ -19,8 +19,8 @@
       - profile, such as saml2int
     sequence:
       - ProtocolMessageClass (e.g. #1 is an AuthnRequest to test WebSSo with an IDP target:
-        class specific condidtions and arguments
-    sp: acs-post # TODO: explain
+        class specific pre- and post-condidtions and arguments
+    sp: select which entity to use for the test driver
     assert:
       AssertionClass:
          AssertionMethod: expected value

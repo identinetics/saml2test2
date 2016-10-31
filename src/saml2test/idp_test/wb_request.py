@@ -68,23 +68,24 @@ class AuthnRequest(ProtocolMessage):
             args['entityid'] = self.req_args['entityid']
         except KeyError:
             pass
-
         destination = self.entity._sso_location(**args)
-
         if not destination:
             logger.error(
                 "'{}' does not support HTTP-Redirect binding for SSO "
                 "location.".format(args['entityid']))
             raise ServiceProviderRequestHandlerError(
                 "IdP must support HTTP-Redirect binding for SSO location.")
-
-        logger.info("destination to provider: %s", destination)
+        logger.info("destination to IDP: %s", destination)
 
         self.req_args = map_arguments(self.req_args,
                                       {'name_id.format': 'nameid_format'})
 
-        request_id, request = self.entity.create_authn_request(
-            destination=destination, **self.req_args)
+        # pysaml2 does not understand "response_binding" -> translate to acs
+        # assume not pre-existing acs url
+        self.req_args["assertion_consumer_service_url"] = self.req_args["response_binding"]
+        del self.req_args["response_binding"]
+        request_id, request = self.entity.create_authn_request(destination=destination,
+                                                               **self.req_args)
 
         self.conv.identify_with(request_id)
         self.conv.events.store(EV_PROTOCOL_REQUEST, request,
