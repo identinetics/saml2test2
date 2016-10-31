@@ -100,9 +100,11 @@ def do_next(tester, resp, sh, inut, filename, path):
             try:
                 _ver.test_sequence(tester.conv.flow["assert"])
             except NoSuchEvent as err:
+                msg = str(err)
                 tester.conv.events.store(EV_CONDITION, State('Assertion Error', ERROR, message=msg),
                                          sender='idp_test')
             except Exception as err:
+                msg = str(err)
                 tester.conv.events.store(EV_CONDITION, State('Assertion Test Program Error', ERROR, message=msg),
                                          sender='idp_test')
                 msg = "ERROR Assertion verification had gone wrong."

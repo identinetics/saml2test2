@@ -1,6 +1,9 @@
 .directory
 .idea
 .DS_Store
+dist/
 install/opt
 conf*.sh
 work/*
+__pycache__/
+*egg-info/
