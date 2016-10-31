@@ -1,0 +1,26 @@
+# Test Flows
+
+## Top-Level Structure of the Flows Configuration
+
+|===
+|Flows | A list of test flows
+|Order | Order of the flows
+|Desc | Long name for each test flow (seems to be redundant with the "desc" key)
+|===
+
+
+## Structure of a test flow
+
+
+  Test Name:
+    tc_id: Test Identifier
+    desc:  Description
+    profiles:
+      - profile, such as saml2int
+    sequence:
+      - ProtocolMessageClass (e.g. #1 is an AuthnRequest to test WebSSo with an IDP target:
+        class specific condidtions and arguments
+    sp: acs-post # TODO: explain
+    assert:
+      AssertionClass:
+         AssertionMethod: expected value
