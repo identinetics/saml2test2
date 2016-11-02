@@ -80,11 +80,21 @@ class AuthnRequest(ProtocolMessage):
         self.req_args = map_arguments(self.req_args,
                                       {'name_id.format': 'nameid_format'})
 
-        # pysaml2 does not understand "response_binding" -> translate to acs
-        # assume not pre-existing acs url
-        self.req_args["assertion_consumer_service_url"] = self.req_args["response_binding"]
-        del self.req_args["response_binding"]
+        # pysaml2 does not understand "response_binding" -> select related acs from metadata:
+        #acs_map = self.entity.config._sp_endpoints['assertion_consumer_service']
+        #resp_binding = self.req_args['response_binding']
+        #acs_map_inverse = {}
+        #for k, v in acs_map:
+        #    acs_map_inverse[v] = k
+        #try:
+        #    self.req_args['assertion_consumer_service_url'] = acs_map_inverse[resp_binding]
+        #except KeyError:
+        #    logger.error('Could not find an assertion consumer service in sp metadata for binding '
+        #                 + resp_binding)
+        #    raise
+        #del self.req_args['response_binding']
         request_id, request = self.entity.create_authn_request(destination=destination,
+                                                               binding=None,
                                                                **self.req_args)
 
         self.conv.identify_with(request_id)

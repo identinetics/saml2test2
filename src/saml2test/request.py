@@ -89,23 +89,20 @@ class Request(Operation):
         except AttributeError:
             self.req_args['discovery_service_url'] = self.conv.disco_srv
         except KeyError:
-            raise MissingMetadata("No metadata available for {}".format(
-                self.conv.entity_id))
+            raise MissingMetadata("No metadata available for {}".format(self.conv.entity_id))
         else:
             for idp in entity["idpsso_descriptor"]:
                 for nformat in self.name_id_formats:
-                    if "nameid_format" in self.req_args and self.req_args[
-                            "nameid_format"]:
+                    if "nameid_format" in self.req_args and self.req_args["nameid_format"]:
                         break
                     for nif in idp["name_id_format"]:
                         if nif["text"] == nformat:
                             self.req_args["nameid_format"] = nformat
                             break
                 for bind in self.bindings:
-                    if "response_binding" in self.req_args and self.req_args[
-                            "response_binding"]:
+                    if "response_binding" in self.req_args and self.req_args["response_binding"]:
                         break
-                    for sso in idp["single_sign_on_service"]:
+                    for sso in idp["single_sign_on_service"]:   # this does not seem to be correct - response binding is not related to IDP binding
                         if sso["binding"] == bind:
                             self.req_args["response_binding"] = bind
                             break
