@@ -8,6 +8,9 @@ import urllib.request
 logger = logging.getLogger(__name__)
 
 class FakeAnResponse(object):
+    """
+    Fake a response that can be processed by the comhandler
+    """
     def __init__(self,saml_response):
         self.url = 'https://samlresponse.generated.by.local.test.driver'
         self.content = ''
@@ -35,7 +38,7 @@ class FakeResponseResponse(FakeAnResponse):
         if saml_response.status == '200 OK':
             self.status_code = 200
         else:
-            emsg = "SamlRedirect has an unknown status: {}".format(saml_response.status)
+            emsg = "SamlResponse has an unknown status: {}".format(saml_response.status)
             raise RuntimeError(emsg)
 
 class ComHandler(aatestComHandler):
