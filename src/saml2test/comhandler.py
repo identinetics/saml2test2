@@ -28,7 +28,7 @@ class FakeRedirectResponse(FakeAnResponse):
 
 class FakeResponseResponse(FakeAnResponse):
     def __init__(self,saml_response):
-        super(FakeRedirectResponse,self).__init__(saml_response)
+        super(FakeResponseResponse,self).__init__(saml_response)
 
         if saml_response.status == '200 OK':
             self.status_code = 200
