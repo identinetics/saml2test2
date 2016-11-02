@@ -5,24 +5,33 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
     Creates a list of test flows
     """
     _grp = "_"
-    color = ['<img src="site/static/black.png" alt="Black" height="50%">',
-             '<img src="site/static/green.png" alt="Green" height="50%">',
-             '<img src="site/static/yellow.png" alt="Yellow" height="50%">',
-             '<img src="site/static/red.png" alt="Red" height="50%">',
-             '<img src="site/static/qmark.jpg" alt="QuestionMark" height="50%">',
-             '<img src="site/static/greybutton" alt="Grey" height="50%">',
+    color = ['<img src="site/static/button/start.png" alt="Black" height="75%">',
+             '<img src="site/static/button/ok.png" alt="Green" height="75%">',
+             '<img src="site/static/button/warning.png" alt="Yellow" height="75%">',
+             '<img src="site/static/button/error.png" alt="Red" height="75%">',
+             '<img src="site/static/button/incomplete.jpg" alt="QuestionMark" height="75%">',
+             '<img src="site/static/greybutton" alt="Grey" height="75%">',
              ]
-    element = ['<ul style="list-style-type: none;">']
+    element = ['<table>']
+    #element = ['<table class="pure-table">']
+    element.append("<tr><td>Flow<td>Definition<td>Status/Restart<td>Result details")
 
+    flows_dict = {}
     for node in nodes:
-        p, grp, spec = node.name.split("-", 2)
+        flows_dict[node.tc_id] = node
+    for key in sorted(flows_dict):
+        node = flows_dict[key]
+        p, grp, spec = node.tc_id.split("-", 2)
         if not grp == _grp:
             _grp = grp
-            element.append("<hr size=2><h3 id='%s'>%s</h3>" % (_grp, headlines[_grp]))
+            element.append('<tr><td colspan="4"><h4 id="%s">%s</h4></tr>' % (_grp, headlines.get(_grp, _grp)))
         node_link = "_" + node.tc_id.replace("-","_")
-        element.append("<li><a href='%s%s'>%s</a>%s (%s) [<a href='%s%s' target='_blank'>%s<a>] " % (base,
-            node.name, color[node.state], node.desc, node.name, tc_id_infobase, node_link, node.tc_id))
+        element.append('<tr><td style="padding-right: 0.5em">%s' % node.tc_id)
+        element.append('<td style="padding-right: 0.5em"><a href="' + tc_id_infobase + node_link +
+                       '" target="_blank">' + node.desc + '</a>')
+        element.append('<td style="padding-right: 0.5em"><a href="%s%s">%s</a>' % (base, node.name, color[node.state]))
 
+        element.append('<td>')
         if node.rmc:
             element.append('<img src="site/static/delete-icon.png">')
         if node.experr:
@@ -32,14 +41,14 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
                     base, node.name))
         #if node.mti == "MUST":
         #    element += '<img src="static/must.jpeg">'
-
+        element.append("</tr>")
     return "\n".join(element)
 
 def test_target(tt_entityid):
-    """
-    Display the test target' entityID
-    """
     return tt_entityid
+
+def test_driver(td_conf_uri):
+    return td_conf_uri
 
 %>
 
@@ -58,11 +67,12 @@ ICONS = [
     ]
 
 def legends():
-    element = ["<table border='1' id='legends'>"]
-    for icon, txt in ICONS:
-        element.append("<tr><td>%s</td><td>%s</td></tr>" % (icon, txt))
-    element.append('</table>')
-    return "\n".join(element)
+    #element = ["<table border='1' id='legends'>"]
+    #for icon, txt in ICONS:
+    #    element.append("<tr><td>%s</td><td>%s</td></tr>" % (icon, txt))
+    #element.append('</table>')
+    #return "\n".join(element)
+    return ""
 %>
 
 <%
@@ -90,6 +100,7 @@ def legends():
     <!-- Bootstrap -->
     <link href="site/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="site/static/style.css" rel="stylesheet" media="all">
+    <link href="site/static/table.css" rel="stylesheet" media="all">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -127,13 +138,9 @@ def legends():
     </div>
     <div class="jumbotron" style="padding-left: 1em; padding-right: 2em">
         <h4>Test target: ${test_target(tt_entityid)}</h4>
-        <em>Explanations of symbols at <a href="#legends">end of page</a></em>
+        <h4>Test driver: ${test_driver(td_conf_uri)}</h4>
 
-        <h3>Chose the next test flow you want to run from this list: </h3>
         ${op_choice(base, flows, test_info, headlines, tc_id_infobase)}
-        <hr style="heigth: 2px" />
-        <h3>Legend</h3>
-        ${legends()}
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="/site/static/jquery.min.1.9.1.js"></script>

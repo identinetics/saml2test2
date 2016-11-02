@@ -7,3 +7,4 @@ conf*.sh
 work/*
 __pycache__/
 *egg-info/
+src/saml2test/webserver/mako/modules/
