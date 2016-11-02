@@ -23,7 +23,7 @@ from saml2.httputil import Response
 from saml2.httputil import ServiceError
 from saml2.response import StatusError
 
-from saml2test.idp_test.inut import WebIO
+from saml2test.idp_test.webio import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
 from saml2test.request import ServiceProviderRequestHandlerError
@@ -54,7 +54,7 @@ def pick_args(args, kwargs):
     return dict([(k, kwargs[k]) for k in args])
 
 
-def do_next(tester, resp, sh, inut, filename, path):
+def do_next(tester, resp, sh, webio, filename, path):
     tester.conv = tester.sh['conv']
     res = Result(tester.sh, tester.kwargs['profile_handler'])
     try:
@@ -79,7 +79,7 @@ def do_next(tester, resp, sh, inut, filename, path):
         store_test_state(sh, sh['conv'].events)
         if isinstance(resp, Response):
             res.store_test_info()
-            return resp(inut.environ, inut.start_response)
+            return resp(webio.environ, webio.start_response)
         elif resp is False:
             break
         if tester.conv.index >= lix:
@@ -113,7 +113,7 @@ def do_next(tester, resp, sh, inut, filename, path):
         store_test_state(sh, sh['conv'].events)
         res.store_test_info()
 
-    html_page = inut.flow_list(filename)
+    html_page = webio.flow_list(filename)
     return html_page
 
 
@@ -175,15 +175,15 @@ class Application(object):
 
         self.session_store.append(session)
 
-        inut = WebIO(session=sh, **local_webenv)
-        inut.environ = environ # WSGI environment
-        inut.start_response = start_response
+        webio = WebIO(session=sh, **local_webenv)
+        webio.environ = environ # WSGI environment
+        webio.start_response = start_response
 
-        tester = Tester(inut, sh, **local_webenv)
+        tester = Tester(webio, sh, **local_webenv)
 
         _path = self._static(path)
         if _path:
-            return inut.static(_path)
+            return webio.static(_path)
 
         if path == "" or path == "/":  # list
             return tester.display_test_list()
@@ -191,10 +191,10 @@ class Application(object):
             sh.session_init()
 
         if path == "logs":
-            return inut.display_log("log", issuer="", profile="", testid="")
+            return webio.display_log("log", issuer="", profile="", testid="")
         elif path.startswith("log"):
             if path == "log" or path == "log/":
-                _cc = inut.conf.CLIENT
+                _cc = webio.conf.CLIENT
                 try:
                     _iss = _cc["srv_discovery_url"]
                 except KeyError:
@@ -210,17 +210,17 @@ class Application(object):
                     parts.insert(0, tail)
                     path = head
 
-            return inut.display_log("log", *parts)
+            return webio.display_log("log", *parts)
         elif path.startswith("tar"):
             path = path.replace(":", "%3A")
-            return inut.static(path)
+            return webio.static(path)
 
         elif path.startswith("test_info"):
             p = path.split("/")
             try:
-                return inut.test_info(p[1])
+                return webio.test_info(p[1])
             except KeyError:
-                return inut.not_found()
+                return webio.not_found()
         elif path == "continue":
             return tester.cont(environ, local_webenv)
         elif path == 'reset':
@@ -233,10 +233,10 @@ class Application(object):
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:
-                return inut.sorry_response(local_webenv['base_url'],
+                return webio.sorry_response(local_webenv['base_url'],
                                            "No result to report")
 
-            return inut.opresult(tester.conv, sh)
+            return webio.opresult(tester.conv, sh)
         # expected path format: /<testid>[/<endpoint>]
         elif path in sh["flow_names"]:
             resp = tester.run(path, **local_webenv)
@@ -246,9 +246,9 @@ class Application(object):
                 res = Result(sh, local_webenv['profile_handler'])
                 res.store_test_info()
                 res.print_info(path, tester.fname(path))
-                return inut.respond(resp)
+                return webio.respond(resp)
             else:
-                return inut.flow_list(filename)
+                return webio.flow_list(filename)
         elif path == "acs/post":
             qs = get_post(environ).decode('utf8')
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
@@ -284,11 +284,11 @@ class Application(object):
 
                 # recreating the environment. lets hope it is somewhat reentrant resistant
                 sh = requester_session
-                inut = WebIO(session=sh, **local_webenv)
-                inut.environ = environ
-                inut.start_response = start_response
+                webio = WebIO(session=sh, **local_webenv)
+                webio.environ = environ
+                webio.start_response = start_response
 
-                tester = Tester(inut, sh, **local_webenv)
+                tester = Tester(webio, sh, **local_webenv)
 
 
 
@@ -300,7 +300,7 @@ class Application(object):
             #_sh.session.update({'conv': 'foozbar'})
             filename = _sh.log_path(test_id)
 
-            html_page = do_next(tester, resp, sh, inut, filename, path)
+            html_page = do_next(tester, resp, sh, webio, filename, path)
             return html_page
         elif path == "acs/redirect":
             qs = environ['QUERY_STRING']
@@ -308,7 +308,7 @@ class Application(object):
             filename = local_webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
 
-            return do_next(tester, resp, sh, inut, filename, path)
+            return do_next(tester, resp, sh, webio, filename, path)
         elif path == "acs/artifact":
             pass
         elif path == "ecp":
@@ -318,7 +318,7 @@ class Application(object):
             resp = dict([(k, v[0]) for k, v in qs.items()])
             filename = local_webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
-            return do_next(tester, resp, sh, inut, filename, path=path)
+            return do_next(tester, resp, sh, webio, filename, path=path)
         elif path == "slo":
             pass
         elif path == 'all':
@@ -334,7 +334,7 @@ class Application(object):
                     return resp(environ, start_response)
 
             filename = local_webenv['profile_handler'](sh).log_path(path)
-            return inut.flow_list(filename)
+            return webio.flow_list(filename)
         elif path == 'swconf':
             """
                 switch config by user request
@@ -352,11 +352,11 @@ class Application(object):
                 try:
                     ac_file = WebUserAccessControlFile(local_webenv['conf'].ACCESS_CONTROL_FILE)
                 except Exception as e:
-                    return inut.sorry_response(local_webenv['base_url'],e)
+                    return webio.sorry_response(local_webenv['base_url'],e)
 
                 has_access = ac_file.test(resp['github'], resp['email'])
                 if not has_access:
-                    return inut.sorry_response(local_webenv['base_url'],'permission denied')
+                    return webio.sorry_response(local_webenv['base_url'],'permission denied')
 
             # reading from github should set readjson, but to be sure ...
             setup_cargs=type('setupcarg', (object,), {'github': True, 'configdir': resp['github'], 'readjson': True })()
@@ -367,9 +367,9 @@ class Application(object):
                 errstr = e.error_details_as_string()
                 print('Error: {}'.format(e))
 
-                return inut.sorry_response(local_webenv['base_url'],errstr)
+                return webio.sorry_response(local_webenv['base_url'],errstr)
             except Exception as e:
-                return inut.sorry_response(local_webenv['base_url'],e)
+                return webio.sorry_response(local_webenv['base_url'],e)
 
             """
                 picking the config stuff that the user is allowed to override
@@ -400,11 +400,11 @@ class Application(object):
             sh.session_init()
             session['session_info'] = sh
 
-            inut = WebIO(session=sh, **local_webenv)
-            inut.environ = environ
-            inut.start_response = start_response
+            webio = WebIO(session=sh, **local_webenv)
+            webio.environ = environ
+            webio.start_response = start_response
 
-            tester = Tester(inut, sh, **local_webenv)
+            tester = Tester(webio, sh, **local_webenv)
             return tester.display_test_list()
         else:
             resp = BadRequest()
