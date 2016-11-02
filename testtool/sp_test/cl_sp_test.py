@@ -15,9 +15,9 @@ logger = logging.getLogger("")
 
 if __name__ == "__main__":
     test_id, kwargs, opargs = setup()
-
+u
     sh = SessionHandler(session={}, **kwargs)
-    sh.init_session(profile=kwargs['profile'])
+    sh.t    it_session(profile=kwargs['profile'])
 
     if test_id:
         res = Result(sh, kwargs['profile_handler'])
@@ -27,8 +27,8 @@ if __name__ == "__main__":
                     test_id))
             exit()
 
-        inut = ClIO(**kwargs)
-        tester = ClTester(inut, sh, **kwargs)
+        webio = ClIO(**kwargs)
+        tester = ClTester(webio, sh, **kwargs)
         if tester.run(test_id, **kwargs):
             res.print_info(sh, test_id)
     else:
@@ -38,8 +38,8 @@ if __name__ == "__main__":
             _sh.init_session(profile=kwargs['profile'])
             res = Result(_sh, kwargs['profile_handler'])
 
-            inut = ClIO(**kwargs)
-            tester = ClTester(inut, _sh, **kwargs)
+            webio = ClIO(**kwargs)
+            tester = ClTester(webio, _sh, **kwargs)
             if tester.run(tid, **kwargs):
                 if 'debug' in opargs and opargs['debug']:
                     res.print_info(tid)

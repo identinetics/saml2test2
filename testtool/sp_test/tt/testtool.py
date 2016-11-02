@@ -181,11 +181,11 @@ class Application(object):
             sh.session_init()
             session['session_info'] = sh
 
-        inut = WebIO(session=sh, **self.kwargs)
-        inut.environ = environ
-        inut.start_response = start_response
+        webio = WebIO(session=sh, **self.kwargs)
+        webio.environ = environ
+        webio.start_response = start_response
 
-        tester = WebTester(inut, sh, **self.kwargs)
+        tester = WebTester(webio, sh, **self.kwargs)
 
         if path == "robots.txt":
             return static("static/robots.txt", environ, start_response)
@@ -203,7 +203,7 @@ class Application(object):
             else:
                 return resp(environ, start_response)
         elif path == 'display':
-            return inut.flow_list()
+            return webio.flow_list()
         elif path == "opresult":
             resp = SeeOther(
                 "/display#{}".format(self.pick_grp(sh['conv'].test_id)))
@@ -211,9 +211,9 @@ class Application(object):
         elif path.startswith("test_info"):
             p = path.split("/")
             try:
-                return inut.test_info(p[1])
+                return webio.test_info(p[1])
             except KeyError:
-                return inut.not_found()
+                return webio.not_found()
         elif path == 'all':
             for test_id in sh['flow_names']:
                 resp = tester.run(test_id, **self.kwargs)

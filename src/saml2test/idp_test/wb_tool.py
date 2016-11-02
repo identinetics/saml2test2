@@ -67,7 +67,7 @@ class Tester(tool.Tester):
             exception_trace("", err, logger)
             res = Result(self.sh, None)
             res.print_info(self.sh, test_id)
-            return self.inut.err_response("run", err)
+            return self.webio.err_response("run", err)
 
     def run_flow(self, test_id, index=0, profiles=None, **kwargs):
         logger.info("<=<=<=<=< %s >=>=>=>=>" % test_id)
@@ -94,7 +94,7 @@ class Tester(tool.Tester):
             logger.info("<--<-- {} --- {} -->-->".format(index, cls))
             self.conv.events.store('operation', cls, sender='run_flow')
             try:
-                _oper = cls(conv=self.conv, inut=self.inut, sh=self.sh,
+                _oper = cls(conv=self.conv, webio=self.webio, sh=self.sh,
                             profile=self.profile, test_id=test_id,
                             funcs=funcs, check_factory=self.chk_factory,
                             cache=self.cache)
@@ -140,7 +140,7 @@ class Tester(tool.Tester):
                             return oper_response
 
                         if com_handler_response.status == HandlerResponse.STATUS_NO_INTERACTION_FOUND:
-                            response = self.inut.respond(com_handler_response)
+                            response = self.webio.respond(com_handler_response)
                             return response
 
                         if com_handler_response.status == HandlerResponse.STATUS_ERROR:
@@ -177,7 +177,7 @@ class Tester(tool.Tester):
                             oper_response = _oper.handle_response(self.get_response(oper_response))
 
                             if oper_response:
-                                return self.inut.respond(oper_response)
+                                return self.webio.respond(oper_response)
 
                         else:
                             return oper_response
@@ -245,25 +245,26 @@ class Tester(tool.Tester):
                                sender=self.__class__)
         logger.debug(resp)
 
-        _oper = restore_operation(self.conv, self.inut, self.sh)
+        _oper = restore_operation(self.conv, self.webio, self.sh)
         return _oper.handle_response(resp)
 
     def display_test_list(self):
         try:
             if self.sh.session_init():
-                return self.inut.flow_list(self.sh)
+                return self.webio.flow_list(self.sh)
             else:
                 try:
                     p = self.sh["testid"].split('-')
                 except KeyError:
-                    return self.inut.flow_list(self.sh, tt_entityid=self.inut.kwargs['entity_id'])
+                    rendered = self.webio.flow_list(self.sh, tt_entityid=self.webio.kwargs['entity_id'])
+                    return rendered
                 else:
-                    resp = Redirect("%sopresult#%s" % (self.inut.conf.BASE,
+                    resp = Redirect("%sopresult#%s" % (self.webio.conf.BASE,
                                                        p[1]))
-                    return resp(self.inut.environ, self.inut.start_response)
+                    return resp(self.webio.environ, self.webio.start_response)
         except Exception as err:
             exception_trace("display_test_list", err)
-            return self.inut.err_response("session_setup", err)
+            return self.webio.err_response("session_setup", err)
 
     def cont(self, environ, ENV):
         query = parse_qs(environ["QUERY_STRING"])
@@ -275,7 +276,7 @@ class Tester(tool.Tester):
         except KeyError:  # Cookie delete broke session
             self.setup(path, **ENV)
         except Exception as err:
-            return self.inut.err_response("session_setup", err)
+            return self.webio.err_response("session_setup", err)
         else:
             self.conv = self.sh["conv"]
 
@@ -285,8 +286,8 @@ class Tester(tool.Tester):
             return self.run_flow(path, ENV["conf"], index)
         except Exception as err:
             exception_trace("", err, logger)
-            self.inut.print_info(self.sh, path)
-            return self.inut.err_response("run", err)
+            self.webio.print_info(self.sh, path)
+            return self.webio.err_response("run", err)
 
     def async_response(self, conf):
         index = self.sh["index"]
@@ -300,7 +301,7 @@ class Tester(tool.Tester):
 
         logger.info("<--<-- {} --- {}".format(index, cls))
         resp = self.conv.operation.parse_response(self.sh["testid"],
-                                                  self.inut,
+                                                  self.webio,
                                                   self.message_factory)
         if resp:
             return resp

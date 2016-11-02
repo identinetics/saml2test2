@@ -155,8 +155,8 @@ class AuthenticationResponseRedirect(RedirectResponse):
     msg_cls = AuthenticationResponse
     tests = {}
 
-    def __init__(self, conv, inut, sh, **kwargs):
-        RedirectResponse.__init__(self, conv, inut, sh, **kwargs)
+    def __init__(self, conv, webio, sh, **kwargs):
+        RedirectResponse.__init__(self, conv, webio, sh, **kwargs)
         self.msg_args = {}
         self.signing_key = None
 
@@ -184,8 +184,8 @@ class AuthenticationResponseRedirect(RedirectResponse):
 
 
 class FollowRedirect(Operation):
-    def __init__(self, conv, inut, sh, **kwargs):
-        Operation.__init__(self, conv, inut, sh, **kwargs)
+    def __init__(self, conv, webio, sh, **kwargs):
+        Operation.__init__(self, conv, webio, sh, **kwargs)
         self.send_args = kwargs
 
     def run(self):

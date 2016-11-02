@@ -755,7 +755,7 @@ def set_cookie(name, _, *args):
     cookie = SimpleCookie()
     cookie[name] = base64.b64encode(":".join(args))
     cookie[name]['path'] = "/"
-    cookie[name]["expires"] = _expiration(5)  # 5 minutes from now
+    cookie[name]["expires"] = _expiration(5)  # 5 min from now
     logger.debug("Cookie expires: %s" % cookie[name]["expires"])
     return tuple(cookie.output().split(": ", 1))
 

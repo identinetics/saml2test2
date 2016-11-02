@@ -37,7 +37,7 @@ handlers defined in the configuration *?* how *?* or robobrowser as default.
 === Iteration over flows
 
 ==== ClIO Class
-  inut = ClIO(**kwargs)
+  webio = ClIO(**kwargs)
 
 ClIO handles the console output
 
@@ -52,7 +52,7 @@ The SessionHandler generates the environment for the tests of a flow.
 ==== ClTester Class
 
   from saml2test.idp_test.cl_tool import ClTester
-  tester = ClTester(inut, sh, **kwargs)
+  tester = ClTester(webio, sh, **kwargs)
   tester.run(cargs.testid, **kwargs)
 
 The ClTester is working on a single flow. It is

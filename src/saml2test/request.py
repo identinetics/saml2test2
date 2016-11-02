@@ -54,8 +54,8 @@ class Request(Operation):
     message = None
     message_cls = SamlBase
 
-    def __init__(self, conv, inut, sh, **kwargs):
-        Operation.__init__(self, conv, inut, sh, **kwargs)
+    def __init__(self, conv, webio, sh, **kwargs):
+        Operation.__init__(self, conv, webio, sh, **kwargs)
         self.expect_error = {}
         self.req_args = {}
         self.op_args = {}

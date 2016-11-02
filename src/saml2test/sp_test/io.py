@@ -8,7 +8,7 @@ from aatest.check import OK
 from aatest.check import WARNING
 from aatest.check import INCOMPLETE
 from aatest.io import IO
-from saml2test.idp_test.inut import get_test_info
+from saml2test.idp_test.webio import get_test_info
 
 __author__ = 'roland'
 

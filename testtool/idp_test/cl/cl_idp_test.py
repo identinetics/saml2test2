@@ -34,28 +34,28 @@ if __name__ == "__main__":
                     cargs.testid))
             exit()
 
-        inut = ClIO(**kwargs)
+        webio = ClIO(**kwargs)
         sh = SessionHandler(session={}, **kwargs)
         sh.init_session(profile=kwargs['profile'])
-        tester = ClTester(inut, sh, **kwargs)
+        tester = ClTester(webio, sh, **kwargs)
         tester.run(cargs.testid, **kwargs)
-        inut.result()
+        webio.result()
         """
-            inut.print_info does not exist
+            webio.print_info does not exist
         """
         #filename = safe_path(kwargs['entity_id'], cargs.testid)
-        #inut.print_info(cargs.testid, filename)
+        #webio.print_info(cargs.testid, filename)
     else:
         _sh = SessionHandler(session={}, **kwargs)
         _sh.init_session(profile=kwargs['profile'])
 
         for tid in _sh["flow_names"]:
-            inut = ClIO(**kwargs)
+            webio = ClIO(**kwargs)
             sh = SessionHandler(session={}, **kwargs)
             sh.init_session(profile=kwargs['profile'])
-            tester = ClTester(inut, sh, **kwargs)
+            tester = ClTester(webio, sh, **kwargs)
 
-            # quickfix: inut needs a session
-            inut.session = sh
+            # quickfix: webio needs a session
+            webio.session = sh
             if tester.run(tid, **kwargs):
-                inut.result()
+                webio.result()

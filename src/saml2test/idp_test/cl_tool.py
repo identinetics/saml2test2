@@ -47,11 +47,11 @@ class ClTester(tool.Tester):
         except Exception as err:
             exception_trace("", err, logger)
             # TODO: does not exist
-            #self.inut.print_info(self.sh, test_id)
-            # TODO: self.inut needs to have a session, but never gets one
+            #self.webio.print_info(self.sh, test_id)
+            # TODO: self.webio needs to have a session, but never gets one
             # Quickfix:
-            self.inut.session = self.sh
-            return self.inut.err_response("run", err)
+            self.webio.session = self.sh
+            return self.webio.err_response("run", err)
 
     def my_endpoints(self):
         return [e for e, b in

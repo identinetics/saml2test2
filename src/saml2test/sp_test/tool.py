@@ -69,8 +69,8 @@ class ClTester(tool.Tester):
             return self.run_flow(test_id)
         except Exception as err:
             exception_trace("", err, logger)
-            self.inut.print_info(self.sh, test_id)
-            return self.inut.err_response("run", err)
+            self.webio.print_info(self.sh, test_id)
+            return self.webio.err_response("run", err)
 
     def my_endpoints(self):
         return [e for e, b in
@@ -203,7 +203,7 @@ class ClTester(tool.Tester):
             res = self.intermit(resp)
             if isinstance(res, dict):
                 if oper is None:
-                    oper = restore_operation(self.conv, self.inut, self.sh)
+                    oper = restore_operation(self.conv, self.webio, self.sh)
 
                 oper.handle_response(res)
         else:
@@ -253,18 +253,18 @@ class WebTester(tool.Tester):
     def display_test_list(self):
         try:
             if self.sh.session_init():
-                return self.inut.flow_list()
+                return self.webio.flow_list()
             else:
                 try:
                     resp = Redirect("%s/opresult#%s" % (
-                        self.inut.conf.BASE, self.sh["testid"][0]))
+                        self.webio.conf.BASE, self.sh["testid"][0]))
                 except KeyError:
-                    return self.inut.flow_list()
+                    return self.webio.flow_list()
                 else:
-                    return resp(self.inut.environ, self.inut.start_response)
+                    return resp(self.webio.environ, self.webio.start_response)
         except Exception as err:
             exception_trace("display_test_list", err)
-            return self.inut.err_response("session_setup", err)
+            return self.webio.err_response("session_setup", err)
 
     def do_next(self, resp, filename, path, **kwargs):
         sh = self.sh
@@ -282,7 +282,7 @@ class WebTester(tool.Tester):
             resp = self.run_flow(self.conv.test_id, index=self.conv.index)
             store_test_state(sh, sh['conv'].events)
             if isinstance(resp, Response):
-                self.inut.print_info(path, filename)
+                self.webio.print_info(path, filename)
                 return resp
             if self.conv.index >= lix:
                 break
@@ -304,7 +304,7 @@ class WebTester(tool.Tester):
             store_test_state(sh, sh['conv'].events)
             res.store_test_info()
 
-        return self.inut.flow_list(filename)
+        return self.webio.flow_list(filename)
 
     def get_response(self, resp):
         try:

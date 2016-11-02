@@ -5,12 +5,12 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
     Creates a list of test flows
     """
     _grp = "_"
-    color = ['<img src="site/static/button/start.png" alt="Black" height="75%">',
-             '<img src="site/static/button/ok.png" alt="Green" height="75%">',
-             '<img src="site/static/button/warning.png" alt="Yellow" height="75%">',
-             '<img src="site/static/button/error.png" alt="Red" height="75%">',
-             '<img src="site/static/button/incomplete.jpg" alt="QuestionMark" height="75%">',
-             '<img src="site/static/greybutton" alt="Grey" height="75%">',
+    color = ['<img src="site/static/button/start.png" alt="Start" height="75%">',
+             '<img src="site/static/button/ok.png" alt="OK" height="75%">',
+             '<img src="site/static/button/warning.png" alt="Warning" height="75%">',
+             '<img src="site/static/button/error.png" alt="Error" height="75%">',
+             '<img src="site/static/button/incomplete.jpg" alt="Incomplete" height="75%">',
+             '<img src="site/static/greybutton" alt="undetermined" height="75%">',
              ]
     element = ['<table>']
     #element = ['<table class="pure-table">']
@@ -21,7 +21,7 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
         flows_dict[node.tc_id] = node
     for key in sorted(flows_dict):
         node = flows_dict[key]
-        p, grp, spec = node.tc_id.split("-", 2)
+        p, grp, spec = (node.tc_id+'-unknown-xx').split("-", 2)
         if not grp == _grp:
             _grp = grp
             element.append('<tr><td colspan="4"><h4 id="%s">%s</h4></tr>' % (_grp, headlines.get(_grp, _grp)))

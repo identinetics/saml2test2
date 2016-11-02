@@ -3,9 +3,9 @@ from aatest.events import EV_REQUEST_ARGS, NoSuchEvent
 __author__ = 'roland'
 
 
-def restore_operation(conv, inut, sh):
+def restore_operation(conv, webio, sh):
     cls = conv.events.last('operation').data
-    oper = cls(conv=conv, inut=inut, sh=sh)
+    oper = cls(conv=conv, webio=webio, sh=sh)
 
     try:
         req_args = conv.events.last_item(EV_REQUEST_ARGS)

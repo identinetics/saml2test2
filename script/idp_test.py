@@ -12,6 +12,8 @@ from aatest.result import Result
 from aatest.verify import Verify
 from future.backports.urllib.parse import quote_plus
 from future.backports.urllib.parse import parse_qs
+from werkzeug.http import parse_accept_header
+
 
 from aatest.summation import store_test_state
 from aatest.session import Done
@@ -157,11 +159,8 @@ class Application(object):
     def application(self, environ, start_response):
         LOGGER.info("Connection from: %s" % environ["REMOTE_ADDR"])
         session = environ['beaker.session']
-
         path = environ.get('PATH_INFO', '').lstrip('/')
         LOGGER.info("path: %s" % path)
-
-
 
         try:
             sh = session['session_info']
@@ -171,9 +170,17 @@ class Application(object):
             sh.session_init()
             local_webenv = self.webenv
             session['session_info'] = sh
-            session['webenv']=local_webenv
-
+            session['webenv'] = local_webenv
         self.session_store.append(session)
+
+        #if 'text/html' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
+        #    self.mime_type = 'text/html'
+        #elif 'application/json' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
+        #    self.mime_type = 'application/json'
+        #else:
+        #    raise ValueError('Client must accept MIME-Types text/html or application/json. (%s)' %
+        #                     environ['HTTP_ACCEPT'])
+
 
         webio = WebIO(session=sh, **local_webenv)
         webio.environ = environ # WSGI environment
@@ -290,18 +297,14 @@ class Application(object):
 
                 tester = Tester(webio, sh, **local_webenv)
 
-
-
-
-
             profile_handler = local_webenv['profile_handler']
             _sh = profile_handler(sh)
             #filename = self.webenv['profile_handler'](sh).log_path(test_id)
             #_sh.session.update({'conv': 'foozbar'})
             filename = _sh.log_path(test_id)
 
-            html_page = do_next(tester, resp, sh, webio, filename, path)
-            return html_page
+            content = do_next(tester, resp, sh, webio, filename, path)
+            return content
         elif path == "acs/redirect":
             qs = environ['QUERY_STRING']
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])

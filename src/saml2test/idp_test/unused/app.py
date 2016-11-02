@@ -15,7 +15,7 @@ from aatest.session import SessionHandler, Done
 from saml2.httputil import BadRequest
 from saml2.httputil import get_post
 from saml2.httputil import Response
-from saml2test.idp_test.inut import WebIO
+from saml2test.idp_test.webio import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
 
@@ -36,12 +36,12 @@ def pick_args(args, kwargs):
     return dict([(k, kwargs[k]) for k in args])
 
 
-def do_next(tester, resp, sh, inut, filename, path):
+def do_next(tester, resp, sh, webio, filename, path):
     tester.conv = tester.sh['conv']
     tester.handle_response(resp, {})
 
     store_test_state(sh, sh['conv'].events)
-    tester.inut.store_test_info()
+    tester.webio.store_test_info()
 
     tester.conv.index += 1
     lix = len(tester.conv.sequence)
@@ -49,7 +49,7 @@ def do_next(tester, resp, sh, inut, filename, path):
         resp = tester.run_flow(tester.conv.test_id, index=tester.conv.index)
         store_test_state(sh, sh['conv'].events)
         if isinstance(resp, Response):
-            inut.print_info(path, filename)
+            webio.print_info(path, filename)
             return resp
         if tester.conv.index >= lix:
             break
@@ -63,8 +63,8 @@ def do_next(tester, resp, sh, inut, filename, path):
         tester.conv.events.store(EV_CONDITION, State('Done', status=OK))
 
     store_test_state(sh, sh['conv'].events)
-    tester.inut.store_test_info()
-    return inut.flow_list(filename)
+    tester.webio.store_test_info()
+    return webio.flow_list(filename)
 
 
 class Application(object):
@@ -85,23 +85,23 @@ class Application(object):
             sh.session_init()
             session['session_info'] = sh
 
-        inut = WebIO(session=sh, **self.webenv)
-        inut.environ = environ
-        inut.start_response = start_response
+        webio = WebIO(session=sh, **self.webenv)
+        webio.environ = environ
+        webio.start_response = start_response
 
-        tester = Tester(inut, sh, **self.webenv)
+        tester = Tester(webio, sh, **self.webenv)
 
         if path == "robots.txt":
-            return inut.static("static/robots.txt")
+            return webio.static("static/robots.txt")
         elif path == "favicon.ico":
-            return inut.static("static/favicon.ico")
+            return webio.static("static/favicon.ico")
         elif path.startswith('acs/site/static'):
             path = path[4:]
-            return inut.static(path)
+            return webio.static(path)
         elif path.startswith("site/static/") or path.startswith('static/'):
-            return inut.static(path)
+            return webio.static(path)
         elif path.startswith("export/"):
-            return inut.static(path)
+            return webio.static(path)
 
         if path == "" or path == "/":  # list
             return tester.display_test_list()
@@ -109,10 +109,10 @@ class Application(object):
             sh.session_init()
 
         if path == "logs":
-            return inut.display_log("log", issuer="", profile="", testid="")
+            return webio.display_log("log", issuer="", profile="", testid="")
         elif path.startswith("log"):
             if path == "log" or path == "log/":
-                _cc = inut.conf.CLIENT
+                _cc = webio.conf.CLIENT
                 try:
                     _iss = _cc["srv_discovery_url"]
                 except KeyError:
@@ -128,17 +128,17 @@ class Application(object):
                     parts.insert(0, tail)
                     path = head
 
-            return inut.display_log("log", *parts)
+            return webio.display_log("log", *parts)
         elif path.startswith("tar"):
             path = path.replace(":", "%3A")
-            return inut.static(path)
+            return webio.static(path)
 
         elif path.startswith("test_info"):
             p = path.split("/")
             try:
-                return inut.test_info(p[1])
+                return webio.test_info(p[1])
             except KeyError:
-                return inut.not_found()
+                return webio.not_found()
         elif path == "continue":
             return tester.cont(environ, self.webenv)
         elif path == 'reset':
@@ -148,9 +148,9 @@ class Application(object):
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:
-                return inut.sorry_response("", "No result to report")
+                return webio.sorry_response("", "No result to report")
 
-            return inut.opresult(tester.conv, sh)
+            return webio.opresult(tester.conv, sh)
         # expected path format: /<testid>[/<endpoint>]
         elif path in sh["flow_names"]:
             resp = tester.run(path, **self.webenv)
@@ -160,21 +160,21 @@ class Application(object):
                 res = Result(sh, self.webenv['profile_handler'])
                 res.store_test_info()
                 res.print_info(path, tester.fname(path))
-                return inut.respond(resp)
+                return webio.respond(resp)
             else:
-                return inut.flow_list(filename)
+                return webio.flow_list(filename)
         elif path == "acs/post":
             qs = get_post(environ).decode('utf8')
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
             filename = self.webenv['profile_handler'](sh).log_path(tester.conv.test_id)
 
-            return do_next(tester, resp, sh, inut, filename, path)
+            return do_next(tester, resp, sh, webio, filename, path)
         elif path == "acs/redirect":
             qs = environ['QUERY_STRING']
             resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
             filename = self.webenv['profile_handler'](sh).log_path(tester.conv.test_id)
 
-            return do_next(tester, resp, sh, inut, filename, path)
+            return do_next(tester, resp, sh, webio, filename, path)
         elif path == "acs/artifact":
             pass
         elif path == "ecp":
