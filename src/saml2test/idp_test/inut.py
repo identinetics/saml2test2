@@ -36,7 +36,7 @@ class WebIO(IO):
         self.environ = environ
         self.start_response = start_response
         self.cache = cache
-        self.kwargs = kwargs
+        self.kwargs = kwargs # TODO: clarify purpose (seems to be similar to conf + additions)
 
     def static(self, path):
         logger.info("[static]sending: %s" % (path,))
@@ -125,12 +125,12 @@ class WebIO(IO):
                 resp = Response("No saved logs")
                 return resp(self.environ, self.start_response)
 
-    def flow_list(self, filename='', tt_entityid=''):
+    def flow_list(self, filename='', tt_entityid='', td_conf_uri='(cli arg)'):
         resp = Response(mako_template="flowlist.mako",
                         template_lookup=self.lookup,
                         headers=[])
 
-        argv = {
+        display_args = {
             "flows": self.session["tests"],
             "profile": self.session["profile"],
             "test_info": list(self.session["test_info"].keys()),
@@ -138,10 +138,12 @@ class WebIO(IO):
             "headlines": self.desc,
             "testresults": TEST_RESULTS,
             "tt_entityid": tt_entityid,
+            "td_conf_uri": td_conf_uri,
             "tc_id_infobase": "https://identinetics.github.io/SAML-Testcases/index.html#"
         }
 
-        return resp(self.environ, self.start_response, **argv)
+        rendered = resp(self.environ, self.start_response, **display_args)  # __call__ will execute start_response
+        return rendered
 
     def test_info(self, testid):
         resp = Response(mako_template="testinfo.mako",

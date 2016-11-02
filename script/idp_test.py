@@ -176,7 +176,7 @@ class Application(object):
         self.session_store.append(session)
 
         inut = WebIO(session=sh, **local_webenv)
-        inut.environ = environ
+        inut.environ = environ # WSGI environment
         inut.start_response = start_response
 
         tester = Tester(inut, sh, **local_webenv)
