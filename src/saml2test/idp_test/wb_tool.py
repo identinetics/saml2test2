@@ -131,8 +131,11 @@ class Tester(tool.Tester):
 
                         self.com_handler.conv = self.conv
                         #self.com_handler.auto_close_urls = self.my_endpoints()
-                        #if 'insecure' in kw_args:
-                        self.com_handler.verify_ssl = False
+
+                        if kwargs.conf.DO_NOT_VALIDATE_TLS:
+                            self.com_handler.verify_ssl = False
+                        else:
+                            self.com_handler.verify_ssl = True
 
                         com_handler_response = self.com_handler(oper_response)
 
