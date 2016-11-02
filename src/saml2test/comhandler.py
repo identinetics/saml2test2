@@ -13,8 +13,10 @@ class FakeAnResponse(object):
         self.content = ''
         self.saml_response = saml_response
 
-class FakeRedirectResponse(FakeAnResponse):
+    def geturl(self):
+        return self.url
 
+class FakeRedirectResponse(FakeAnResponse):
     def __init__(self,saml_response):
         super(FakeRedirectResponse,self).__init__(saml_response)
 
