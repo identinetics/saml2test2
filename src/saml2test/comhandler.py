@@ -42,7 +42,7 @@ class ComHandler(aatestComHandler):
 
         if (isinstance(response, SamlRedirect)):
             http_response = FakeRedirectResponse(response)
-        elsif (isinstance(response, SamlResponse)):
+        elif (isinstance(response, SamlResponse)):
             http_response = FakeResponseResponse(response)
         else:
             emsg = "ComHandler can not handle object of class {}".format(response.__class__.__name__)
