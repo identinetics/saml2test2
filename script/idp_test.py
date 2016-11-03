@@ -185,13 +185,20 @@ class Application(object):
         if _path:
             return webio.static(_path)
         else:
-            if 'text/html' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
+            client_accepts = dict(parse_accept_header(environ['HTTP_ACCEPT']))
+            if 'text/html' in client_accepts:
                 self.mime_type = 'text/html'
-            elif 'application/json' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
+            elif 'application/json' in client_accepts:
                 self.mime_type = 'application/json'
+            elif '*/*' in client_accepts:
+                self.mime_type = 'text/html'
             else:
-                raise ValueError('Client must accept MIME-Types text/html or application/json. (%s)' %
-                                 environ['HTTP_ACCEPT'])
+                """
+                this is, by now, our fallback if the client has not told us that it is accepting one of our
+                options
+                """
+                self.mime_type = 'text/html'
+
 
         if path == "" or path == "/":  # list
             return tester.display_test_list()
