@@ -173,13 +173,6 @@ class Application(object):
             session['webenv'] = local_webenv
         self.session_store.append(session)
 
-        #if 'text/html' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
-        #    self.mime_type = 'text/html'
-        #elif 'application/json' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
-        #    self.mime_type = 'application/json'
-        #else:
-        #    raise ValueError('Client must accept MIME-Types text/html or application/json. (%s)' %
-        #                     environ['HTTP_ACCEPT'])
 
 
         webio = WebIO(session=sh, **local_webenv)
@@ -191,6 +184,14 @@ class Application(object):
         _path = self._static(path)
         if _path:
             return webio.static(_path)
+        else:
+            if 'text/html' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
+                self.mime_type = 'text/html'
+            elif 'application/json' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
+                self.mime_type = 'application/json'
+            else:
+                raise ValueError('Client must accept MIME-Types text/html or application/json. (%s)' %
+                                 environ['HTTP_ACCEPT'])
 
         if path == "" or path == "/":  # list
             return tester.display_test_list()
