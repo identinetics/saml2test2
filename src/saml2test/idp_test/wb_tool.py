@@ -131,13 +131,9 @@ class Tester(tool.Tester):
 
                         self.com_handler.conv = self.conv
                         #self.com_handler.auto_close_urls = self.my_endpoints()
-                        self.com_handler.verify_ssl = False
-                        #if kwargs.conf.DO_NOT_VALIDATE_TLS:
-                        #    pass
-                        #    self.com_handler.verify_ssl = False
-                        #else:
-                        #    self.com_handler.verify_ssl = True
-
+                        self.com_handler.verify_ssl = True
+                        if self.kwargs['conf'].DO_NOT_VALIDATE_TLS:
+                            self.com_handler.verify_ssl = False
                         com_handler_response = self.com_handler(oper_response)
 
                         if com_handler_response.status == HandlerResponse.STATUS_NOT_TRIGGERED:

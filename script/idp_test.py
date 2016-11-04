@@ -187,6 +187,7 @@ class Application(object):
 
         tester = Tester(webio, sh, **local_webenv)
 
+
         _static_path = self.is_static_path(path)
         if _static_path:
             return webio.static(_static_path)
