@@ -47,19 +47,33 @@ Lets get started with configuring a series of tests for a single IDP:
 
 This may be done either directly at the test target, or by adding it to a metadata feed.
 
-== Executing tests with a custom configuration
+== Executing tests from a browser
 
-Users have only access to the web-interface and are able to override the config (partly,
-of course) with their own configuration stored on github. Loading and switching to such
-a config is done by a GET request:
+- Tests may be fully automated (the interaction definition in the config will handle all IDP requests).
+- Tests may be invoked from the web browser or via a simple REST call. When using the REST call the
+  test must be fully automated.
+- Users need to override the default config with their own configuration stored on github.
+  Loading such a config is done by a URL parameter:
 
-    http://webui.samltest.fed-lab.org:8087/swconf?github=<GITHUB-USER/GITHUB-REPO-NAME>&email=<USER-EMAIL>
+    https://webui.samltest.fed-lab.org/swconf?github=<GITHUB-USER/GITHUB-REPO-NAME>&email=<USER-EMAIL>
 
 Example:
 
-    http://webui.samltest.fed-lab.org:8087/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
+    https://webui.samltest.fed-lab.org/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
 
-=== Restricting Users
+
+== Executing tests from the command line or a program
+To invoke a test you tell the server that you accept a JSON content type. You will receive a dict.
+In the standard case you will just assert that the output contains "status": "OK", such as:
+
+    h='https://webui.samltest.fed-lab.org'
+    t='IDP-AuthnRedirect-nid_unspecified'
+    curl -sH "Accept: application/json" $h/$t | grep '^{"status": "OK"'; echo $?
+
+An example how to run a series of tests from the command line is provided at:
+https://github.com/identinetics/docker-saml2test2/blob/master/install/scripts/rest_test.sh
+
+== Restricting Users
 
 Users ability to switch to another config by creating a yaml file, holding lines of the form
 
@@ -70,8 +84,4 @@ and defining the file in the config using:
    def config(self):
       ...
       self.ACCESS_CONTROL_FILE = '<FILENAME>'
-
-== Graphical Overview
-
-image::testtool-conf.png[test tool configuration - graphical overview]
 

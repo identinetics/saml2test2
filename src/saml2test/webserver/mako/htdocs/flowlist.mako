@@ -10,7 +10,7 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
              '<img src="site/static/button/warning.png" alt="Warning" height="75%">',
              '<img src="site/static/button/error.png" alt="Error" height="75%">',
              '<img src="site/static/button/incomplete.jpg" alt="Incomplete" height="75%">',
-             '<img src="site/static/greybutton" alt="undetermined" height="75%">',
+             '<img src="site/static/qmark.jpg" alt="undetermined" height="75%">',
              ]
     element = ['<table>']
     #element = ['<table class="pure-table">']
@@ -27,8 +27,9 @@ def op_choice(base, nodes, test_info, headlines, tc_id_infobase):
             element.append('<tr><td colspan="4"><h4 id="%s">%s</h4></tr>' % (_grp, headlines.get(_grp, _grp)))
         node_link = "_" + node.tc_id.replace("-","_")
         element.append('<tr><td style="padding-right: 0.5em">%s' % node.tc_id)
-        element.append('<td style="padding-right: 0.5em"><a href="' + tc_id_infobase + node_link +
-                       '" target="_blank">' + node.desc + '</a>')
+        element.append('<td style="padding-right: 0.5em">' + node.desc + '<a href="' +
+                       tc_id_infobase + node_link +
+                       '" target="_blank"> [def]</a>')
         element.append('<td style="padding-right: 0.5em"><a href="%s%s">%s</a>' % (base, node.name, color[node.state]))
 
         element.append('<td>')

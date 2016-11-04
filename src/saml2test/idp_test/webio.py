@@ -153,9 +153,6 @@ class WebIO(IO):
         result_json = json.dumps({
             'testid': path,
             'tc_id': flowstatus.tc_id,
-            'testinfo': '',
-            'profile': self.session['profile'],
-            'tt_entityid': tt_entityid,
             'status': TEST_RESULTS[flowstatus.state],
         })
         self.start_response('200 OK', [('Content-Type', 'application/json')])
