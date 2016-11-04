@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -65,7 +66,7 @@ class WebIO(IO):
             resp = NotFound()
             return resp(self.environ, self.start_response)
 
-    def _display(self, root, issuer, profile):
+    def _display_log(self, root, issuer, profile):
         item = []
         if profile:
             path = os.path.join(root, issuer, profile).replace(":", "%3A")
@@ -111,21 +112,19 @@ class WebIO(IO):
         return resp(self.environ, self.start_response, **argv)
 
     def display_log(self, root, issuer="", profile="", testid=""):
-        logger.info(
-            "display_log root: '%s' issuer: '%s', profile: '%s' testid: '%s'",
-            root, issuer, profile, testid)
+        logger.info("display_log root: '%s' issuer: '%s', profile: '%s' testid: '%s'",
+                    root, issuer, profile, testid)
         if testid:
-            path = os.path.join(root, issuer, profile, testid).replace(
-                ":", "%3A")
+            path = os.path.join(root, issuer, profile, testid).replace(":", "%3A")
             return self.static(path)
         else:
             if issuer:
-                return self._display(root, issuer, profile)
+                return self._display_log(root, issuer, profile)
             else:
                 resp = Response("No saved logs")
                 return resp(self.environ, self.start_response)
 
-    def flow_list(self, filename='', tt_entityid='', td_conf_uri='(cli arg)'):
+    def flow_list(self, logfilename='', tt_entityid='', td_conf_uri='(cli arg)'):
         resp = Response(mako_template="flowlist.mako",
                         template_lookup=self.lookup,
                         headers=[])
@@ -145,13 +144,28 @@ class WebIO(IO):
         rendered = resp(self.environ, self.start_response, **display_args)  # __call__ will execute start_response
         return rendered
 
+    def single_flow(self, path, logfilename='', tt_entityid='', ):
+        flowstatus = None
+        for jatnode in self.session._dict['tests']:
+            if jatnode.name == path:
+                flowstatus = jatnode
+                break
+        result_json = json.dumps({
+            'testid': path,
+            'tc_id': flowstatus.tc_id,
+            'testinfo': '',
+            'profile': self.session['profile'],
+            'tt_entityid': tt_entityid,
+            'status': TEST_RESULTS[flowstatus.state],
+        })
+        self.start_response('200 OK', [('Content-Type', 'application/json')])
+        return result_json
+
     def test_info(self, testid):
         resp = Response(mako_template="testinfo.mako",
                         template_lookup=self.lookup,
                         headers=[])
-
         info = get_test_info(self.session, testid)
-
         argv = {
             "profile": info["profile_info"],
             "trace": info["trace"],
@@ -159,9 +173,7 @@ class WebIO(IO):
             "result": represent_result(
                 self.session['conv'].events).replace("\n", "<br>\n")
         }
-
         logger.debug(argv)
-
         return resp(self.environ, self.start_response, **argv)
 
     # def store_test_info(self, profile_info=None):

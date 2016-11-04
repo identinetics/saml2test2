@@ -1,5 +1,5 @@
 """
-Just another test node
+Just another test node: holds status information for a test flow
 """
 from aatest.session import Node
 class JatNode(Node):

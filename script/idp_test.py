@@ -147,7 +147,7 @@ class Application(object):
         self.webenv = webenv
         self.session_store = SessionStore()
 
-    def _static(self, path):
+    def is_static_path(self, path):
         if path in ["robots.txt", 'favicon.ico']:
             return "{}/robots.txt".format(self.webenv['static'])
         else:
@@ -155,6 +155,14 @@ class Application(object):
                 if path.startswith(p):
                     return '{}/{}'.format(self.webenv['static'], path[len(p):])
         return ''
+
+    def set_mimetype(self, environ):
+        client_accepts = dict(parse_accept_header(environ['HTTP_ACCEPT']))
+        if 'application/json' in client_accepts:
+            self.mime_type = 'application/json'
+        else:
+            #fallback if the client has not told us that it is calling the API
+            self.mime_type = 'text/html'
 
     def application(self, environ, start_response):
         LOGGER.info("Connection from: %s" % environ["REMOTE_ADDR"])
@@ -173,25 +181,15 @@ class Application(object):
             session['webenv'] = local_webenv
         self.session_store.append(session)
 
-
-
         webio = WebIO(session=sh, **local_webenv)
         webio.environ = environ # WSGI environment
         webio.start_response = start_response
 
         tester = Tester(webio, sh, **local_webenv)
 
-        _path = self._static(path)
-        if _path:
-            return webio.static(_path)
-        else:
-            if 'text/html' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
-                self.mime_type = 'text/html'
-            elif 'application/json' in dict(parse_accept_header(environ['HTTP_ACCEPT'])):
-                self.mime_type = 'application/json'
-            else:
-                raise ValueError('Client must accept MIME-Types text/html or application/json. (%s)' %
-                                 environ['HTTP_ACCEPT'])
+        _static_path = self.is_static_path(path)
+        if _static_path:
+            return webio.static(_static_path)
 
         if path == "" or path == "/":  # list
             return tester.display_test_list()
@@ -241,25 +239,28 @@ class Application(object):
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:
-                return webio.sorry_response(local_webenv['base_url'],
-                                           "No result to report")
+                return webio.sorry_response(local_webenv['base_url'], "No result to report")
 
             return webio.opresult(tester.conv, sh)
         # expected path format: /<testid>[/<endpoint>]
         elif path in sh["flow_names"]:
+            self.set_mimetype(environ)
             resp = tester.run(path, **local_webenv)
             store_test_state(sh, sh['conv'].events)
-            filename = local_webenv['profile_handler'](sh).log_path(path)
+            logfilename = local_webenv['profile_handler'](sh).log_path(path)
             if isinstance(resp, Response):
                 res = Result(sh, local_webenv['profile_handler'])
                 res.store_test_info()
                 res.print_info(path, tester.fname(path))
                 return webio.respond(resp)
             else:
-                return webio.flow_list(filename)
+                if self.mime_type == 'application/json':
+                    return webio.single_flow(path)
+                else:
+                    return webio.flow_list()
         elif path == "acs/post":
-            qs = get_post(environ).decode('utf8')
-            resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
+            formdata = get_post(environ).decode('utf8')
+            resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
 
             try:
                 test_id = sh['conv'].test_id
@@ -302,27 +303,27 @@ class Application(object):
             _sh = profile_handler(sh)
             #filename = self.webenv['profile_handler'](sh).log_path(test_id)
             #_sh.session.update({'conv': 'foozbar'})
-            filename = _sh.log_path(test_id)
+            logfilename = _sh.log_path(test_id)
 
-            content = do_next(tester, resp, sh, webio, filename, path)
+            content = do_next(tester, resp, sh, webio, logfilename, path)
             return content
         elif path == "acs/redirect":
-            qs = environ['QUERY_STRING']
-            resp = dict([(k, v[0]) for k, v in parse_qs(qs).items()])
-            filename = local_webenv['profile_handler'](sh).log_path(
+            formdata = environ['QUERY_STRING']
+            resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
+            logfilename = local_webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
 
-            return do_next(tester, resp, sh, webio, filename, path)
+            return do_next(tester, resp, sh, webio, logfilename, path)
         elif path == "acs/artifact":
             pass
         elif path == "ecp":
             pass
         elif path == "disco":
-            qs = parse_qs(environ['QUERY_STRING'])
-            resp = dict([(k, v[0]) for k, v in qs.items()])
-            filename = local_webenv['profile_handler'](sh).log_path(
+            formdata = parse_qs(environ['QUERY_STRING'])
+            resp = dict([(k, v[0]) for k, v in formdata.items()])
+            logfilename = local_webenv['profile_handler'](sh).log_path(
                 sh['conv'].test_id)
-            return do_next(tester, resp, sh, webio, filename, path=path)
+            return do_next(tester, resp, sh, webio, logfilename, path=path)
         elif path == "slo":
             pass
         elif path == 'all':
@@ -337,15 +338,15 @@ class Application(object):
                     resp = ServiceError('Unkown service error')
                     return resp(environ, start_response)
 
-            filename = local_webenv['profile_handler'](sh).log_path(path)
-            return webio.flow_list(filename)
+            logfilename = local_webenv['profile_handler'](sh).log_path(path)
+            return webio.flow_list(logfilename)
         elif path == 'swconf':
             """
                 switch config by user request
                 parameters: ?github=<name of the github repo>&email=<user email>
             """
-            qs = parse_qs(environ['QUERY_STRING'])
-            resp = dict([(k, v[0]) for k, v in qs.items()])
+            formdata = parse_qs(environ['QUERY_STRING'])
+            resp = dict([(k, v[0]) for k, v in formdata.items()])
 
             try:
                 ac_file_name = local_webenv['conf'].ACCESS_CONTROL_FILE
