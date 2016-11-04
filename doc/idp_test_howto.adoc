@@ -73,6 +73,21 @@ In the standard case you will just assert that the output contains "status": "OK
 An example how to run a series of tests from the command line is provided at:
 https://github.com/identinetics/docker-saml2test2/blob/master/install/scripts/rest_test.sh
 
+== Automating the browser interaction
+The test tool can be configured with match/control commands to automatically proceed when a user
+interaction is requested, such as for login or consent.
+
+The configuration (in config.py) is done with:
+
+CONTENT_HANDLER_TRIGGER: list of test cases that apply to a specific set of interactions
+
+CONTENT_HANDLER_INTERACTION: a set of interactions. "matches" has page properties such as the
+URL and HTML elements that must match for this rule to trigger. "control" is there to set data
+to be submitted to the server.
+
+Calling the test case using curl has the advantage, that pages that do not patch are written out in
+source.
+
 == Restricting Users
 
 Users ability to switch to another config by creating a yaml file, holding lines of the form
