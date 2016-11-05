@@ -154,7 +154,7 @@ class WebIO(IO):
             'testid': path,
             'tc_id': flowstatus.tc_id,
             'status': TEST_RESULTS[flowstatus.state],
-        })
+        }, sort_keys=True)
         self.start_response('200 OK', [('Content-Type', 'application/json')])
         return result_json
 
