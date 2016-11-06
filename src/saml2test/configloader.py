@@ -51,5 +51,6 @@ class ConfigLoader(object):
         try:
             open(config_file)
         except Exception as e:
+            logger.error("expected config file names are: " + ', '.join(CONFIG_FILE_NAMES))
             raise ConfigFileNotReadable(e.errno, e.strerror, e.filename)
         # should be done by callee

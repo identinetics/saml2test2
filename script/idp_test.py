@@ -32,6 +32,7 @@ from saml2test.request import ServiceProviderRequestHandlerError
 from saml2test.session import SessionHandler
 from saml2test.checkedconfig import ConfigError
 from saml2test.acfile import WebUserAccessControlFile
+from saml2test import __version__
 
 from saml2.entity import Entity
 from saml2 import BINDING_HTTP_POST
@@ -428,7 +429,7 @@ if __name__ == '__main__':
     from beaker.middleware import SessionMiddleware
     from cherrypy import wsgiserver
     from mako.lookup import TemplateLookup
-
+    print(__file__ + ' V' + __version__)
     try:
         cargs, kwargs, CONF = setup('wb')
     except ConfigError as e:
