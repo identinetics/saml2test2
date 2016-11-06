@@ -365,7 +365,14 @@ class Application(object):
                     return webio.sorry_response(local_webenv['base_url'],'permission denied')
 
             # reading from github should set readjson, but to be sure ...
-            setup_cargs=type('setupcarg', (object,), {'github': True, 'configdir': resp['github'], 'readjson': True })()
+            setup_cargs=type('setupcarg', (object,),
+                             {'github': True,
+                              'configdir': resp['github'],
+                              'readjson': True })()
+            if 'branch' in resp:
+                setattr(setup_cargs, 'repobranch', resp['branch'])
+            else:
+                setattr(setup_cargs, 'repobranch', None)
 
             try:
                 user_cargs, user_kwargs, user_CONF = setup('wb', setup_cargs)

@@ -131,7 +131,10 @@ def setup(use='cl', cargs=None):
         cargs.configdir = tempfile.mkdtemp()
         try:
             # issue with start from pycharm: need to set GIT_PYTHON_GIT_EXECUTABLE
-            repo = git.Repo.clone_from(repo_url, cargs.configdir)  # TODO: add branch=... when implemeting issue#71
+            if cargs.repobranch:
+                repo = git.Repo.clone_from(repo_url, cargs.configdir, branch=cargs.repobranch)
+            else:
+                repo = git.Repo.clone_from(repo_url, cargs.configdir)
         except Exception as e:
             logger.info('Failed to clone github repo ' + github_repo)
 

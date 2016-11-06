@@ -10,19 +10,25 @@ Lets get started with configuring a series of tests for a single IDP:
 - Copy the template configuration project:
   https://github.com/identinetics/s2t2.conf
 
-    # assume your repo is named samltest_idpExampleOrg, your git id is jo123
-    CONF_REPO='samltest_idpExampleOrg'
-    mkdir $CONF_REPO && cd $CONF_REPO
-    git clone https://github.com/identinetics/s2t2.conf .
+    # assume your repo is named samltest_idpExampleOrg
+    # Currently, the config is read from the default branch
+    REPO_USER='joe123'
+    REPO_NAME='s2t2_idpExampleOrg'
+    REPO_BRANCH='master'
+    mkdir -p $REPO_NAME/$REPO_BRANCH && cd $REPO_NAME/$REPO_BRANCH
+    git clone -b $REPO_BRANCH https://github.com/identinetics/s2t2.conf .
     rm -rf .git && git init  # replace the original repo with a new one
+    git add .  && git commit -m 'default configuration from identinetics/s2t2.conf@github'
+    git remote add origin https://github.com/jo123/$REPO_NAME
 
 - Adapt the test configuration:
-
     There are, by default, 4 config files arranged in following (class) hierarchy:
      1. config_abstr.py   (importing default config from source code repo)
      2. config_driver.py  (test driver - no need to change unless extending test cases)
      3. config_profile.py (test flows and saml profile)
      4. config.py         (test target config & interaction)
+
+You need to set at least the test target in config.py.
 
 - Generate the json-formatted configuration:
 
@@ -36,12 +42,11 @@ Lets get started with configuring a series of tests for a single IDP:
 
 - Save your configuration on github
 
-    git remote add origin https://github.com/jo123/$CONF_REPO
     git push origin master
 
-- Note: You may use the fork and clone workflow, but you are limited to one fork
-   per github repo. If you will be testing multiple test targets you will need more
-   than one repo.
+- Note: You may use Github's fork and clone workflow, but you are limited to one fork
+   per github upstream repo and user. If you will be testing multiple test targets you will
+   need more than one repo. Branches may be the better option.
 
 == Upload the test driver's metadata to the test target
 
@@ -55,11 +60,16 @@ This may be done either directly at the test target, or by adding it to a metada
 - Users need to override the default config with their own configuration stored on github.
   Loading such a config is done by a URL parameter:
 
-    https://webui.samltest.fed-lab.org/swconf?github=<GITHUB-USER/GITHUB-REPO-NAME>&email=<USER-EMAIL>
+    https://webui.samltest.fed-lab.org/swconf?github=<GITHUB-USER/GITHUB-REPO-NAME>&email=<USER-EMAIL>&branch=test77
+
+The URL Parameters are:
+    github  github repo in the format user/reponame
+    branch  optional branch within the above repository
+    email   optional email address to restrict users tha may use this configuration
 
 Example:
 
-    https://webui.samltest.fed-lab.org/swconf?github=myuser/saml2test2-github-config-repo&email=me@example.org
+    https://webui.samltest.fed-lab.org/swconf?github=myuser/s2t2-myidpDomainOrg
 
 
 == Executing tests from the command line or a program
@@ -68,7 +78,13 @@ In the standard case you will just assert that the output contains "status": "OK
 
     h='https://webui.samltest.fed-lab.org'
     t='IDP-AuthnRedirect-nid_unspecified'
-    curl -sH "Accept: application/json" $h/$t | grep '^{"status": "OK"'; echo $?
+    repo='identinetics/s2t2.conf'
+    branch='master'
+    # step 1: submit the config dir and receive a session cookie
+    rm -f cookiejar$$.txt
+    curl -sH "Accept: application/json" --cookie-jar cookiejar$$.txt "${h}/swconf?github=${repo}&branch=${branch}"
+    # step 2: execute the test
+    curl -sH "Accept: application/json" --cookie cookiejar$$.txt  ${h}/${t} | grep '^{"status": "OK"'; echo $?
 
 An example how to run a series of tests from the command line is provided at:
 https://github.com/identinetics/docker-saml2test2/blob/master/install/scripts/rest_test.sh
@@ -85,8 +101,12 @@ CONTENT_HANDLER_INTERACTION: a set of interactions. "matches" has page propertie
 URL and HTML elements that must match for this rule to trigger. "control" is there to set data
 to be submitted to the server.
 
-Calling the test case using curl has the advantage, that pages that do not patch are written out in
-source.
+Calling the test case using curl has the advantage, that pages that do not match are written out in
+source. Success is when your output looks like this:
+
+{"status": "OK", "tc_id": "idp-net-01", "testid": "IDP-AuthnRedirect-verify"}
+
+Any other html page means that the match/control configuration is incomplete.
 
 == Restricting Users
 
