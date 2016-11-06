@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 
-import copy
-import importlib
-import logging
 import argparse
+import copy
+import git
+import importlib
+import json
+import logging
 import os
+import re
 import requests
 import sys
+import tempfile
 import yaml
-import os
 
 from aatest.common import setup_logger
 from saml2test.comhandler import ComHandler
 from saml2.httputil import Response
-
 from saml2test import metadata
-
 from saml2test.util import collect_ec
 from saml2test.util import get_check
-
 from saml2test.idp_test.common import make_entity
 from saml2test.idp_test.common import map_prof
 from saml2test.idp_test.common import Trace
@@ -33,20 +33,17 @@ from aatest.parse_cnf import parse_yaml_conf
 from saml2.saml import factory as saml_message_factory
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from saml2test import operation
-
 from saml2test import configloader
 from saml2test.webserver import staticfiles, mako
 from saml2test.robobrowser import robobrowser
-
 from saml2test.jsonconfig import JsonConfig
-import json, tempfile, subprocess, re
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-TT_CONFIG_FILENAME = 'configuration.yaml'
+#TT_CONFIG_FILENAME = 'configuration.yaml'
 TD_SP_DIR = 'td_sp'
-TD_SP_CONFIG_FILENAME = 'configuration_created.py'
-TD_SP_CONFIG_METADATA_FILENAME = 'metadata_created.xml'
+#TD_SP_CONFIG_FILENAME = 'configuration_created.py'
+#TD_SP_CONFIG_METADATA_FILENAME = 'metadata_created.xml'
 
 __author__ = 'roland'
 
@@ -129,21 +126,14 @@ def setup(use='cl', cargs=None):
         github_repo = github_repo.replace("https://github.com/","")
         if not re.match("^[a-z0-9\-\.\/]*$", github_repo):
             raise Exception("suspicious characters in github repository string")
+        repo_url = 'https://github.com/{}'.format(github_repo)
 
-        tmpdir = tempfile.mkdtemp()
-        cargs.configdir = os.path.join(tmpdir,'config')
-        clone_cmd = ['git','clone', 'https://github.com/{}'.format(github_repo), 'config']
-        import io
-
-        proc = subprocess.Popen(clone_cmd, cwd=tmpdir,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             )
-
-        stderr_value, stderr_value = proc.communicate()
-        print(repr(stderr_value))
-
-
+        cargs.configdir = tempfile.mkdtemp()
+        try:
+            # issue with start from pycharm: need to set GIT_PYTHON_GIT_EXECUTABLE
+            repo = git.Repo.clone_from(repo_url, cargs.configdir)  # TODO: add branch=... when implemeting issue#71
+        except Exception as e:
+            logger.info('Failed to clone github repo ' + github_repo)
 
         if not os.path.exists(cargs.configdir):
             raise Exception("could not create config dir from github repo {}".format(github_repo))

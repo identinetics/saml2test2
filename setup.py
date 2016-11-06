@@ -44,6 +44,7 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Topic :: Software Development :: Libraries :: Python Modules"],
     install_requires=[
+        "gitpython",
         "pysaml2",
         "requests >= 2.0.0",
     ],
