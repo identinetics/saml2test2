@@ -251,19 +251,16 @@ class Tester(tool.Tester):
     def display_test_list(self):
         try:
             if self.sh.session_init():
-                return self.webio.flow_list(self.sh)
+                return self.webio.flow_list(self.sh, tt_entityid=self.webio.kwargs['entity_id'])
             else:
-                try:
+                if 'testid' in self.sh:
                     p = self.sh["testid"].split('-')
-                except KeyError:
-                    rendered = self.webio.flow_list(self.sh,
-                                                    tt_entityid=self.webio.kwargs['entity_id'],
-                                                    td_conf_uri=self.webio.kwargs['base_url'])
-                    return rendered
-                else:
-                    resp = Redirect("%sopresult#%s" % (self.webio.conf.BASE,
-                                                       p[1]))
+                    resp = Redirect("%sopresult#%s" % (self.webio.conf.BASE, p[1]))
                     return resp(self.webio.environ, self.webio.start_response)
+                else:
+                    rendered = self.webio.flow_list(self.sh,
+                                                    tt_entityid=self.webio.kwargs['entity_id'])
+                    return rendered
         except Exception as err:
             exception_trace("display_test_list", err)
             return self.webio.err_response("session_setup", err)
@@ -275,7 +272,7 @@ class Tester(tool.Tester):
 
         try:
             index = self.sh["index"]
-        except KeyError:  # Cookie delete broke session
+        except KeyError:  # Cookie delete broken session
             self.setup(path, **ENV)
         except Exception as err:
             return self.webio.err_response("session_setup", err)

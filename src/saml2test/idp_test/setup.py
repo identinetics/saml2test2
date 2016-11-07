@@ -24,7 +24,6 @@ from saml2test.idp_test.common import map_prof
 from saml2test.idp_test.common import Trace
 from saml2test.idp_test.prof_util import ProfileHandler
 from saml2test.idp_test.func import factory
-#from saml2test.idp_test.cl_request import factory as cl_factory
 from saml2test.idp_test.wb_request import factory as wb_factory
 
 from aatest.parse_cnf import parse_json_conf
@@ -40,25 +39,22 @@ from saml2test.jsonconfig import JsonConfig
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-#TT_CONFIG_FILENAME = 'configuration.yaml'
 TD_SP_DIR = 'td_sp'
-#TD_SP_CONFIG_FILENAME = 'configuration_created.py'
-#TD_SP_CONFIG_METADATA_FILENAME = 'metadata_created.xml'
 
 __author__ = 'roland'
 
 logger = logging.getLogger("")
 
 def load_flows(fdef, flow_spec, use):
-    #cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
-    cls_factories = {'wb': wb_factory, '': operation.factory}
+    logging.debug('loading text flows from ' + flow_spec)
+    cls_factories = {'wb': wb_factory, '': operation.factory}    # removed 'cl': cl_factory,
 
     if flow_spec.endswith('.yaml'):
         spec = parse_yaml_conf(flow_spec, cls_factories, factory, use=use)
     elif flow_spec.endswith('.json'):
         spec = parse_json_conf(flow_spec, cls_factories, factory, use=use)
     else:
-        raise Exception('Unknown file type')
+        raise Exception('flow spec file type must be .yaml or .json, but %s found.' % flow_spec)
 
     for param in ['Flows', 'Desc']:
         try:
@@ -106,8 +102,9 @@ def inject_configuration_base_path(CONF,path):
 
 	return CONF
 
-def setup(use='cl', cargs=None):
-    if cargs is None:
+def setup(use=None, clargs=None):
+    if clargs is None:
+        logging.debug('loading configuration from command line')
         parser = argparse.ArgumentParser()
         parser.add_argument('-k', dest="insecure", action='store_true')
         parser.add_argument('-r', dest="readjson", action='store_true')
@@ -116,56 +113,64 @@ def setup(use='cl', cargs=None):
         parser.add_argument('-g', dest="github", action='store_true')
         parser.add_argument('-o', dest='outputfile')
         parser.add_argument(dest="configdir")
-        cargs = parser.parse_args()
-
-    flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
-
-    if cargs.github:
+        clargs = parser.parse_args()
+        for attr in dir(clargs):
+            if not attr.startswith('_'):
+                logging.debug("  option clargs.%s = %s" % (attr, getattr(clargs, attr)))
+        conf_source_uri = 'file://' + os.path.abspath(clargs.configdir)
+    elif clargs.github:
+        logging.debug('loading configuration from github repo')
         # make sure we ask github and that our repo-string is clean
-        github_repo = cargs.configdir
+        github_repo = clargs.configdir
         github_repo = github_repo.replace("git@github.com:","")
         github_repo = github_repo.replace("https://github.com/","")
         if not re.match("^[a-z0-9\-\.\/]*$", github_repo):
-            raise Exception("suspicious characters in github repository string")
+            raise Exception("suspicious characters in github repository name: " + github_repo)
         repo_url = 'https://github.com/{}'.format(github_repo)
+        logging.debug('github repo/branch is %s/%s' % (repo_url, clargs.repobranch))
 
-        cargs.configdir = tempfile.mkdtemp()
+        clargs.configdir = tempfile.mkdtemp()
         try:
             # issue with start from pycharm: need to set GIT_PYTHON_GIT_EXECUTABLE
-            if cargs.repobranch:
-                repo = git.Repo.clone_from(repo_url, cargs.configdir, branch=cargs.repobranch)
+            if clargs.repobranch:
+                repo = git.Repo.clone_from(repo_url, clargs.configdir, branch=clargs.repobranch)
             else:
-                repo = git.Repo.clone_from(repo_url, cargs.configdir)
+                repo = git.Repo.clone_from(repo_url, clargs.configdir)
         except Exception as e:
             logger.info('Failed to clone github repo ' + github_repo)
-
-        if not os.path.exists(cargs.configdir):
+        if not os.path.exists(clargs.configdir):
             raise Exception("could not create config dir from github repo {}".format(github_repo))
+        clargs.readjson = True
+        conf_source_uri = repo_url
 
-        cargs.readjson = True
+    logging.debug('Configuration source: ' + conf_source_uri)
 
-
-    if cargs.readjson:
-        json_file = os.path.join(cargs.configdir,'generated','config.json')
+    if clargs.readjson:
+        json_file = os.path.join(clargs.configdir, 'generated', 'config.json')
         try:
             with open(json_file) as fp:
                 data = json.load(fp)
+            logging.debug('JSON configuration read from ' + json_file)
         except Exception as e:
             e =  configloader.ConfigFileNotReadable(e.errno, e.strerror, e.filename)
-            configloader.exit_on_mandatory_config_file(e)
+            raise
+            # configloader.exit_on_mandatory_config_file(e)  - does not work in web mode
 
-        CONF = JsonConfig(data,cargs.configdir)
+        CONF = JsonConfig(data, clargs.configdir)
 
 
     else:
-        loader = configloader.ConfigLoader(cargs.configdir)
+        loader = configloader.ConfigLoader(clargs.configdir)
         try:
             CONF = loader.conf_CONF()
+            logging.debug('Python configuration read from ' + clargs.configdir)
         except configloader.ConfigFileNotReadable as e:
             configloader.exit_on_mandatory_config_file(e)
 
+
+    # support for YAML config files
     #try:
-    #    with open(cargs.toolconf, 'r') as fd:
+    #    with open(clargs.toolconf, 'r') as fd:
     #        conf = yaml.safe_load(fd)
     #except FileNotFoundError as e:
     #    raise Exception('unable to open tool configuration file: cwd=' + os.getcwd() + ', ' + str(e))
@@ -175,7 +180,11 @@ def setup(use='cl', cargs=None):
     #except KeyError:
     #    pass # TODO: is it really OK not to have any flows?
 
+    setattr(CONF, 'SOURCE_URI', conf_source_uri)
+
+    flow_definitions = {'Flows': {}, 'Order': [], 'Desc': {}}
     for flow_file in CONF.FLOWS:
+        logging.debug('Loading test flow from ' + flow_file)
         flow_definitions = load_flows(flow_definitions, flow_file, use)
 
     # Filter flows based on profile
@@ -235,4 +244,4 @@ def setup(use='cl', cargs=None):
 
     kwargs["insecure"] = CONF.DO_NOT_VALIDATE_TLS
 
-    return cargs, kwargs, CONF
+    return clargs, kwargs, CONF

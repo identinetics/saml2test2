@@ -138,8 +138,10 @@ def legends():
         <h1>Federation Lab SAML2 IdP Tests</h1>
     </div>
     <div class="jumbotron" style="padding-left: 1em; padding-right: 2em">
-        <h4>Test target: ${test_target(tt_entityid)}</h4>
-        <h4>Test driver: ${test_driver(td_conf_uri)}</h4>
+        <h4>Configuration: ${test_target(config_name)}</h4>
+        <p>Configuration URI: ${test_target(td_conf_source_uri)}</p>
+        <p>Test target entityID: ${test_target(tt_entityid)}</p>
+        <hr>
 
         ${op_choice(base, flows, test_info, headlines, tc_id_infobase)}
     </div>

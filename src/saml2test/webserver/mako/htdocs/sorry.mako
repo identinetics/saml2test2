@@ -26,11 +26,12 @@
     <div class="container">
      <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
-        <h1>SAML2 IdP Test</h1>
-        <h2>Sorry ! An error occured</h2>
-        <br>
-        ${prnt(error)}<br>
-        To go back click this ${link(htmlpage)}.
+        <h4>SAML2 IdP Test</h4>
+        <p>Sorry, an error occured. To restart click this ${link(htmlpage)}.</p>
+        <p>Error message: ${prnt(error_msg)}</p>
+        <p>${prnt(context_msg)}</p>
+        <hr>
+        <p style="font-family: monospace; overflow-x: auto; font-size:0.8em;">${prnt(traceback_msg)}</p>
       </div>
 
     </div> <!-- /container -->

@@ -124,12 +124,13 @@ class WebIO(IO):
                 resp = Response("No saved logs")
                 return resp(self.environ, self.start_response)
 
-    def flow_list(self, logfilename='', tt_entityid='', td_conf_uri='(cli arg)'):
+    def flow_list(self, logfilename='', tt_entityid=''):
         resp = Response(mako_template="flowlist.mako",
                         template_lookup=self.lookup,
                         headers=[])
 
         display_args = {
+            "config_name": self.conf.CONF_NAME,
             "flows": self.session["tests"],
             "profile": self.session["profile"],
             "test_info": list(self.session["test_info"].keys()),
@@ -137,7 +138,7 @@ class WebIO(IO):
             "headlines": self.desc,
             "testresults": TEST_RESULTS,
             "tt_entityid": tt_entityid,
-            "td_conf_uri": td_conf_uri,
+            "td_conf_source_uri": self.conf.SOURCE_URI,
             "tc_id_infobase": "https://identinetics.github.io/SAML-Testcases/index.html#"
         }
 
@@ -210,12 +211,19 @@ class WebIO(IO):
         else:
             return resp
 
-    def sorry_response(self, homepage, err):
+    def sorry_response(self, homepage, err, context=None, exception=None):
         resp = Response(mako_template="sorry.mako",
                         template_lookup=self.lookup,
                         headers=[])
+        errmsg = str(err)
+        if context:
+            ctxmsg = "<br/>Context: " + context
+        if exception:
+            tbmsg = "<br/>Exception: " + exception
         argv = {"htmlpage": homepage,
-                "error": str(err)}
+                "error_msg": errmsg,
+                "context_msg": ctxmsg,
+                "traceback_msg": tbmsg}
         return resp(self.environ, self.start_response, **argv)
 
     def opresult(self, *argv):

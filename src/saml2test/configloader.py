@@ -18,6 +18,7 @@ CONFIG_CLASS_NAME = 'Config'
 logger = logging.getLogger("")
 
 def exit_on_mandatory_config_file(e):
+    # only possible for the command line config. With web invocation the result must be returend via http
     print("Error accessing mandatory config file {}".format(config_file))
     print("Error {0}: {1}".format(e.errno, e.strerror))
     os._exit(-1)

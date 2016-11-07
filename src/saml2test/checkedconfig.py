@@ -126,6 +126,17 @@ class CheckedConfig(object):
         return
 
     def check_config(self):
+        mandatory_keys = {'CONF_NAME', 'ENTITY_ID', 'FLOWS', 'FLOWS_PROFILES', 'IDP_BASE',
+                          'METADATA', 'PORT', 'SERVER_TLS'}
+        actual_keys = set()
+        for attr in dir(self):
+            if not attr.startswith('_'):
+                actual_keys.add(attr)
+        if (mandatory_keys - actual_keys) != set():
+            errmsg = 'Missing mandatory key(s) in config: ' + str(mandatory_keys - actual_keys)
+            logging.error(errmsg)
+            raise ValueError(errmsg)
+
         for config_key in self.CONFIG:
             config = self.CONFIG[config_key]
             for key in ('cert_file', 'key_file'):

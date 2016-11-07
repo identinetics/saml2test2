@@ -1,20 +1,18 @@
 #!/usr/bin/env python
 
-#import sys
-#print('\n'.join(sys.path))
-
-
-import os
+import json
 import logging
-from aatest.check import State, OK, ERROR
-from aatest.events import EV_CONDITION, EV_PROTOCOL_RESPONSE, NoSuchEvent
-from aatest.result import Result
-from aatest.verify import Verify
+import os
+import threading
+import traceback
 from future.backports.urllib.parse import quote_plus
 from future.backports.urllib.parse import parse_qs
 from werkzeug.http import parse_accept_header
 
-
+from aatest.check import State, OK, ERROR
+from aatest.events import EV_CONDITION, EV_PROTOCOL_RESPONSE, NoSuchEvent
+from aatest.result import Result
+from aatest.verify import Verify
 from aatest.summation import store_test_state
 from aatest.session import Done
 #from aatest.session import SessionHandler
@@ -25,6 +23,7 @@ from saml2.httputil import Response
 from saml2.httputil import ServiceError
 from saml2.response import StatusError
 
+from saml2test import configloader
 from saml2test.idp_test.webio import WebIO
 from saml2test.idp_test.setup import setup
 from saml2test.idp_test.wb_tool import Tester
@@ -39,8 +38,6 @@ from saml2 import BINDING_HTTP_POST
 from saml2 import samlp
 
 from saml2test.idp_test.metadata import MyMetadata
-import json
-import threading
 SERVER_LOG_FOLDER = os.path.abspath("server_log")
 if not os.path.isdir(SERVER_LOG_FOLDER):
     os.makedirs(SERVER_LOG_FOLDER)
@@ -51,6 +48,29 @@ except Exception as ex:
     raise ex
 
 LOGGER = logging.getLogger("")
+
+
+def generate_json_config(conf, cargs):
+    logging.info('generating json config')
+    cdict = CONF.__dict__
+    json_dump = json.dumps(cdict, indent=1)
+    configdir = cargs.configdir
+    json_ready = json_dump.replace(configdir, '.')
+
+    md = MyMetadata(cargs, kwargs)
+    xml = md.get_xml_output()
+
+    generated_dir = os.path.join(configdir, 'generated')
+    if not os.path.exists(generated_dir):
+        os.makedirs(generated_dir)
+    fpath = os.path.join(generated_dir, 'config.json')
+    with open(fpath, "w") as fd:
+        fd.write(json_ready)
+        logging.info('Created ' + fpath)
+    fpath = os.path.join(generated_dir, 'metadata.xml')
+    with open(fpath, "w") as fd:
+        fd.write(xml)
+        logging.info('Created ' + fpath)
 
 
 def pick_args(args, kwargs):
@@ -116,9 +136,7 @@ def do_next(tester, resp, sh, webio, filename, path):
         store_test_state(sh, sh['conv'].events)
         res.store_test_info()
 
-    html_page = webio.flow_list(logfilename=filename,
-                                tt_entityid=webio.kwargs['entity_id'],
-                                td_conf_uri=webio.kwargs['base_url'])
+    html_page = webio.flow_list(logfilename=filename, tt_entityid=webio.kwargs['entity_id'])
     return html_page
 
 
@@ -168,11 +186,10 @@ class Application(object):
             self.mime_type = 'text/html'
 
     def application(self, environ, start_response):
-        LOGGER.info("Connection from: %s" % environ["REMOTE_ADDR"])
-        session = environ['beaker.session']
         path = environ.get('PATH_INFO', '').lstrip('/')
-        LOGGER.info("path: %s" % path)
+        LOGGER.info("request PATH_INFO: %s, client: %s" % (path, environ["REMOTE_ADDR"]))
 
+        session = environ['beaker.session']
         try:
             sh = session['session_info']
             local_webenv = session['webenv']
@@ -187,9 +204,7 @@ class Application(object):
         webio = WebIO(session=sh, **local_webenv)
         webio.environ = environ # WSGI environment
         webio.start_response = start_response
-
         tester = Tester(webio, sh, **local_webenv)
-
 
         _static_path = self.is_static_path(path)
         if _static_path:
@@ -243,7 +258,7 @@ class Application(object):
             return tester.display_test_list()
         elif path == "opresult":
             if tester.conv is None:
-                return webio.sorry_response(local_webenv['base_url'], "No result to report")
+                return webio.sorry_response(local_webenv['base_url'], "No result to report (no conv log)")
 
             return webio.opresult(tester.conv, sh)
         # expected path format: /<testid>[/<endpoint>]
@@ -261,8 +276,7 @@ class Application(object):
                 if self.mime_type == 'application/json':
                     return webio.single_flow(path)
                 else:
-                    return webio.flow_list(tt_entityid=webio.kwargs['entity_id'],
-                                           td_conf_uri=webio.kwargs['base_url'])
+                    return webio.flow_list(tt_entityid=webio.kwargs['entity_id'])
         elif path == "acs/post":
             formdata = get_post(environ).decode('utf8')
             resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
@@ -344,7 +358,9 @@ class Application(object):
                     return resp(environ, start_response)
 
             logfilename = local_webenv['profile_handler'](sh).log_path(path)
-            return webio.flow_list(logfilename)
+            return webio.flow_list(logfilename=logfilename,
+                                   tt_entityid=webio.kwargs['entity_id'],
+                                   td_conf_uri=webio.kwargs['base_url'])
         elif path == 'swconf':
             """
                 switch config by user request
@@ -362,11 +378,13 @@ class Application(object):
                 try:
                     ac_file = WebUserAccessControlFile(local_webenv['conf'].ACCESS_CONTROL_FILE)
                 except Exception as e:
-                    return webio.sorry_response(local_webenv['base_url'],e)
+                    return webio.sorry_response(local_webenv['base_url'], e,
+                        context='reading ' + local_webenv['conf'].ACCESS_CONTROL_FILE)
 
                 has_access = ac_file.test(resp['github'], resp['email'])
                 if not has_access:
-                    return webio.sorry_response(local_webenv['base_url'],'permission denied')
+                    return webio.sorry_response(local_webenv['base_url'], 'permission denied',
+                        context="access checking: email does not match repo user.")
 
             # reading from github should set readjson, but to be sure ...
             setup_cargs=type('setupcarg', (object,),
@@ -380,13 +398,19 @@ class Application(object):
 
             try:
                 user_cargs, user_kwargs, user_CONF = setup('wb', setup_cargs)
+            except FileNotFoundError as e:
+                return webio.sorry_response(local_webenv['base_url'], e,
+                                            context="Configuration Setup via URL parameter - trying to read generated/config.json")
             except ConfigError as e:
                 errstr = e.error_details_as_string()
-                print('Error: {}'.format(e))
-
-                return webio.sorry_response(local_webenv['base_url'],errstr)
+                print('Error: {}'.format(errstr))
+                return webio.sorry_response(local_webenv['base_url'], errstr,
+                                            context="configuration setup",
+                                            exception=traceback.format_exc())
             except Exception as e:
-                return webio.sorry_response(local_webenv['base_url'],e)
+                return webio.sorry_response(local_webenv['base_url'], e,
+                                            context="Configuration Setup",
+                                            exception=traceback.format_exc())
 
             """
                 picking the config stuff that the user is allowed to override
@@ -432,12 +456,12 @@ if __name__ == '__main__':
     from beaker.middleware import SessionMiddleware
     from cherrypy import wsgiserver
     from mako.lookup import TemplateLookup
-    print(__file__ + ' V' + __version__)
+    logging.info(__file__ + ' V' + __version__)
     try:
         cargs, kwargs, CONF = setup('wb')
     except ConfigError as e:
         str = e.error_details_as_string()
-        print ('Error: {}'.format(e))
+        print('Error: {}'.format(e))
         if (str):
             print (str)
         os.sys.exit(-1)
@@ -448,6 +472,7 @@ if __name__ == '__main__':
             print (info)
 
     if cargs.metadata:
+        logging.info('generating metadata')
         md = MyMetadata(cargs, kwargs)
         xml = md.get_xml_output()
         if cargs.outputfile:
@@ -459,23 +484,7 @@ if __name__ == '__main__':
         exit(0)
 
     if cargs.json:
-        cdict = CONF.__dict__
-        json_dump = json.dumps(cdict, indent=1)
-        configdir = cargs.configdir
-        json_ready = json_dump.replace(configdir, '.')
-
-        md = MyMetadata(cargs, kwargs)
-        xml = md.get_xml_output()
-
-        generated_dir = os.path.join(configdir, 'generated')
-        if not os.path.exists(generated_dir):
-            os.makedirs(generated_dir)
-        output_file = open(os.path.join(generated_dir,'config.json'), "w")
-        output_file.write(json_ready)
-        output_file.close()
-        output_file = open(os.path.join(generated_dir,'metadata.xml'), "w")
-        output_file.write(xml)
-        output_file.close()
+        generate_json_config(CONF, cargs)
         exit(0)
 
     session_opts = {
@@ -496,7 +505,8 @@ if __name__ == '__main__':
 
     _app = Application(webenv=kwargs)
 
-    SRV = wsgiserver.CherryPyWSGIServer(('0.0.0.0', int(_conf.PORT)),
+    interface = '0.0.0.0'
+    SRV = wsgiserver.CherryPyWSGIServer((interface, int(_conf.PORT)),
                                         SessionMiddleware(_app.application,
                                                           session_opts))
 
@@ -509,7 +519,7 @@ if __name__ == '__main__':
     else:
         extra = ""
 
-    txt = "SP listening on port:%s%s" % (_conf.PORT, extra)
+    txt = "SP listening on interface:%s%s" % (_conf.PORT, extra)
     LOGGER.info(txt)
     print(txt)
     try:
