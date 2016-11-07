@@ -216,10 +216,8 @@ class WebIO(IO):
                         template_lookup=self.lookup,
                         headers=[])
         errmsg = str(err)
-        if context:
-            ctxmsg = "<br/>Context: " + context
-        if exception:
-            tbmsg = "<br/>Exception: " + exception
+        ctxmsg = "<br/>Context: " + context if context else ''
+        tbmsg = "<br/>Exception: " + exception if exception else ''
         argv = {"htmlpage": homepage,
                 "error_msg": errmsg,
                 "context_msg": ctxmsg,
