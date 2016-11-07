@@ -24,7 +24,7 @@ from saml2test.idp_test.common import map_prof
 from saml2test.idp_test.common import Trace
 from saml2test.idp_test.prof_util import ProfileHandler
 from saml2test.idp_test.func import factory
-from saml2test.idp_test.cl_request import factory as cl_factory
+#from saml2test.idp_test.cl_request import factory as cl_factory
 from saml2test.idp_test.wb_request import factory as wb_factory
 
 from aatest.parse_cnf import parse_json_conf
@@ -50,7 +50,8 @@ __author__ = 'roland'
 logger = logging.getLogger("")
 
 def load_flows(fdef, flow_spec, use):
-    cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
+    #cls_factories = {'cl': cl_factory, 'wb': wb_factory, '': operation.factory}
+    cls_factories = {'wb': wb_factory, '': operation.factory}
 
     if flow_spec.endswith('.yaml'):
         spec = parse_yaml_conf(flow_spec, cls_factories, factory, use=use)

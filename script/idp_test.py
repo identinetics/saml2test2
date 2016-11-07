@@ -116,7 +116,9 @@ def do_next(tester, resp, sh, webio, filename, path):
         store_test_state(sh, sh['conv'].events)
         res.store_test_info()
 
-    html_page = webio.flow_list(filename)
+    html_page = webio.flow_list(logfilename=filename,
+                                tt_entityid=webio.kwargs['entity_id'],
+                                td_conf_uri=webio.kwargs['base_url'])
     return html_page
 
 
@@ -259,7 +261,8 @@ class Application(object):
                 if self.mime_type == 'application/json':
                     return webio.single_flow(path)
                 else:
-                    return webio.flow_list()
+                    return webio.flow_list(tt_entityid=webio.kwargs['entity_id'],
+                                           td_conf_uri=webio.kwargs['base_url'])
         elif path == "acs/post":
             formdata = get_post(environ).decode('utf8')
             resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])

@@ -256,7 +256,9 @@ class Tester(tool.Tester):
                 try:
                     p = self.sh["testid"].split('-')
                 except KeyError:
-                    rendered = self.webio.flow_list(self.sh, tt_entityid=self.webio.kwargs['entity_id'])
+                    rendered = self.webio.flow_list(self.sh,
+                                                    tt_entityid=self.webio.kwargs['entity_id'],
+                                                    td_conf_uri=self.webio.kwargs['base_url'])
                     return rendered
                 else:
                     resp = Redirect("%sopresult#%s" % (self.webio.conf.BASE,
