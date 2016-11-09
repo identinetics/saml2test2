@@ -73,6 +73,18 @@ def generate_json_config(conf, cargs):
         logging.info('Created ' + fpath)
 
 
+def generate_metadata_xml(cargs, kwargs):
+    logging.info('generating metadata')
+    md = MyMetadata(cargs, kwargs)
+    xml = md.get_xml_output()
+    if cargs.outputfile:
+        output_file = open(cargs.outputfile, "w+")
+        output_file.write(xml)
+        output_file.close()
+    else:
+        print(xml)
+
+
 def pick_args(args, kwargs):
     return dict([(k, kwargs[k]) for k in args])
 
@@ -168,6 +180,7 @@ class Application(object):
         self.webenv = webenv
         self.session_store = SessionStore()
 
+
     def is_static_path(self, path):
         if path in ["robots.txt", 'favicon.ico']:
             return "{}/robots.txt".format(self.webenv['static'])
@@ -177,6 +190,7 @@ class Application(object):
                     return '{}/{}'.format(self.webenv['static'], path[len(p):])
         return ''
 
+
     def set_mimetype(self, environ):
         client_accepts = dict(parse_accept_header(environ['HTTP_ACCEPT']))
         if 'application/json' in client_accepts:
@@ -184,6 +198,212 @@ class Application(object):
         else:
             #fallback if the client has not told us that it is calling the API
             self.mime_type = 'text/html'
+
+
+    def urlhandler_acs_post(self, sh, environ, local_webenv, path, start_response, tester, webio):
+        formdata = get_post(environ).decode('utf8')
+        resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
+
+        try:
+            test_id = sh['conv'].test_id
+        except KeyError as err:
+            test_id = None
+
+        if not test_id:
+            """
+                Do we have been initialized already, or is the user just on the wrong page ?
+            """
+            if not resp:
+                return tester.display_test_list()
+            """
+            In other words: we've been contacted by robobrowser and are in a different environment now, than the
+            code expects us to be. .... Hopefully, trickery and recreating of the environment will lead mostly
+            to more intended effects than unintended ones.
+
+            This is unfinished business: You can add other bindings here, to expand what RB can be used to test.
+            """
+            try:
+                txt = resp['SAMLResponse']
+                xmlstr = Entity.unravel(txt, BINDING_HTTP_POST)
+            except Exception as e:
+                msg = 'Decoding not supported in the SP'
+                raise Exception(msg)
+
+            rsp = samlp.any_response_from_string(xmlstr)
+            original_request_id = rsp.in_response_to
+            requester_session = self.session_store.get_session_by_conv_id(original_request_id)
+
+            # recreating the environment. lets hope it is somewhat reentrant resistant
+            sh = requester_session
+            webio = WebIO(session=sh, **local_webenv)
+            webio.environ = environ
+            webio.start_response = start_response
+
+            tester = Tester(webio, sh, **local_webenv)
+
+        profile_handler = local_webenv['profile_handler']
+        _sh = profile_handler(sh)
+        # filename = self.webenv['profile_handler'](sh).log_path(test_id)
+        # _sh.session.update({'conv': 'foozbar'})
+        logfilename = _sh.log_path(test_id)
+
+        content = do_next(tester, resp, sh, webio, logfilename, path)
+        return content
+
+
+    def urlhandler_all(sh, environ, local_webenv, start_response, tester, webio):
+        for test_id in sh['flow_names']:
+            resp = tester.run(test_id, **local_webenv)
+            store_test_state(sh, sh['conv'].events)
+            if resp is True or resp is False:
+                continue
+            elif resp:
+                return resp(environ, start_response)
+            else:
+                resp = ServiceError('Test tool error - unexpected response from test flow')
+                return resp(environ, start_response)
+
+        logfilename = local_webenv['profile_handler'](sh).log_path(path)
+        return webio.flow_list(logfilename=logfilename,
+                               tt_entityid=webio.kwargs['entity_id'],
+                               td_conf_uri=webio.kwargs['base_url'])
+
+
+    def urlhandler_flownames(self, sh, environ, local_webenv, path, tester, webio):
+        self.set_mimetype(environ)
+        resp = tester.run(path, **local_webenv)
+        store_test_state(sh, sh['conv'].events)
+        logfilename = local_webenv['profile_handler'](sh).log_path(path)
+        if isinstance(resp, Response):
+            res = Result(sh, local_webenv['profile_handler'])
+            res.store_test_info()
+            res.print_info(path, tester.fname(path))
+            return webio.respond(resp)
+        else:
+            if self.mime_type == 'application/json':
+                return webio.single_flow(path)
+            else:
+                return webio.flow_list(tt_entityid=webio.kwargs['entity_id'])
+
+
+    def urlhandler_log(self, webio):
+        if path == "log" or path == "log/":
+            _cc = webio.conf.CLIENT
+            try:
+                _iss = _cc["srv_discovery_url"]
+            except KeyError:
+                _iss = _cc["provider_info"]["issuer"]
+            parts = [quote_plus(_iss)]
+        else:
+            parts = []
+            while path != "log":
+                head, tail = os.path.split(path)
+                # tail = tail.replace(":", "%3A")
+                # if tail.endswith("%2F"):
+                #     tail = tail[:-3]
+                parts.insert(0, tail)
+                path = head
+
+        return webio.display_log("log", *parts)
+
+
+    def urlhandler_reset(self, sh, tester):
+        for param in ['flow', 'flow_names', 'index', 'node', 'profile',
+                      'sequence', 'test_info', 'testid', 'tests']:
+            try:
+                del sh[param]
+            except KeyError:
+                pass
+        return tester.display_test_list()
+
+
+    def urlhandler_swconf(self, environ, local_webenv, session, start_response, webio):
+        """
+            switch config by user request
+            url param: ?github=<name of the github repo>&email=<user email>&branch=<repobranch>
+        """
+        formdata = parse_qs(environ['QUERY_STRING'])
+        resp = dict([(k, v[0]) for k, v in formdata.items()])
+
+        try:
+            ac_file_name = local_webenv['conf'].ACCESS_CONTROL_FILE
+        except Exception as e:
+            ac_file_name = None
+
+        if ac_file_name:
+            try:
+                ac_file = WebUserAccessControlFile(local_webenv['conf'].ACCESS_CONTROL_FILE)
+            except Exception as e:
+                return webio.sorry_response(local_webenv['base_url'], e,
+                    context='reading ' + local_webenv['conf'].ACCESS_CONTROL_FILE)
+
+            has_access = ac_file.test(resp['github'], resp['email'])
+            if not has_access:
+                return webio.sorry_response(local_webenv['base_url'], 'permission denied',
+                    context="access checking: email does not match repo user.")
+
+        # reading from github should set readjson, but to be sure ...
+        setup_cargs=type('setupcarg', (object,),
+                         {'github': True,
+                          'configdir': resp['github'],
+                          'readjson': True })()
+        if 'branch' in resp:
+            setattr(setup_cargs, 'repobranch', resp['branch'])
+        else:
+            setattr(setup_cargs, 'repobranch', None)
+
+        try:
+            user_cargs, user_kwargs, user_CONF = setup('wb', setup_cargs)
+        except FileNotFoundError as e:
+            return webio.sorry_response(local_webenv['base_url'], e,
+                                        context="Configuration Setup via URL parameter - trying to read generated/config.json")
+        except ConfigError as e:
+            errstr = e.error_details_as_string()
+            print('Error: {}'.format(errstr))
+            return webio.sorry_response(local_webenv['base_url'], errstr,
+                                        context="configuration setup",
+                                        exception=traceback.format_exc())
+        except Exception as e:
+            return webio.sorry_response(local_webenv['base_url'], e,
+                                        context="Configuration Setup",
+                                        exception=traceback.format_exc())
+
+        """
+            picking the config stuff that the user is allowed to override
+        """
+        local_webenv['conf'] = user_CONF
+        local_webenv['flows'] = user_kwargs['flows']
+
+        """
+            Todo: having this not cluttered would be nicer
+            In other words: refactoring of setup.py
+        """
+        local_webenv['entity_id'] = local_webenv['conf'].ENTITY_ID
+        local_webenv["insecure"] = local_webenv['conf'].DO_NOT_VALIDATE_TLS
+        local_webenv["profile"] = local_webenv['conf'].FLOWS_PROFILES
+
+        import copy
+        from saml2test import metadata
+        spconf = copy.deepcopy(user_CONF.CONFIG)
+        acnf = list(spconf.values())[0]
+        mds = metadata.load(True, acnf, user_CONF.METADATA, 'sp')
+        local_webenv["metadata"] = mds
+
+
+        # new webenv into session
+        session['webenv'] = local_webenv
+
+        sh = SessionHandler(**local_webenv)
+        sh.session_init()
+        session['session_info'] = sh
+
+        webio = WebIO(session=sh, **local_webenv)
+        webio.environ = environ
+        webio.start_response = start_response
+
+        tester = Tester(webio, sh, **local_webenv)
+        return tester.display_test_list()
+
 
     def application(self, environ, start_response):
         path = environ.get('PATH_INFO', '').lstrip('/')
@@ -215,238 +435,52 @@ class Application(object):
         elif "flow_names" not in sh:
             sh.session_init()
 
-        if path == "logs":
-            return webio.display_log("log", issuer="", profile="", testid="")
+        if path == "acs/artifact":
+            pass
+        elif path == "acs/post":
+            return self.urlhandler_acs_post(sh, environ, local_webenv, path,
+                                            start_response, tester, webio)
+        elif path == "acs/redirect":
+            formdata = environ['QUERY_STRING']
+            resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
+            logfilename = local_webenv['profile_handler'](sh).log_path(sh['conv'].test_id)
+            return do_next(tester, resp, sh, webio, logfilename, path)
+        elif path == 'all':
+            return self.urlhandler_all(sh, environ, local_webenv, start_response, tester, webio)
+        elif path == "continue":
+            return tester.cont(environ, local_webenv)
+        elif path == "disco":
+            formdata = parse_qs(environ['QUERY_STRING'])
+            resp = dict([(k, v[0]) for k, v in formdata.items()])
+            logfilename = local_webenv['profile_handler'](sh).log_path(sh['conv'].test_id)
+            return do_next(tester, resp, sh, webio, logfilename, path=path)
+        # expected path format: /<testid>[/<endpoint>]
+        elif path in sh["flow_names"]:
+            return self.urlhandler_flownames(sh, environ, local_webenv, path, tester, webio)
         elif path.startswith("log"):
-            if path == "log" or path == "log/":
-                _cc = webio.conf.CLIENT
-                try:
-                    _iss = _cc["srv_discovery_url"]
-                except KeyError:
-                    _iss = _cc["provider_info"]["issuer"]
-                parts = [quote_plus(_iss)]
-            else:
-                parts = []
-                while path != "log":
-                    head, tail = os.path.split(path)
-                    # tail = tail.replace(":", "%3A")
-                    # if tail.endswith("%2F"):
-                    #     tail = tail[:-3]
-                    parts.insert(0, tail)
-                    path = head
-
-            return webio.display_log("log", *parts)
+            return self.urlhandler_log(webio)
+        elif path == "logs":
+            return webio.display_log("log", issuer="", profile="", testid="")
+        elif path == "opresult":
+            if tester.conv is None:
+                return webio.sorry_response(local_webenv['base_url'],
+                                            "No result to report (no conv log)")
+            return webio.opresult(tester.conv, sh)
+        elif path == 'reset':
+            return self.urlhandler_reset(sh, tester)
+        elif path == "slo":
+            pass
+        elif path == 'swconf':
+            return self.urlhandler_swconf(environ, local_webenv, session, start_response, webio)
         elif path.startswith("tar"):
             path = path.replace(":", "%3A")
             return webio.static(path)
-
         elif path.startswith("test_info"):
             p = path.split("/")
             try:
                 return webio.test_info(p[1])
             except KeyError:
                 return webio.not_found()
-        elif path == "continue":
-            return tester.cont(environ, local_webenv)
-        elif path == 'reset':
-            for param in ['flow', 'flow_names', 'index', 'node', 'profile',
-                          'sequence', 'test_info', 'testid', 'tests']:
-                try:
-                    del sh[param]
-                except KeyError:
-                    pass
-            return tester.display_test_list()
-        elif path == "opresult":
-            if tester.conv is None:
-                return webio.sorry_response(local_webenv['base_url'], "No result to report (no conv log)")
-
-            return webio.opresult(tester.conv, sh)
-        # expected path format: /<testid>[/<endpoint>]
-        elif path in sh["flow_names"]:
-            self.set_mimetype(environ)
-            resp = tester.run(path, **local_webenv)
-            store_test_state(sh, sh['conv'].events)
-            logfilename = local_webenv['profile_handler'](sh).log_path(path)
-            if isinstance(resp, Response):
-                res = Result(sh, local_webenv['profile_handler'])
-                res.store_test_info()
-                res.print_info(path, tester.fname(path))
-                return webio.respond(resp)
-            else:
-                if self.mime_type == 'application/json':
-                    return webio.single_flow(path)
-                else:
-                    return webio.flow_list(tt_entityid=webio.kwargs['entity_id'])
-        elif path == "acs/post":
-            formdata = get_post(environ).decode('utf8')
-            resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
-
-            try:
-                test_id = sh['conv'].test_id
-            except KeyError as err:
-                test_id = None
-
-            if not test_id:
-                """
-                    Do we have been initialized already, or is the user just on the wrong page ?
-                """
-                if not resp:
-                    return tester.display_test_list()
-                """
-                In other words: we've been contacted by robobrowser and are in a different environment now, than the
-                code expects us to be. .... Hopefully, trickery and recreating of the environment will lead mostly
-                to more intended effects than unintended ones.
-
-                This is unfinished business: You can add other bindings here, to expand what RB can be used to test.
-                """
-                try:
-                    txt = resp['SAMLResponse']
-                    xmlstr = Entity.unravel(txt, BINDING_HTTP_POST)
-                except Exception as e:
-                    msg = 'Decoding not supported in the SP'
-                    raise Exception(msg)
-
-                rsp = samlp.any_response_from_string(xmlstr)
-                original_request_id = rsp.in_response_to
-                requester_session = self.session_store.get_session_by_conv_id(original_request_id)
-
-                # recreating the environment. lets hope it is somewhat reentrant resistant
-                sh = requester_session
-                webio = WebIO(session=sh, **local_webenv)
-                webio.environ = environ
-                webio.start_response = start_response
-
-                tester = Tester(webio, sh, **local_webenv)
-
-            profile_handler = local_webenv['profile_handler']
-            _sh = profile_handler(sh)
-            #filename = self.webenv['profile_handler'](sh).log_path(test_id)
-            #_sh.session.update({'conv': 'foozbar'})
-            logfilename = _sh.log_path(test_id)
-
-            content = do_next(tester, resp, sh, webio, logfilename, path)
-            return content
-        elif path == "acs/redirect":
-            formdata = environ['QUERY_STRING']
-            resp = dict([(k, v[0]) for k, v in parse_qs(formdata).items()])
-            logfilename = local_webenv['profile_handler'](sh).log_path(
-                sh['conv'].test_id)
-
-            return do_next(tester, resp, sh, webio, logfilename, path)
-        elif path == "acs/artifact":
-            pass
-        elif path == "ecp":
-            pass
-        elif path == "disco":
-            formdata = parse_qs(environ['QUERY_STRING'])
-            resp = dict([(k, v[0]) for k, v in formdata.items()])
-            logfilename = local_webenv['profile_handler'](sh).log_path(
-                sh['conv'].test_id)
-            return do_next(tester, resp, sh, webio, logfilename, path=path)
-        elif path == "slo":
-            pass
-        elif path == 'all':
-            for test_id in sh['flow_names']:
-                resp = tester.run(test_id, **local_webenv)
-                store_test_state(sh, sh['conv'].events)
-                if resp is True or resp is False:
-                    continue
-                elif resp:
-                    return resp(environ, start_response)
-                else:
-                    resp = ServiceError('Unkown service error')
-                    return resp(environ, start_response)
-
-            logfilename = local_webenv['profile_handler'](sh).log_path(path)
-            return webio.flow_list(logfilename=logfilename,
-                                   tt_entityid=webio.kwargs['entity_id'],
-                                   td_conf_uri=webio.kwargs['base_url'])
-        elif path == 'swconf':
-            """
-                switch config by user request
-                parameters: ?github=<name of the github repo>&email=<user email>
-            """
-            formdata = parse_qs(environ['QUERY_STRING'])
-            resp = dict([(k, v[0]) for k, v in formdata.items()])
-
-            try:
-                ac_file_name = local_webenv['conf'].ACCESS_CONTROL_FILE
-            except Exception as e:
-                ac_file_name = None
-
-            if ac_file_name:
-                try:
-                    ac_file = WebUserAccessControlFile(local_webenv['conf'].ACCESS_CONTROL_FILE)
-                except Exception as e:
-                    return webio.sorry_response(local_webenv['base_url'], e,
-                        context='reading ' + local_webenv['conf'].ACCESS_CONTROL_FILE)
-
-                has_access = ac_file.test(resp['github'], resp['email'])
-                if not has_access:
-                    return webio.sorry_response(local_webenv['base_url'], 'permission denied',
-                        context="access checking: email does not match repo user.")
-
-            # reading from github should set readjson, but to be sure ...
-            setup_cargs=type('setupcarg', (object,),
-                             {'github': True,
-                              'configdir': resp['github'],
-                              'readjson': True })()
-            if 'branch' in resp:
-                setattr(setup_cargs, 'repobranch', resp['branch'])
-            else:
-                setattr(setup_cargs, 'repobranch', None)
-
-            try:
-                user_cargs, user_kwargs, user_CONF = setup('wb', setup_cargs)
-            except FileNotFoundError as e:
-                return webio.sorry_response(local_webenv['base_url'], e,
-                                            context="Configuration Setup via URL parameter - trying to read generated/config.json")
-            except ConfigError as e:
-                errstr = e.error_details_as_string()
-                print('Error: {}'.format(errstr))
-                return webio.sorry_response(local_webenv['base_url'], errstr,
-                                            context="configuration setup",
-                                            exception=traceback.format_exc())
-            except Exception as e:
-                return webio.sorry_response(local_webenv['base_url'], e,
-                                            context="Configuration Setup",
-                                            exception=traceback.format_exc())
-
-            """
-                picking the config stuff that the user is allowed to override
-            """
-            local_webenv['conf'] = user_CONF
-            local_webenv['flows'] = user_kwargs['flows']
-
-            """
-                Todo: having this not cluttered would be nicer
-                In other words: refactoring of setup.py
-            """
-            local_webenv['entity_id'] = local_webenv['conf'].ENTITY_ID
-            local_webenv["insecure"] = local_webenv['conf'].DO_NOT_VALIDATE_TLS
-            local_webenv["profile"] = local_webenv['conf'].FLOWS_PROFILES
-
-            import copy
-            from saml2test import metadata
-            spconf = copy.deepcopy(user_CONF.CONFIG)
-            acnf = list(spconf.values())[0]
-            mds = metadata.load(True, acnf, user_CONF.METADATA, 'sp')
-            local_webenv["metadata"] = mds
-
-
-            # new webenv into session
-            session['webenv'] = local_webenv
-
-            sh = SessionHandler(**local_webenv)
-            sh.session_init()
-            session['session_info'] = sh
-
-            webio = WebIO(session=sh, **local_webenv)
-            webio.environ = environ
-            webio.start_response = start_response
-
-            tester = Tester(webio, sh, **local_webenv)
-            return tester.display_test_list()
         else:
             resp = BadRequest()
             return resp(environ, start_response)
@@ -472,15 +506,7 @@ if __name__ == '__main__':
             print (info)
 
     if cargs.metadata:
-        logging.info('generating metadata')
-        md = MyMetadata(cargs, kwargs)
-        xml = md.get_xml_output()
-        if cargs.outputfile:
-            output_file = open(cargs.outputfile, "w+")
-            output_file.write(xml)
-            output_file.close()
-        else:
-            print(xml)
+        generate_metadata_xml(cargs, kwargs)
         exit(0)
 
     if cargs.json:
