@@ -6,8 +6,9 @@ instance works according to the SAML2 standard but also if it complies
 with a specific profile of SAML2.
 
 == Usage
-You may run test using the Test Service at fed-lab.org, or link:doc/idp_test_server_setup.adoc[start run your own instance of the test server].
+You may run test using the Test Service at fed-lab.org, or start run your
+link:doc/idp_test_server_setup.adoc[own instance] of the test server.
 
 Before using the service you need to link:doc/idp_test_howto.adoc[prepare your test
-configuration and execute tests].
+configuration].
 

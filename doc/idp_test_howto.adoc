@@ -82,7 +82,7 @@ In the standard case you will just assert that the output contains "status": "OK
     branch='master'
     # step 1: submit the config dir and receive a session cookie
     rm -f cookiejar$$.txt
-    curl -sH "Accept: application/json" --cookie-jar cookiejar$$.txt "${h}/swconf?github=${repo}&branch=${branch}"
+    curl -s --cookie-jar cookiejar$$.txt "${h}/swconf?github=${repo}&branch=${branch}"
     # step 2: execute the test
     curl -sH "Accept: application/json" --cookie cookiejar$$.txt  ${h}/${t} | grep '^{"status": "OK"'; echo $?
 
@@ -110,7 +110,9 @@ Any other html page means that the match/control configuration is incomplete.
 
 == Restricting Users
 
-Users ability to switch to another config by creating a yaml file, holding lines of the form
+This option must be enabled in the config file with the entry ACCESS_CONTROL_FILE (see config
+tempalte). This restricts the users ability to switch to another config by creating a yaml file,
+holding lines of the form:
 
    <GITHUB-USERNAME>: <USER-EMAIL>
 

@@ -14,7 +14,7 @@ A second use case is the improvement of the test repository
 . Tester 1: Pubish the test on a common repositiry
 . Other testers use the test by virtue of using a new verison of the test repository
 
-This genreric use case has differet flavors depending on the usage szenario:
+This generic use case has differet flavors depending on the usage szenario:
 
 == Developer of SAML Entities
 Developers of SAML IDPs and SPs (and possibly other pieces such as discovery services or metadata aggregators) 
